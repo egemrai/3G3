@@ -1,0 +1,32 @@
+.formGroup{
+    padding: 1% 0%;
+}
+
+.submitButton{
+    
+    width: 100%;
+    max-width: 20%;
+    margin: 4% auto 0%;
+    display: flex;
+    justify-content: center;
+}
+.timer{
+    margin: 1% auto 1%;
+    justify-content: center;
+    display: flex;
+}
+
+.container{
+    border: 1px black solid;
+    border-radius: 2%;
+    margin-bottom: 5%;
+    padding-bottom: 5%;
+}
+
+.formTitle{
+    width: 100%;
+    max-width: 20%;
+    margin: 2% auto 6%;
+    display: flex;
+    justify-content: center;
+}

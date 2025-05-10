@@ -1,0 +1,31 @@
+.offersParentDiv{
+    max-width: 100%;
+    margin: 0% 0%;
+    padding: 0% 0%;
+    justify-items: center;
+   
+}
+
+.offersRow{
+    gap:  0px  !important;
+    margin: 0% 0% !important;
+    padding: 0% 0% !important;
+    width: 100%;
+    max-width: 1100px;
+
+}
+
+.pageButtonDiv{
+    display: flex;
+    justify-content: center;
+    margin: 1% 0;
+}
+
+.pageButton{
+    margin: 0 0.5%;
+}
+
+.pageButtonEdge{
+    background-color: red !important;
+    border: solid red !important;
+}

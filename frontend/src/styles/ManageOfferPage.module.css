@@ -1,0 +1,25 @@
+
+.pageButtonDiv{
+    display: flex;
+    justify-content: center;
+    margin: 1% 0;
+}
+
+.pageButton{
+    margin: 0 0.5%;
+}
+
+.pageButtonEdge{
+    background-color: red !important;
+    border: solid red !important;
+}
+
+.cardDiv{
+    height: 50px;
+    display: grid  ;
+    align-items: center;
+    text-decoration: underline solid 1px black;
+    grid-template-columns: 3fr 1fr 1fr 1fr 1fr;
+    background-color: #F0F0F0;
+    padding: 0 1%;
+}

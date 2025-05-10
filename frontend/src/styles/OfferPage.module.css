@@ -1,0 +1,225 @@
+.d_flex{
+    display: flex;
+}
+
+.navigateDiv{
+    display: flex;
+    height: 40px;
+    padding: 0 1%;
+   
+}
+
+.info_BuyDiv{
+display: grid;
+grid-template-columns: 2fr 1fr;
+width: 1300px;
+
+
+}
+
+/* INFO KISMI*/
+.infoDiv{
+    grid-auto-rows: min-content; /* İçerik yüksekliğine göre otomatik genişler */
+    height: 1000px;
+    padding: 1%;
+}
+
+
+.homeButton{
+    background-color: white;
+    border: none;
+}
+
+.navigateArrow{
+    align-items: center;
+    display: flex;
+    height: 100%;
+}
+
+.offer{
+    padding: 2%;
+    border: lightgray 1px solid;
+    border-radius: 10px;
+}
+
+.title{
+    margin-top: 4%;
+}
+
+.offerInfo{
+    border-top: 1px black dashed;
+    border-bottom: 1px black dashed;
+    margin-top: 0;
+    white-space: pre;
+}
+
+.forEveryOfferInfo{
+   margin-top: 2%;
+}
+
+.description{
+    margin-top: 2%;
+    white-space: pre-wrap; /*wrap olmadan alttakiler işe yaramıyor */
+    word-break: break-word; /*2 1 gridde, diğer grid alanına girince bölüp alt satıra geçiriyor*/
+    overflow-wrap: break-word; /*2 1 gridde, biraz diğer gridin alanını küçültüp alt satıra geçiyor, bunu silince bi şey değişmiyor, üsttekiler yeterli*/
+    
+    
+}
+
+
+/* PRICE KISMI*/
+.priceDiv{
+    
+    padding: 1%;
+    grid-auto-rows: min-content;
+}
+
+
+.insuranceDiv{
+    display: grid;
+    margin-top: 1%;
+    grid-template-columns: 1fr 1fr;
+    background-color: lightcoral;
+    border-radius: 10px;
+    padding: 3%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    align-items: center; 
+    text-align: center;
+}
+
+.amountDiv{
+    display: block;
+    background-color: lightcoral;
+    border-radius: 10px;
+    padding: 3%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    justify-content: center;
+    width: 100%;
+    margin-top: 2%;
+}
+
+.available{
+    width: fit-content;
+    display: block;
+    margin: 0 auto;
+}
+
+.amountButtonDiv{
+    display: flex !important;
+    background-color: white;
+    border-radius: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 4% auto;
+    width: 50%;
+    height: 45px;
+    justify-content: space-between;
+    
+}
+
+.amountLeftButton{
+    border-radius: 40px;
+    border: none;
+    width: 40px;
+    height: 90%;
+    margin: auto 0 auto 2%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0d6efd;
+    color: white;
+}
+
+.amountLeftButton:disabled{
+    background-color: #e0e0e0;
+    color: black;
+}
+
+.amountLeftButtonP{
+    font-size: 70px; /* büyüklüğü ayarla */
+    justify-self: center;
+    align-self: center !important;
+  
+}
+
+.amountP{
+    margin: auto 0;
+    width: 40%;
+    border: none;
+    box-shadow: none !important;
+    text-align: center;
+}
+
+.amountRightButton{
+    border-radius: 40px;
+    border: none;
+    width: 40px;
+    height: 90%;
+    margin: auto 2% auto 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0d6efd;
+    color: white;
+}
+.amountRightButton:disabled{
+    background-color: #e0e0e0;
+    color: black;
+}
+
+.amountRightButtonP{
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 30% ;
+    
+}
+
+.buyDiv{
+    width: 100%;
+    background-color: lightcoral;
+    border-radius: 10px;
+    padding: 3%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 2%;
+}
+
+.price1{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    text-align: center;
+}
+
+.priceSpan{
+    justify-content: center;
+}
+
+.buyButton{
+    display: grid;
+    margin: 0 auto;
+    width: 70%;
+}
+
+
+
+.annen{
+    display: grid;
+    grid-template-columns: 7fr 3fr;
+    width: 100%;
+    margin-top: 2%;
+}
+
+.sellerButton{
+    background-color: lightcoral;
+    border: white 1px solid;
+    border-radius: 10px;
+    width: fit-content;
+    max-width: 100%;
+    text-align: start;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.chatButton{
+    width: 50%;
+    justify-self: end;
+}
+

@@ -1,0 +1,48 @@
+.green{
+    color: green;
+}
+
+.loginContainer{
+    width: 40%;
+    min-width: 40%;
+    margin-top: 4%;
+}
+
+.loginDiv{
+    border: 1px black;
+    border-style: solid;
+    border-radius: 4%;
+    padding: 5%;
+}
+
+.loginText{
+    color: grey;
+}
+
+.container span{
+    font-size: 12px;
+}
+
+.submitButton{
+    display: flex;
+    width: 100%;
+    margin: 0% auto;
+    max-width: 20%;
+    justify-content: center;
+}
+
+.NewTo3G3{
+    display: flex;
+    width: 100%;
+    max-width: 60%;
+    margin: 0 auto;
+    justify-content: center;
+    margin-top: 4%;
+}
+
+.gotoSignUp{
+margin-left: 3%;
+color: black;
+text-decoration: underline black;
+}
+

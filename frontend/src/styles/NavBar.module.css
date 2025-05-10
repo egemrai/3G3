@@ -1,0 +1,121 @@
+.textWhite{
+    color: white;
+    background-color: blue;
+    font-size: 14px;
+}
+
+.textHeight{
+    height: 100%;
+}
+
+.width{
+    width: 70%;
+}
+
+.border{
+    border-bottom: 4px;
+}
+
+.logoutButton{
+    border: 0px;
+}
+
+.logoutButton:hover{
+    background-color: blue;
+}
+
+
+
+.createOfferButton{
+    max-width: fit-content;
+
+    text-align: center;
+    background-color: red;
+    border-style: red solid;
+    color: white;
+    text-decoration:none;
+    padding: 0.6% 1.4%;
+    
+    white-space:nowrap;
+    
+}
+
+.loggedNav{
+   
+    
+    width: 100%;
+    justify-content: right;
+}
+
+.Navbar{
+    background-color: blue;
+    font-size: 14px;
+    color: white;
+    height: 70px;
+}
+
+.loginButton{
+    border: 0px;
+    color: white;
+    text-decoration: none;
+}
+
+/* NOTIFICATION KISMI*/
+.dropdown{
+    
+}
+
+.dropdownToogleOff{
+    color: white;
+    background-color: blue;
+    font-size: 14px;
+    border-radius: 20px;
+}
+.dropdownToogleOff:hover{
+    color: white;
+    background-color: blue;
+    font-size: 14px;
+}
+
+.dropdownToogleOn{
+    color: white;
+    background-color: red;
+    font-size: 14px;
+    border-radius: 20px;
+}
+.dropdownToogleOn:hover{
+    color: white;
+    background-color: red;
+    font-size: 14px;
+}
+
+.dropdownMenu{
+    width: 400px;
+    max-height: 300px;
+    overflow-y: auto;
+    grid-auto-rows: min-content
+}
+
+.dropdownMenuCard{
+    height: 60px;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.dropdownMenuName{
+    padding: 2%;
+    display: flex;
+    justify-content: space-between;
+    background-color: #F0F0F0 ;
+    height: 50px;
+    margin: 0;
+}
+
+.dropdownMenuLink{
+    color: orange;
+}
+
+.dropdownItem{
+
+}

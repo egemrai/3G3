@@ -1,0 +1,62 @@
+.card{
+    margin: 0.5% 0 0.5% 0;
+    font-size: 16px;
+    height: 150px;
+}
+
+.offerDiv{
+    padding-left: 1%;
+    display: grid;
+    grid-template-columns: 4fr 1fr;
+    height:100px;
+    background-color: #F0F0F0;
+    border-top-left-radius: 5px;
+    align-items: center;
+}
+
+.whiteSpacePre{
+    white-space: pre;
+}
+
+.cardDiv{
+    display: grid  ;
+    grid-template-columns: 4fr 1fr 1fr ;
+    padding: 0 1%;
+    height: 160px;
+    align-items: center;
+}
+
+.titleDiv{
+    display: inline-block;
+}
+
+.titleDiv *{
+    margin: 0;
+}
+
+.title{
+    margin-right: 6%;
+    display: -webkit-box;
+    -webkit-line-clamp: 1; /*max 1 satır*/
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: break;
+    width: fit-content;
+    color: darkblue;
+
+}
+
+.idServiceP{
+    font-size: 12px;
+    color: gray;
+}
+
+.quantity{
+    padding-left: 1%;
+    padding-bottom: 1%;
+    height: 10px;
+    width: max-content;
+    font-size: 18px;
+}
+
