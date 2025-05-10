@@ -30,3 +30,4 @@ export interface SoldOfferForm{  // react hook form type'ı için bunu ekstra ya
         extraNotes:string}[]
 }
 
+//git test
