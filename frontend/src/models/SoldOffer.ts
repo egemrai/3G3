@@ -36,3 +36,5 @@ export interface SoldOfferForm{  // react hook form type'ı için bunu ekstra ya
 //pcden laptop'a test
 
 //laptoptan pcye test
+
+//pcden laptopa test
