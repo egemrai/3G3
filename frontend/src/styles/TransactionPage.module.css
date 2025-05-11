@@ -96,8 +96,10 @@
 }
 
 .cardCredentials{
-    height: 250px;
+    
+    height: fit-content;
     padding: 1%;
+    overflow-y: auto;
 }
 
 
@@ -105,8 +107,13 @@
 .submitButton{
     height: 60px;
     width: 120px;
-    justify-content: center;
     margin: 0 auto;
+}
+.errorMessage{
+    color: red;
+    margin: 0 auto;
+    width: fit-content;
+    margin-top: 8px;
 }
 
 

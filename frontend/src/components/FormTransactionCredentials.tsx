@@ -104,7 +104,7 @@ const FormTransactionCredentials= ({offer,setCredentialsModalIndex,register,i,cr
 
                 <Form.Group className={`${style.formGroup}`} controlId={"extraNotes"}>
                 <Form.Label id="extraNotes">{"Extra notes:"}</Form.Label>
-                <Form.Control 
+                <Form.Control as={"textarea"}
                     {...register(`credentials.${i}.extraNotes`, {
                     required: "Required",
                     })}
@@ -144,7 +144,7 @@ const FormTransactionCredentials= ({offer,setCredentialsModalIndex,register,i,cr
 
                 <Form.Group className={`${style.formGroup}`} controlId={"extraNotes"}>
                 <Form.Label id="extraNotes">{"Extra notes:"}</Form.Label>
-                <Form.Control 
+                <Form.Control as={"textarea"}
                     {...register(`credentials.${i}.extraNotes`, {
                     required: "Required",
                     })}
@@ -180,7 +180,7 @@ const FormTransactionCredentials= ({offer,setCredentialsModalIndex,register,i,cr
 
                 <Form.Group className={`${style.formGroup}`} controlId={"extraNotes"}>
                 <Form.Label id="extraNotes">{"Extra notes:"}</Form.Label>
-                <Form.Control 
+                <Form.Control className="whiteSpacePre" as={"textarea"} //whiteSpacePre dene 
                     {...register(`credentials.${i}.extraNotes`, {
                     required: "Required",
                     })}

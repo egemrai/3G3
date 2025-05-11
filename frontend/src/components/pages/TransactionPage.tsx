@@ -111,6 +111,7 @@ const TransactionPage = ()=>{
     
 
 
+
     return(
         <>
         {offer&&seller&&buyer
@@ -195,6 +196,27 @@ const TransactionPage = ()=>{
                         disabled={false}>
                             Deliver order
                         </Button>
+
+                        {offer?.quantity &&
+                        Array.from({length:offer.quantity}).flatMap((_,i)=>{
+                            const errorMessageList:any = []
+                            const egemuwu= errors?.credentials?.[i]
+
+                            if(errorMessageList.length===0){
+                                if(egemuwu?.accountId||egemuwu?.accountPassword||egemuwu?.code||
+                                    egemuwu?.email||egemuwu?.emailPassword||egemuwu?.serviceConfirm||egemuwu?.extraNotes){
+                                        errorMessageList.push(
+                                        <p className={`text-danger ${style.errorMessage}`}> {` ${offer.serviceName.replace(offer.categoryName,"")}#${i+1} info missing`}</p>
+                                )
+                            }
+                            }
+                            
+
+                            return(
+                                errorMessageList
+                            )
+                        })
+                        }
                     </Card>
                     
                 </Form>
