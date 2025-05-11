@@ -81,10 +81,10 @@ const TransactionPage = ()=>{
 
     const {register, handleSubmit, formState : {errors, isSubmitting}}  = useForm<SoldOfferForm>({mode: "all"})
 
-     function teste(credentials:SoldOfferForm){
-        alert("form gönderildi");
-        console.log("ege")
-        console.log(credentials)
+    async function teste(credentials:SoldOfferForm){
+        // alert("form gönderildi");
+        const test = await OffersApi.setSoldOfferCredentials(credentials,offer!._id)
+        console.log(test)
         
     }
 
@@ -200,13 +200,13 @@ const TransactionPage = ()=>{
                         {offer?.quantity &&
                         Array.from({length:offer.quantity}).flatMap((_,i)=>{
                             const errorMessageList:any = []
-                            const egemuwu= errors?.credentials?.[i]
+                            const egemuwu= errors?.offerCredentials?.[i]
 
                             if(errorMessageList.length===0){
                                 if(egemuwu?.accountId||egemuwu?.accountPassword||egemuwu?.code||
                                     egemuwu?.email||egemuwu?.emailPassword||egemuwu?.serviceConfirm||egemuwu?.extraNotes){
                                         errorMessageList.push(
-                                        <p className={`text-danger ${style.errorMessage}`}> {` ${offer.serviceName.replace(offer.categoryName,"")}#${i+1} info missing`}</p>
+                                        <p key={`error${i+1}`} className={`text-danger ${style.errorMessage}`}> {` ${offer.serviceName.replace(offer.categoryName,"")}#${i+1} info missing`}</p>
                                 )
                             }
                             }

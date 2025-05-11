@@ -18,6 +18,7 @@ router.get("/fetchBoughtOffers", OffersController.fetchBoughtOffers);
 
 router.get("/fetchSoldOfferById", OffersController.fetchSoldOfferById) //transactionPage için  
 router.get("/setSeenAllTrue", OffersController.setSeenAllTrue);
+router.post("/setSoldOfferCredentials", OffersController.setSoldOfferCredentials); //satıcının ürün satılınca id şifre vs. datasını kaydetmesi
 
 router.delete("/deleteAllBoughtOffers", OffersController.deleteAllBoughtOffers); 
 

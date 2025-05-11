@@ -327,7 +327,66 @@ export const setSeenAllTrue:RequestHandler= async(req,res,next)=>{
     }
 }
 
-export const deleteAllBoughtOffers:RequestHandler= async(req,res,next)=>{
+interface SoldOfferForm{  // react hook form type'ı için bunu ekstra yaptım
+    offerCredentials: {
+        accountId:string,
+        accountPassword:string,
+        email:string,
+        emailPassword:string,
+        serviceConfirm:string,
+        code:string,
+        extraNotes:string}[]
+    }
+
+interface SoldOfferCredentials{
+    
+    offerCredentials: SoldOfferForm,
+    soldOfferId:string
+    
+    
+}
+
+export const setSoldOfferCredentials:RequestHandler<unknown,unknown,SoldOfferCredentials,unknown> = async(req,res,next) =>{
+    const sellerId = req.session.userId
+    const credentials = req.body.offerCredentials.offerCredentials
+    const soldOfferId = req.body.soldOfferId
+        try {
+        if(!sellerId || !credentials || !soldOfferId){
+            throw createHttpError(404,"setSoldOfferCredentials parametre yok")}
+        
+        
+
+        
+        // const fetchedSoldOffer = await soldOfferModel.findOneAndUpdate({sellerId:sellerId, _id:soldOfferId},{$set:{credentials}}, // $set olmadan çalışmadı çünkü mongoose key falan algılıyomuş, mk $set'i de array kabul etmiyomuş  {credentials} yaptım
+        //     {
+        //     new: true
+        // }) 
+
+        const fetchedSoldOffer = await soldOfferModel.findOne({sellerId:sellerId, _id:soldOfferId})
+
+        if(fetchedSoldOffer){
+            fetchedSoldOffer.offerCredentials = credentials
+
+            await fetchedSoldOffer?.save()
+
+        }
+        
+        
+        res.status(200).json(fetchedSoldOffer)
+
+        
+        console.log(credentials)
+        
+        // console.log(soldOfferId)
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+
+export const deleteAllBoughtOffers:RequestHandler= async(req,res,next)=>{  //Postman için tüm collection silme requesti, websitesinde yok
     try {
          await soldOfferModel.deleteMany({})
         res.status(200).json(true)

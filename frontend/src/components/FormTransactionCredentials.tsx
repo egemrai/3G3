@@ -41,15 +41,15 @@ const FormTransactionCredentials= ({offer,setCredentialsModalIndex,register,i,cr
                 <Form.Group className={`${style.formGroup}`} controlId={"Account_Id"}>
                 <Form.Label id="Account_Id">{"Account id:"}</Form.Label>
                 <Form.Control 
-                    {...register(`credentials.${i}.accountId`, {
+                    {...register(`offerCredentials.${i}.accountId`, {
                     required: "Required",
                     
                     })}
-                    isInvalid={!!errors?.credentials?.[i]?.accountId}
+                    isInvalid={!!errors?.offerCredentials?.[i]?.accountId}
                 />
-                {errors?.credentials?.[i]?.accountId?.message && (
+                {errors?.offerCredentials?.[i]?.accountId?.message && (
                 <Form.Control.Feedback type="invalid">
-                    {errors?.credentials?.[i]?.accountId?.message}
+                    {errors?.offerCredentials?.[i]?.accountId?.message}
                 </Form.Control.Feedback>
                 )}
                 </Form.Group>
@@ -57,15 +57,15 @@ const FormTransactionCredentials= ({offer,setCredentialsModalIndex,register,i,cr
                 <Form.Group className={`${style.formGroup}`} controlId={"Account_Password"}>
                 <Form.Label id="Account_Password">{"Account password:"}</Form.Label>
                 <Form.Control 
-                    {...register(`credentials.${i}.accountPassword`, {
+                    {...register(`offerCredentials.${i}.accountPassword`, {
                     required: "Required",
                     
                     })}
-                    isInvalid={!!errors?.credentials?.[i]?.accountPassword}
+                    isInvalid={!!errors?.offerCredentials?.[i]?.accountPassword}
                 />
-                {errors?.credentials?.[i]?.accountPassword?.message && (
+                {errors?.offerCredentials?.[i]?.accountPassword?.message && (
                 <Form.Control.Feedback type="invalid">
-                    {errors?.credentials?.[i]?.accountPassword?.message}
+                    {errors?.offerCredentials?.[i]?.accountPassword?.message}
                 </Form.Control.Feedback>
                 )}
                 </Form.Group>
@@ -73,15 +73,15 @@ const FormTransactionCredentials= ({offer,setCredentialsModalIndex,register,i,cr
                 <Form.Group className={`${style.formGroup}`} controlId={"email"}>
                 <Form.Label id="email">{"Email:"}</Form.Label>
                 <Form.Control 
-                    {...register(`credentials.${i}.email`, {
+                    {...register(`offerCredentials.${i}.email`, {
                     required: "Required",
                     
                     })}
-                    isInvalid={!!errors?.credentials?.[i]?.email}
+                    isInvalid={!!errors?.offerCredentials?.[i]?.email}
                 />
-                {errors?.credentials?.[i]?.email?.message && (
+                {errors?.offerCredentials?.[i]?.email?.message && (
                 <Form.Control.Feedback type="invalid">
-                    {errors?.credentials?.[i]?.email?.message}
+                    {errors?.offerCredentials?.[i]?.email?.message}
                 </Form.Control.Feedback>
                 )}
                 </Form.Group>
@@ -89,15 +89,15 @@ const FormTransactionCredentials= ({offer,setCredentialsModalIndex,register,i,cr
                 <Form.Group className={`${style.formGroup}`} controlId={"emailPassword"}>
                 <Form.Label id="emailPassword">{"Email password:"}</Form.Label>
                 <Form.Control 
-                    {...register(`credentials.${i}.emailPassword`, {
+                    {...register(`offerCredentials.${i}.emailPassword`, {
                     required: "Required",
                 
                     })}
-                    isInvalid={!!errors?.credentials?.[i]?.emailPassword}
+                    isInvalid={!!errors?.offerCredentials?.[i]?.emailPassword}
                 />
-                {errors?.credentials?.[i]?.emailPassword?.message && (
+                {errors?.offerCredentials?.[i]?.emailPassword?.message && (
                 <Form.Control.Feedback type="invalid">
-                    {errors?.credentials?.[i]?.emailPassword?.message}
+                    {errors?.offerCredentials?.[i]?.emailPassword?.message}
                 </Form.Control.Feedback>
                 )}
                 </Form.Group>
@@ -105,14 +105,14 @@ const FormTransactionCredentials= ({offer,setCredentialsModalIndex,register,i,cr
                 <Form.Group className={`${style.formGroup}`} controlId={"extraNotes"}>
                 <Form.Label id="extraNotes">{"Extra notes:"}</Form.Label>
                 <Form.Control as={"textarea"}
-                    {...register(`credentials.${i}.extraNotes`, {
+                    {...register(`offerCredentials.${i}.extraNotes`, {
                     required: "Required",
                     })}
-                    isInvalid={!!errors?.credentials?.[i]?.extraNotes}
+                    isInvalid={!!errors?.offerCredentials?.[i]?.extraNotes}
                 />
-                {errors?.credentials?.[i]?.extraNotes?.message && (
+                {errors?.offerCredentials?.[i]?.extraNotes?.message && (
                 <Form.Control.Feedback type="invalid">
-                    {errors?.credentials?.[i]?.extraNotes?.message}
+                    {errors?.offerCredentials?.[i]?.extraNotes?.message}
                 </Form.Control.Feedback>
                 )}
                 </Form.Group>
@@ -125,19 +125,19 @@ const FormTransactionCredentials= ({offer,setCredentialsModalIndex,register,i,cr
                  <Form.Group className={`${style.formGroup}`} controlId={"orderConfirm"}>
                 <Form.Label id="orderConfirm">{"Service delivered:"}</Form.Label>
                 <Form.Select 
-                    {...register(`credentials.${i}.serviceConfirm`, {
+                    {...register(`offerCredentials.${i}.serviceConfirm`, {
                     required: "Required",
-                    setValueAs: (v) => v === "true", // string -> boolean dönüşümü
+                    // setValueAs: (v) => v === "true", // string -> boolean dönüşümü
                     })}
                     
-                    isInvalid={!!errors?.credentials?.[i]?.serviceConfirm}>
+                    isInvalid={!!errors?.offerCredentials?.[i]?.serviceConfirm}>
                     <option value="">Select</option>
                     <option value="true">Yes</option>
                     <option value="false">No</option>
                 </Form.Select>
-                {errors?.credentials?.[i]?.serviceConfirm?.message && (
+                {errors?.offerCredentials?.[i]?.serviceConfirm?.message && (
                 <Form.Control.Feedback type="invalid">
-                    {errors?.credentials?.[i]?.serviceConfirm?.message}
+                    {errors?.offerCredentials?.[i]?.serviceConfirm?.message}
                 </Form.Control.Feedback>
                 )}
                 </Form.Group>
@@ -145,14 +145,14 @@ const FormTransactionCredentials= ({offer,setCredentialsModalIndex,register,i,cr
                 <Form.Group className={`${style.formGroup}`} controlId={"extraNotes"}>
                 <Form.Label id="extraNotes">{"Extra notes:"}</Form.Label>
                 <Form.Control as={"textarea"}
-                    {...register(`credentials.${i}.extraNotes`, {
+                    {...register(`offerCredentials.${i}.extraNotes`, {
                     required: "Required",
                     })}
-                    isInvalid={!!errors?.credentials?.[i]?.extraNotes}
+                    isInvalid={!!errors?.offerCredentials?.[i]?.extraNotes}
                 />
-                {errors?.credentials?.[i]?.extraNotes?.message && (
+                {errors?.offerCredentials?.[i]?.extraNotes?.message && (
                 <Form.Control.Feedback type="invalid">
-                    {errors?.credentials?.[i]?.extraNotes?.message}
+                    {errors?.offerCredentials?.[i]?.extraNotes?.message}
                 </Form.Control.Feedback>
                 )}
                 </Form.Group>
@@ -166,14 +166,14 @@ const FormTransactionCredentials= ({offer,setCredentialsModalIndex,register,i,cr
                  <Form.Group className={`${style.formGroup}`} controlId={"code"}>
                 <Form.Label id="code">{"Code:"}</Form.Label>
                 <Form.Control 
-                    {...register(`credentials.${i}.code`, {
+                    {...register(`offerCredentials.${i}.code`, {
                     required: "Required",
                     })}
-                    isInvalid={!!errors?.credentials?.[i]?.code}
+                    isInvalid={!!errors?.offerCredentials?.[i]?.code}
                 />
-                {errors?.credentials?.[i]?.code?.message && (
+                {errors?.offerCredentials?.[i]?.code?.message && (
                 <Form.Control.Feedback type="invalid">
-                    {errors?.credentials?.[i]?.code?.message}
+                    {errors?.offerCredentials?.[i]?.code?.message}
                 </Form.Control.Feedback>
                 )}
                 </Form.Group>
@@ -181,14 +181,14 @@ const FormTransactionCredentials= ({offer,setCredentialsModalIndex,register,i,cr
                 <Form.Group className={`${style.formGroup}`} controlId={"extraNotes"}>
                 <Form.Label id="extraNotes">{"Extra notes:"}</Form.Label>
                 <Form.Control className="whiteSpacePre" as={"textarea"} //whiteSpacePre dene 
-                    {...register(`credentials.${i}.extraNotes`, {
+                    {...register(`offerCredentials.${i}.extraNotes`, {
                     required: "Required",
                     })}
-                    isInvalid={!!errors?.credentials?.[i]?.extraNotes}
+                    isInvalid={!!errors?.offerCredentials?.[i]?.extraNotes}
                 />
-                {errors?.credentials?.[i]?.extraNotes?.message && (
+                {errors?.offerCredentials?.[i]?.extraNotes?.message && (
                 <Form.Control.Feedback type="invalid">
-                    {errors?.credentials?.[i]?.extraNotes?.message}
+                    {errors?.offerCredentials?.[i]?.extraNotes?.message}
                 </Form.Control.Feedback>
                 )}
                 </Form.Group>

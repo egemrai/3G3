@@ -20,12 +20,12 @@ export interface SoldOffer{
 }
 
 export interface SoldOfferForm{  // react hook form type'ı için bunu ekstra yaptım
-    credentials: {
+    offerCredentials: {
         accountId:string,
         accountPassword:string,
         email:string,
         emailPassword:string,
-        serviceConfirm:boolean,
+        serviceConfirm:string,
         code:string,
         extraNotes:string}[]
 }
