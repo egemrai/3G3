@@ -181,6 +181,11 @@ export async function fetchCategories(): Promise<Category[]> {
     return response.json()
   }
 
+  export async function getloggedInUserId() {
+    const response = await fetchData("/api/users/getloggedInUserId")
+    return response.json()
+  }
+
 //#endregion
 
 

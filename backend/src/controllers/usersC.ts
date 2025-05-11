@@ -126,3 +126,12 @@ export const fetchUsername: RequestHandler<unknown,unknown,unknown,fetchUsername
         next(error)
     }
 }
+
+export const getloggedInUserId:RequestHandler = async(req,res,next)=>{
+    const userId = req.session.userId
+    try {
+        res.status(200).json(userId)
+    } catch (error) {
+        next(error)
+    }
+}
