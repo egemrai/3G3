@@ -34,10 +34,20 @@ const TransactionPage = ()=>{
     const [seller, setSeller] =useState <any>() //satıcı username için
     const [buyer, setBuyer] =useState <any>() //alıcı username için
     const [showDetails, setShowDetails] =useState<boolean>(false) //offerDetails modal göstermek için
-    const [deliveryStarted, setDeliveryStarted] = useState<boolean>(false)//ilk başta true olsun,soldOffer.stage yap burayı, deliveryWaiting ise set ile false yap
+    const [deliveryStage, setDeliveryStage] = useState<string>()//ilk başta true olsun,soldOffer.stage yap burayı, deliveryWaiting ise set ile false yap
     const [credentialsModalIndex, setCredentialsModalIndex] = useState<number|null> (null) //satıcı soldOffer credentials vermek için card'a tıklayınca hangi modal'in açılıp kapanacağı
     const [currentPage, setCurrentPage] = useState<number> (1) // credentialts card sayfası
+    const [userId,setUserId] = useState<string>()
 
+    async function fetchUserId() {
+        try {
+            const response = await UsersApi.getloggedInUserId()
+            setUserId(response)
+        } catch (error) {
+            alert("userId fetch error")
+            console.error(error)
+        }
+    }
 
     async function fetchSoldOffer(_id:string) {
         try {
@@ -76,7 +86,8 @@ const TransactionPage = ()=>{
     useEffect(()=>{
         if(offer)
             fetchUsernames()
-        
+            fetchUserId()
+            setDeliveryStage(offer?.stage)
     },[offer])
 
     const {register, handleSubmit, formState : {errors, isSubmitting}}  = useForm<SoldOfferForm>({mode: "all"})
@@ -158,11 +169,13 @@ const TransactionPage = ()=>{
             
         </Container>
         <p className={`${style.line}`}></p>
-        <Container>
-            {!deliveryStarted&&
-            <Button onClick={()=>setDeliveryStarted(true)}>Start Delivery</Button>}
+        <Container>                         
+            {offer.sellerId===userId &&   // alıcının deliver kısmına erişimini engellemek için
+            <>
+            {deliveryStage==="pending"&&
+            <Button onClick={()=>{}}>Start Delivery</Button>}
 
-            {deliveryStarted&&
+            {deliveryStage==="preparing"&&
             
                 <Form onSubmit={handleSubmit(teste)}
                 id="credentialsSubmit"
@@ -220,9 +233,8 @@ const TransactionPage = ()=>{
                     </Card>
                     
                 </Form>
-                
-                
                 }
+                </>}
         </Container>
         
 

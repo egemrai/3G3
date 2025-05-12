@@ -14,7 +14,7 @@ const soldOfferSchema = new Schema({
     title:{type: String, required: true},
     sellerRating:{type: String,default: "positive", required: true}, //alıcının satıcıya verdiği puan
     buyerRating:{type: String,default: "positive", required: true},
-    stage:{type: String,default: "paid", required: true},
+    stage:{type: String,default: "pending", required: true},
     seenBySeller:{type: Boolean,default: false, required: true},
     seenByBuyer:{type: Boolean,default: true, required: true},
     offerDetails:{type: Schema.Types.Mixed, required: true},

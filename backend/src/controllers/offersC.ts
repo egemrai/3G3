@@ -342,10 +342,7 @@ interface SoldOfferCredentials{
     
     offerCredentials: SoldOfferForm,
     soldOfferId:string
-    
-    
 }
-
 export const setSoldOfferCredentials:RequestHandler<unknown,unknown,SoldOfferCredentials,unknown> = async(req,res,next) =>{
     const sellerId = req.session.userId
     const credentials = req.body.offerCredentials.offerCredentials
@@ -353,10 +350,7 @@ export const setSoldOfferCredentials:RequestHandler<unknown,unknown,SoldOfferCre
         try {
         if(!sellerId || !credentials || !soldOfferId){
             throw createHttpError(404,"setSoldOfferCredentials parametre yok")}
-        
-        
-
-        
+   
         // const fetchedSoldOffer = await soldOfferModel.findOneAndUpdate({sellerId:sellerId, _id:soldOfferId},{$set:{credentials}}, // $set olmadan çalışmadı çünkü mongoose key falan algılıyomuş, mk $set'i de array kabul etmiyomuş  {credentials} yaptım
         //     {
         //     new: true
@@ -366,18 +360,10 @@ export const setSoldOfferCredentials:RequestHandler<unknown,unknown,SoldOfferCre
 
         if(fetchedSoldOffer){
             fetchedSoldOffer.offerCredentials = credentials
-
             await fetchedSoldOffer?.save()
-
         }
-        
-        
-        res.status(200).json(fetchedSoldOffer)
 
-        
-        console.log(credentials)
-        
-        // console.log(soldOfferId)
+        res.status(200).json(fetchedSoldOffer)
 
     } catch (error) {
         next(error)
