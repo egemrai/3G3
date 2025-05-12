@@ -370,6 +370,32 @@ export const setSoldOfferCredentials:RequestHandler<unknown,unknown,SoldOfferCre
     }
 }
 
+interface SoldOfferBody{
+    soldOfferId:string
+    stage:string
+}
+export const setSoldOfferStage:RequestHandler<unknown,unknown,SoldOfferBody,unknown> = async(req,res,next) =>{
+    const sellerId = req.session.userId
+    const soldOfferId = req.body.soldOfferId
+    const stage = req.body.stage
+        try {
+        if(!sellerId || !soldOfferId || !stage){
+            throw createHttpError(404,"setSoldOfferStage parametre yok")}
+
+        const fetchedSoldOffer = await soldOfferModel.findOne({sellerId:sellerId, _id:soldOfferId})
+
+        if(fetchedSoldOffer){
+            fetchedSoldOffer.stage = stage
+            await fetchedSoldOffer?.save()
+        }
+
+        res.status(200).json(fetchedSoldOffer)
+
+    } catch (error) {
+        next(error)
+    }
+}
+
 
 
 export const deleteAllBoughtOffers:RequestHandler= async(req,res,next)=>{  //Postman için tüm collection silme requesti, websitesinde yok

@@ -126,6 +126,20 @@ export async function fetchCategories(): Promise<Category[]> {
     return response.json()
   }
 
+  export async function setSoldOfferStage(offerStage:string, soldOfferId:string):Promise<SoldOffer> {
+    const body={offerStage,soldOfferId}
+    const response = await fetchData("/api/offers/setSoldOfferStage",{
+      method:"POST",
+      headers:{
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+
+    })
+
+    return response.json()
+  }
+
 //#region LOGIN LOGOUT SIGNUP  GETLOGGEDINUSER
 
   export interface LoginCredentials{

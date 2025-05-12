@@ -24,9 +24,12 @@ const TransactionPage = ()=>{
         }
     }, [offerId]);
 
+    const {register, handleSubmit, formState : {errors, isSubmitting}}  = useForm<SoldOfferForm>({mode: "all"})
 
-    if(!offerId){
-        navigate("errorPage")
+    async function setSoldOfferCredentials(credentials:SoldOfferForm){
+        // alert("form gönderildi");
+        const test = await OffersApi.setSoldOfferCredentials(credentials,offer!._id)
+        console.log(test)
     }
 
     const [offer,setOffer] = useState<SoldOffer>() //soldOffer
@@ -74,6 +77,20 @@ const TransactionPage = ()=>{
         }  
     }
 
+
+
+
+// async function setSoldOfferStage(stage:string) {
+//     try {
+//         const response = await OffersApi.setSoldOfferStage(stage,offer!._id)
+//         console.log(response)
+//         offer!.stage={`${stage}`}
+//     } catch (error) {
+//         console.error(error)
+//     }
+// }
+
+//USEEFFECTLER
     useEffect(()=>{
         if(offerId){
             fetchSoldOffer(offerId)
@@ -90,16 +107,7 @@ const TransactionPage = ()=>{
             setDeliveryStage(offer?.stage)
     },[offer])
 
-    const {register, handleSubmit, formState : {errors, isSubmitting}}  = useForm<SoldOfferForm>({mode: "all"})
-
-    async function teste(credentials:SoldOfferForm){
-        // alert("form gönderildi");
-        const test = await OffersApi.setSoldOfferCredentials(credentials,offer!._id)
-        console.log(test)
-        
-    }
-
-
+    //PAGE AYARLAMA VE CREDENTIALS GRID
     const offersPerPAge = 3
     const offersLenght = offer?.quantity
     const totalPages = Math.ceil(offersLenght!/offersPerPAge)
@@ -118,10 +126,6 @@ const TransactionPage = ()=>{
             />
         )
     }).slice(startIndex,startIndex+ offersPerPAge)
-
-    
-
-
 
     return(
         <>
@@ -172,12 +176,12 @@ const TransactionPage = ()=>{
         <Container>                         
             {offer.sellerId===userId &&   // alıcının deliver kısmına erişimini engellemek için
             <>
-            {deliveryStage==="pending"&&
-            <Button onClick={()=>{}}>Start Delivery</Button>}
+            {/* {deliveryStage==="pending"&&
+            <Button onClick={()=>setSoldOfferStage("preparing")}>Start Delivery</Button>} */}
 
             {deliveryStage==="preparing"&&
             
-                <Form onSubmit={handleSubmit(teste)}
+                <Form onSubmit={handleSubmit(setSoldOfferCredentials)}
                 id="credentialsSubmit"
                 >
                     <Card className={`${style.cardCredentials}`}>
