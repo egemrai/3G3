@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import style from "../../styles/TransactionPage.module.css"
-import { Button, Card, Col, Container, Form, Modal, Row } from "react-bootstrap"
+import { Button, Card, Col, Container, Form, Modal, ModalBody, Row } from "react-bootstrap"
 import React, { useEffect, useState } from "react"
 import { SoldOffer, SoldOfferForm } from "../../models/SoldOffer"
 import * as OffersApi from "../../network/offers_api"
@@ -51,10 +51,12 @@ const TransactionPage = ()=>{
     const [deliveryStage, setDeliveryStage] = useState<string>()//ilk başta true olsun,soldOffer.stage yap burayı, deliveryWaiting ise set ile false yap
     const [credentialsModalIndex, setCredentialsModalIndex] = useState<number|null> (null) //satıcı soldOffer credentials vermek için card'a tıklayınca hangi modal'in açılıp kapanacağı, alıcının card ve modal kısmı için de bunu kullanıcam çalışır sanırım
     const [currentPage, setCurrentPage] = useState<number> (1) // credentialts card sayfası
-    const [userId,setUserId] = useState<string>()
+    const [userId,setUserId] = useState<string>() // şu anki kullanıcının userIdsi
     const [viewedButtonDisabled,setViewedButtonDisabled] = useState<boolean>(false)
     const [confirmedButtonDisabled,setConfirmedButtonDisabled] = useState<boolean>(false)
     const [preparingButtonDisabled,setPreparingButtonDisabled] = useState<boolean>(false)
+    const [showratingModal,setShowratingModal] = useState<boolean>(false)
+    const [ratingRowIndex,setRatingRowIndex] = useState<number>(0)
 
 
     async function fetchUserId() {
@@ -303,10 +305,63 @@ async function setSoldOfferStage(stage:string) {  // databasede soldOffer.stage 
                         
                     </div>
                     <div className={`${style.chat}`}>{`Total: ${offer.totalAmount + " "+ offer.currency}`}</div>
-                    <div className={`${style.chat}`}>CHAT</div>
+                    <div className={`${style.chat}`}>
+                        <button onClick={()=> setShowratingModal(true)} className={`${style.chatAndEditButton}`}>
+                            View rating
+                        </button>
+                        <button className={`${style.chatAndEditButton}`}>
+                            Chat
+                        </button>
+                    </div>
                     <div className={`${style.chat}`}>{offer.stage}</div>
                 </div>
                 
+           
+            {/*VIEW RATING MODAL */}
+            {showratingModal &&
+            <Modal  show={true} onHide={()=>setShowratingModal(false)}>
+                <ModalBody className={`${style.viewRatingModal}`}>
+                    <Modal.Title> View rating</Modal.Title>
+                    <Col  className={`${style.viewRatingCol}`}>
+                        <Row as={Button} onClick={()=>setRatingRowIndex(0)} 
+                            className={ratingRowIndex===0
+                                ?`${style.viewRatingRowClicked} ${style.viewRatingRow}` 
+                                :`${style.viewRatingRow}`
+                            }
+                            >
+                            <span>Seller rating</span>
+                        </Row>
+                        <Row as={Button} onClick={()=>setRatingRowIndex(1)} 
+                            className={ratingRowIndex===1
+                                ?`${style.viewRatingRowClicked} ${style.viewRatingRow}` 
+                                :`${style.viewRatingRow}`
+                            }>
+                            <span>Buyer rating</span>
+                        </Row>
+                    </Col>
+
+                    {ratingRowIndex===0
+                        ? <>
+                          <p> {buyer.username} give {offer.sellerRating} rating</p>
+                          {userId===offer.buyerId &&
+                          <Modal.Footer>
+                            <p>bu offer'in ratingi tek sefer icin editle</p>
+                            </Modal.Footer>}
+                          </> 
+
+                        
+                        : <>
+                          <p> {seller.username} give {offer.buyerRating} rating</p>
+                          {userId===offer.sellerId &&
+                          <Modal.Footer>
+                            <p>bu offer'in ratingi tek sefer icin editle</p>
+                            </Modal.Footer>}
+                          </>
+                          }
+                </ModalBody>
+                
+            </Modal>}
+
                     
                 
                 {showDetails &&
@@ -441,8 +496,11 @@ async function setSoldOfferStage(stage:string) {  // databasede soldOffer.stage 
             
              
         </Container>
+
+         
         </>
         :<h3>Order Bulunamadı</h3>}
+
 
         
         </>

@@ -21,7 +21,10 @@ const UserProfilePage = ()=>{
         throw new Error("username yok")
     }
     const username= URLparams.username
-
+    //*****************************ALT SATIR ÖNEMLİ************************************************** */
+    //*****************************ALT SATIR ÖNEMLİ************************************************** */
+    //*****************************ALT SATIR ÖNEMLİ************************************************** */
+    //setUser, setSoldOffers VE setBoughtOffers RETURN'U GUVENLİK İÇİN SADECE ID TITLE RATING FALAN OLARAK AYARLA, FRONTENDE TÜM SOLDOFFER DATASI AKTARILMASIN ÇÜNKÜ USERPROFILE TÜM HERKESE AÇIK BİR SAFYA
     const [offers, setOffers] = useState<any[]>([])
     const [user, setUser] = useState<userId_Time>() //id month year komple burdan fetch ediyorum, usermodelde zaten id yanında createdAt var.
     const [month, setMonth] = useState<string>() //month'u numberdan ay'a çevirmek için
@@ -43,7 +46,7 @@ const UserProfilePage = ()=>{
     
     const fetchUserIdByUsername = async() =>{
         try {
-            const fetchedUser = await OffersApi.fetchUserIdByUsername(username)
+            const fetchedUser = await OffersApi.fetchUserIdByUsername(username) 
              setUser(fetchedUser)
             const monthMap: Record<string, string> = {  //Month yazı çevirme kısmı data
                 "0": "January",

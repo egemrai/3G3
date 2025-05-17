@@ -9,10 +9,12 @@
 
 .text_green{
     color: lightgreen;
+    text-decoration: underline solid lightgreen 1px;
 }
 
 .text_red{
     color: red;
+    text-decoration: underline solid red 1px;
 }
 .profile_offersDiv{
     display: grid;
