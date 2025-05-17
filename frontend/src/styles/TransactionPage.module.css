@@ -95,44 +95,23 @@
     display: block;
 }
 
-.cardCredentials{
+.cardCredentials{   /* password id cardlarının bulunduğu büyük card*/
     
     height: fit-content;
+    min-height: 250px;
     padding: 1%;
     overflow-y: auto;
 }
 
-
-
-.submitButton{
-    height: 60px;
-    width: 120px;
-    margin: 0 auto;
-}
-.errorMessage{
-    color: red;
-    margin: 0 auto;
-    width: fit-content;
-    margin-top: 8px;
-}
-
-
-/* DETAILSTRANSACTIONOFFER için*/
-
-.modal{
-    height: 500px;
-    overflow: auto;
-}
-
-.modalFormDiv{
+.modalFormDiv{      /* satıcının delivery hazırladığı büyük card */
     display: grid;
     grid-template-columns: 1fr 32fr 1fr;
     padding: 2% 0;
     column-gap: 1%;
 }
 
-.cardCredentialsButton{
-    height: 30%;
+.cardCredentialsButton{  /* Id vs info cardlarını sağa sola kaydırmak için*/
+    height: 36px;
     border-radius: 99px;
     align-self: center;
     background-color: blue;
@@ -145,8 +124,33 @@
     background-color: gray;
 }
 
-/* FormTransactionCredentials için*/
+.prepareDelivery{
+    height: 60px;
+    width: 120px;
+    margin: auto;
+}
 
+.submitButton{   /* Deliver order butonu*/
+    height: 60px;
+    width: 120px;
+    margin: 0 auto;
+}
+.errorMessage{   /* card id password infosu error listesi*/
+    color: red;
+    margin: 0 auto;
+    width: fit-content;
+    margin-top: 8px;
+}
+
+
+/* DETAILSTRANSACTIONOFFER için*/
+
+.modal{   /* order details butonuna tıklayınca açılan modal*/
+    height: 500px;
+    overflow: auto;
+}
+
+/* FormTransactionCredentials id password vs. datası için*/
 
 
 .modalForm{
@@ -161,3 +165,12 @@
     text-align: center;
 }
 
+.infoP{  /* modal açılınca data yazılan ya da okunan satırlar*/
+    margin: 3% 0;
+}
+
+.infoLine{   /* modal açılınca datalar arasındaki çizgi*/
+    border-bottom: solid rgba(222, 213, 213, 0.924) 1px;
+    width: 100%;
+    display: block;
+}

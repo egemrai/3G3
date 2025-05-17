@@ -1,4 +1,5 @@
 
+import { Socket } from "socket.io-client"
 import { User } from "../models/user"
 
 import NavbarLoggedInView from "./NavbarLoggedInView"
@@ -8,9 +9,10 @@ interface NavBarProps{
     loggedInUser:User|null
     signInUsername?:string
     onLogoutSuccessfull: ()=>void
+    socket: typeof Socket
 }
 
-const NavBar = ({signInUsername, loggedInUser, onLogoutSuccessfull}:NavBarProps) => {
+const NavBar = ({signInUsername, loggedInUser, onLogoutSuccessfull,socket}:NavBarProps) => {
 
    
 
@@ -18,6 +20,7 @@ const NavBar = ({signInUsername, loggedInUser, onLogoutSuccessfull}:NavBarProps)
         <>
                      {loggedInUser
                     ?<NavbarLoggedInView
+                    socket={socket}
                     signInUsername={signInUsername}
                     onLogoutSuccessfull={onLogoutSuccessfull}
                     />

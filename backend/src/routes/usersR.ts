@@ -10,6 +10,8 @@ router.get("/fetchUsername", userController.fetchUsername)
 
 router.get("/getloggedInUserId", userController.getloggedInUserId)
 
+router.get("/fetchUserIdByUsername", userController.fetchUserIdByUsername)
+
 router.post("/signup/", userController.SignUp)
 
 router.post("/login/", userController.login)

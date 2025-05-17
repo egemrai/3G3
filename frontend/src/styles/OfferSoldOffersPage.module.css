@@ -44,7 +44,11 @@
     white-space: break;
     width: fit-content;
     color: darkblue;
+    text-decoration: underline 1px darkblue;
+}
 
+.title:hover{
+    cursor: pointer;
 }
 
 .idServiceP{

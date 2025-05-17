@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import style from "../../styles/TransactionPage.module.css"
-import { Button, Card, Container, Form, Modal, Row } from "react-bootstrap"
+import { Button, Card, Col, Container, Form, Modal, Row } from "react-bootstrap"
 import React, { useEffect, useState } from "react"
 import { SoldOffer, SoldOfferForm } from "../../models/SoldOffer"
 import * as OffersApi from "../../network/offers_api"
@@ -12,24 +12,35 @@ import FormTransactionCredentials from "../FormTransactionCredentials"
 const TransactionPage = ()=>{
 
     const navigate = useNavigate()
-
     const location = useLocation()
+
     const searchParams = new URLSearchParams(location.search)
-    const offerId = searchParams.get("id")
+    // const offerId = searchParams.get("id")
     const page = searchParams.get("page")
+
+    const offerId= location.state.id
+    console.log(offerId)
 
     useEffect(() => {
         if (!offerId) {
             navigate("/errorPage"); // rotaya / koyman daha iyi
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [offerId]);
 
     const {register, handleSubmit, formState : {errors, isSubmitting}}  = useForm<SoldOfferForm>({mode: "all"})
 
     async function setSoldOfferCredentials(credentials:SoldOfferForm){
-        // alert("form gönderildi");
-        const test = await OffersApi.setSoldOfferCredentials(credentials,offer!._id)
-        console.log(test)
+        try {
+            const response = await OffersApi.setSoldOfferCredentials(credentials,offer!._id)
+            console.log(response)
+             if(offer && response){
+            setSoldOfferStage("ready")
+            }
+        } catch (error) {
+            console.error(error)
+            alert("submit button hata");
+        }
     }
 
     const [offer,setOffer] = useState<SoldOffer>() //soldOffer
@@ -38,9 +49,13 @@ const TransactionPage = ()=>{
     const [buyer, setBuyer] =useState <any>() //alıcı username için
     const [showDetails, setShowDetails] =useState<boolean>(false) //offerDetails modal göstermek için
     const [deliveryStage, setDeliveryStage] = useState<string>()//ilk başta true olsun,soldOffer.stage yap burayı, deliveryWaiting ise set ile false yap
-    const [credentialsModalIndex, setCredentialsModalIndex] = useState<number|null> (null) //satıcı soldOffer credentials vermek için card'a tıklayınca hangi modal'in açılıp kapanacağı
+    const [credentialsModalIndex, setCredentialsModalIndex] = useState<number|null> (null) //satıcı soldOffer credentials vermek için card'a tıklayınca hangi modal'in açılıp kapanacağı, alıcının card ve modal kısmı için de bunu kullanıcam çalışır sanırım
     const [currentPage, setCurrentPage] = useState<number> (1) // credentialts card sayfası
     const [userId,setUserId] = useState<string>()
+    const [viewedButtonDisabled,setViewedButtonDisabled] = useState<boolean>(false)
+    const [confirmedButtonDisabled,setConfirmedButtonDisabled] = useState<boolean>(false)
+    const [preparingButtonDisabled,setPreparingButtonDisabled] = useState<boolean>(false)
+
 
     async function fetchUserId() {
         try {
@@ -54,7 +69,7 @@ const TransactionPage = ()=>{
 
     async function fetchSoldOffer(_id:string) {
         try {
-            const fetchedSoldOffer = await OffersApi.fetchSoldOfferById(_id)
+            const fetchedSoldOffer = await OffersApi.fetchSoldOfferWithId(_id)
             setOffer(fetchedSoldOffer)
             const fetchtime = new Date(fetchedSoldOffer.createdAt)
             setTime(fetchtime)
@@ -78,17 +93,20 @@ const TransactionPage = ()=>{
     }
 
 
-
-
-// async function setSoldOfferStage(stage:string) {
-//     try {
-//         const response = await OffersApi.setSoldOfferStage(stage,offer!._id)
-//         console.log(response)
-//         offer!.stage={`${stage}`}
-//     } catch (error) {
-//         console.error(error)
-//     }
-// }
+async function setSoldOfferStage(stage:string) {  // databasede soldOffer.stage değiştiriyor, if içinde f5 atmaya gerek kalmadan sayfada değiştiriyor
+    try {
+        const response = await OffersApi.setSoldOfferStage(stage,offer!._id)
+        console.log(response)
+        if(offer && response){
+            const newOffer = offer
+            newOffer.stage= stage
+            setOffer(newOffer)
+            setDeliveryStage(stage)
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
 
 //USEEFFECTLER
     useEffect(()=>{
@@ -98,13 +116,21 @@ const TransactionPage = ()=>{
         if(page){
             setCurrentPage(Math.trunc(Number(page)))
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[])
 
     useEffect(()=>{
-        if(offer)
-            fetchUsernames()
-            fetchUserId()
+        if(offer){
+            if(!seller || !buyer){
+                fetchUsernames()
+            }
+            if(!userId){
+               fetchUserId() 
+            }
+            if(!deliveryStage)
             setDeliveryStage(offer?.stage)
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[offer])
 
     //PAGE AYARLAMA VE CREDENTIALS GRID
@@ -113,7 +139,7 @@ const TransactionPage = ()=>{
     const totalPages = Math.ceil(offersLenght!/offersPerPAge)
     const startIndex = (currentPage-1)* offersPerPAge
 
-    const credentialsGrid = Array.from({length:offer?.quantity!},(_, i) =>{
+    const sellerCredentialsGrid = Array.from({length:offer?.quantity!},(_, i) =>{
         return(
             <FormTransactionCredentials
             key={i}
@@ -126,6 +152,125 @@ const TransactionPage = ()=>{
             />
         )
     }).slice(startIndex,startIndex+ offersPerPAge)
+
+    const buyerCredentialsGrid = offer?.offerCredentials.map((data,i)=>{
+
+        return(
+            <React.Fragment>
+            <Col>
+                <Card onClick={()=>setCredentialsModalIndex(i)}
+                className={`${style.cardCredentials2}`}>
+                    <Card.Title>{` ${offer.serviceName.replace(offer.categoryName,"")} #${i+1}`}</Card.Title>
+                </Card>
+            </Col>
+
+            <Modal backdrop={true} show={credentialsModalIndex===i} onHide={()=>{setCredentialsModalIndex(null);console.log(credentialsModalIndex)}}> {/* onHide Modal dışına tıklayınca çalışan bir fonksiyon*/} 
+            <Modal.Body className={`${style.modalForm}`}>
+                <Modal.Title>
+                    {i+1}. {offer?.serviceName.replace(offer.categoryName,"")} Credentials 
+                </Modal.Title>
+
+                                    {/* ACCOUNT İÇİN */}
+                {offer.serviceName.replace(offer.categoryName,"") ==="Account" &&
+                <>
+                <Modal.Header/>
+                <p className={`${style.infoP}`}>Account id: {data.accountId}</p>
+                <p className={`${style.infoP}`}>Account password: {data.accountPassword}</p>
+                <p className={`${style.infoLine}`}></p>
+            
+                <p className={`${style.infoP}`}>Email: {data.email}</p>
+                <p className={`${style.infoP}`}>Email password: {data.emailPassword}</p>
+
+                <p className={`${style.infoLine}`}></p>
+
+                <p className={`${style.infoP}`}>Seller notes: {data.extraNotes}</p>
+                </>}
+
+                 {/* BOOST & COACH İÇİN */}
+                 {(offer.serviceName.replace(offer.categoryName,"") ==="Coach" || 
+                 offer.serviceName.replace(offer.categoryName,"") ==="Boost") &&
+                 <>
+                 <Form.Group className={`${style.formGroup}`} controlId={"orderConfirm"}>
+                <Form.Label id="orderConfirm">{"Service delivered:"}</Form.Label>
+                <Form.Select 
+                    {...register(`offerCredentials.${i}.serviceConfirm`, {
+                    required: "Required",
+                    // setValueAs: (v) => v === "true", // string -> boolean dönüşümü
+                    })}
+                    
+                    isInvalid={!!errors?.offerCredentials?.[i]?.serviceConfirm}>
+                    <option value="">Select</option>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </Form.Select>
+                {errors?.offerCredentials?.[i]?.serviceConfirm?.message && (
+                <Form.Control.Feedback type="invalid">
+                    {errors?.offerCredentials?.[i]?.serviceConfirm?.message}
+                </Form.Control.Feedback>
+                )}
+                </Form.Group>
+
+                <Form.Group className={`${style.formGroup}`} controlId={"extraNotes"}>
+                <Form.Label id="extraNotes">{"Extra notes:"}</Form.Label>
+                <Form.Control as={"textarea"}
+                    {...register(`offerCredentials.${i}.extraNotes`, {
+                    required: "Required",
+                    })}
+                    isInvalid={!!errors?.offerCredentials?.[i]?.extraNotes}
+                />
+                {errors?.offerCredentials?.[i]?.extraNotes?.message && (
+                <Form.Control.Feedback type="invalid">
+                    {errors?.offerCredentials?.[i]?.extraNotes?.message}
+                </Form.Control.Feedback>
+                )}
+                </Form.Group>
+                 </>
+                 }
+
+                 {/* RP & VP İÇİN */}
+                 {(offer.serviceName.replace(offer.categoryName,"") ==="RP" || 
+                 offer.serviceName.replace(offer.categoryName,"") ==="VP") &&
+                 <>
+                 <Form.Group className={`${style.formGroup}`} controlId={"code"}>
+                <Form.Label id="code">{"Code:"}</Form.Label>
+                <Form.Control 
+                    {...register(`offerCredentials.${i}.code`, {
+                    required: "Required",
+                    })}
+                    isInvalid={!!errors?.offerCredentials?.[i]?.code}
+                />
+                {errors?.offerCredentials?.[i]?.code?.message && (
+                <Form.Control.Feedback type="invalid">
+                    {errors?.offerCredentials?.[i]?.code?.message}
+                </Form.Control.Feedback>
+                )}
+                </Form.Group>
+
+                <Form.Group className={`${style.formGroup}`} controlId={"extraNotes"}>
+                <Form.Label id="extraNotes">{"Extra notes:"}</Form.Label>
+                <Form.Control className="whiteSpacePre" as={"textarea"} //whiteSpacePre dene 
+                    {...register(`offerCredentials.${i}.extraNotes`, {
+                    required: "Required",
+                    })}
+                    isInvalid={!!errors?.offerCredentials?.[i]?.extraNotes}
+                />
+                {errors?.offerCredentials?.[i]?.extraNotes?.message && (
+                <Form.Control.Feedback type="invalid">
+                    {errors?.offerCredentials?.[i]?.extraNotes?.message}
+                </Form.Control.Feedback>
+                )}
+                </Form.Group>
+                 </>
+                 }
+
+
+            </Modal.Body>
+        </Modal>
+            </React.Fragment>
+            
+        )
+        
+    })
 
     return(
         <>
@@ -176,8 +321,15 @@ const TransactionPage = ()=>{
         <Container>                         
             {offer.sellerId===userId &&   // alıcının deliver kısmına erişimini engellemek için
             <>
-            {/* {deliveryStage==="pending"&&
-            <Button onClick={()=>setSoldOfferStage("preparing")}>Start Delivery</Button>} */}
+            {deliveryStage==="pending"&&
+            <Card className={`${style.cardCredentials}`}>
+                <Button className={`${style.prepareDelivery}`}
+                disabled={preparingButtonDisabled}
+                 onClick={async()=>
+                    {setPreparingButtonDisabled(true);
+                    await setSoldOfferStage("preparing")
+                    setPreparingButtonDisabled(false)}}>Prepare delivery</Button>
+            </Card>}
 
             {deliveryStage==="preparing"&&
             
@@ -194,7 +346,7 @@ const TransactionPage = ()=>{
                             </button>                   
 
                             <Row md={3} >
-                            {credentialsGrid.length>0 && credentialsGrid}
+                            {sellerCredentialsGrid.length>0 && sellerCredentialsGrid}
                             </Row>
 
                             <button 
@@ -210,7 +362,7 @@ const TransactionPage = ()=>{
 
                         <Button className={`${style.submitButton}`}
                         type="submit"
-                        disabled={false}>
+                        disabled={isSubmitting}>
                             Deliver order
                         </Button>
 
@@ -233,15 +385,62 @@ const TransactionPage = ()=>{
                                 errorMessageList
                             )
                         })
-                        }
+                        } {/* hata mesajı list sonu*/}
                     </Card>
                     
                 </Form>
-                }
-                </>}
-        </Container>
-        
+                }  {/* preparing sonu*/}
+                </>} {/* sadece seller görebilir sonu*/}
 
+                {deliveryStage==="ready" && offer.buyerId===userId &&
+            <Card className={`${style.cardCredentials}`}>
+                <Button className={`${style.prepareDelivery}`} 
+                disabled={viewedButtonDisabled}
+                onClick={async ()=>{
+                    setViewedButtonDisabled(true)
+                    await setSoldOfferStage("viewed")
+                    setViewedButtonDisabled(false)}}>View delivery</Button>
+            </Card>}
+                
+            {buyerCredentialsGrid && buyerCredentialsGrid.length>0 && (deliveryStage==="viewed"||deliveryStage==="confirmed") &&
+             <Card className={`${style.cardCredentials}`}>
+                <div className={`${style.modalFormDiv}`}>
+                            <button 
+                            disabled={currentPage<=1}
+                            onClick={()=>setCurrentPage((x)=>x-1)}
+                            className={`${style.cardCredentialsButton}`}>
+                                {"<"}
+                            </button>                   
+
+                            <Row md={3} >
+                            {buyerCredentialsGrid.length>0 && buyerCredentialsGrid}
+                            </Row>
+
+                            <button 
+                            disabled={currentPage>=totalPages}
+                            onClick={()=>setCurrentPage((x)=>x+1)}
+                            className={`${style.cardCredentialsButton}`}>
+                                {">"}
+                            </button>
+                        </div>
+                        
+                        
+                        {offer.buyerId===userId && deliveryStage==="viewed" &&
+                        <Button className={`${style.submitButton}`}
+                            disabled={confirmedButtonDisabled}
+                            onClick={async ()=>{
+                            setConfirmedButtonDisabled(true)
+                            await setSoldOfferStage("confirmed")
+                            setConfirmedButtonDisabled(false)}}>  {/* satıcının buna ulaşamamasını sağla  VE setDisabled ile üstteki fonksiyon çalışınca true yap, bitiminde false yapmasan da olur heralde*/}
+                            Confirm order
+                        </Button>
+                        }
+
+                        
+            </Card>} {/* buyerCredentialsGrid sonu*/}
+            
+             
+        </Container>
         </>
         :<h3>Order Bulunamadı</h3>}
 

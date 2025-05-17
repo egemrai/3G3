@@ -1,16 +1,18 @@
-import { Button, Card, Container, Dropdown, Nav, Navbar } from "react-bootstrap"
+import { Button, Card, Container, Dropdown, Nav, Navbar} from "react-bootstrap"
 import { Link, useNavigate } from "react-router-dom"
 import style from "../styles/NavBar.module.css"
 import * as offers_api from "../network/offers_api"
 import { useEffect, useState } from "react"
 import { SoldOffer } from "../models/SoldOffer"
+import { Socket } from "socket.io-client"
 
 interface NavbarLoggedInViewProps{
     signInUsername?:string,
     onLogoutSuccessfull: ()=> void
+    socket: typeof Socket
 }
 
-const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull}:NavbarLoggedInViewProps) => {
+const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarLoggedInViewProps) => {
 
     const navigate= useNavigate()
 
@@ -30,6 +32,35 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull}:NavbarLoggedIn
     const [boughtOffers, setBoughtOffers] = useState<SoldOffer[]>([])
     const [notificationLenght, setNotificationLenght] = useState<number>(0) //notification butonu rengi ve sayıyı 0lamak için
     
+    function toTransactionPage(id:string){
+        navigate("/transaction/?page=1",{state:{id:id}})
+    }
+
+    //SOCKETS
+   
+    useEffect(() => {
+  if (socket) {
+    socket.on("soldOfferNotificationForSellerFromServer", (data:any) => {
+    console.log("serverdan mesaj:", data.message)
+    console.log("serverdan mesaj:", data.newSoldOffer)
+    setSoldOffers((e)=>[...e,data.newSoldOffer])
+    setNotificationLenght((e)=>e+1)
+    })
+
+    socket.on("soldOfferNotificationForBuyerFromServer", (data:any) => {
+    console.log("serverdan mesaj:", data.message)
+    console.log("serverdan mesaj:", data.fetchedSoldOffer)
+    setBoughtOffers((e)=>[...e,data.fetchedSoldOffer])
+    setNotificationLenght((e)=>e+1)
+    })
+
+    return () => {
+      socket.off("soldOfferNotificationForSellerFromFrontend")
+      socket.off("soldOfferNotificationForBuyerFromServer")
+    }
+  }
+}, [socket])
+
     async function fetchSoldOffers() {
         const fetchedSoldOffers = await offers_api.fetchSoldOffers()
         const filteredSoldOffers =  fetchedSoldOffers.filter(offer=>offer.seenBySeller===false) //seen false ise, yani görünmediyse notif'de görüncek
@@ -54,7 +85,7 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull}:NavbarLoggedIn
         const title= offer.title
         const id= offer._id
         return(
-            <Card key={index} as={Link} to={"/transaction/?id="+ id} className={`${style.dropdownMenuCard}`}>title: {title}</Card>
+            <Card key={index}  onClick={()=>toTransactionPage(id)} className={`${style.dropdownMenuCard}`}>title: {title}</Card>
         )
     })
 
@@ -62,7 +93,7 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull}:NavbarLoggedIn
         const title= offer.title
         const id= offer._id
         return(
-            <Card key={index} as={Link} to={"/transaction/?id="+ id} className={`${style.dropdownMenuCard}`}>title: {title}</Card>
+            <Card key={index} onClick={()=>toTransactionPage(id)} className={`${style.dropdownMenuCard}`}>title: {title}</Card>
         )
     })
 
@@ -95,7 +126,18 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull}:NavbarLoggedIn
                         <Nav.Item className={`${style.createOfferButton} rounded-pill me-3 my-auto`} as={Link} to={"/createOffer"}  >
                             message
                         </Nav.Item>
-                        <Dropdown onClick={setSeenTrue} className={`${style.dropdown}`}>
+                        <Dropdown //NOTIFICATION TIKLAYINCA DİREKT KULLANICININ BÜTÜN SEENBYSELLER VE BUYER'I FALSE OLAN SOLDOFFER'LARINI TRUE YAPIYOR
+                        onToggle={(isOpen)=>{
+                            if(isOpen){
+                                setSeenTrue()
+                            }
+                            if(!isOpen){
+                                setSoldOffers([])
+                                setBoughtOffers([])
+                            }
+                        }}
+                        onClick={setSeenTrue} 
+                        className={`${style.dropdown}`}> 
                                 {notificationLenght>0
                                     ?<Dropdown.Toggle className={`${style.dropdownToogleOn}`} variant="Primary" id="dropdown-basic">
                                         notification {notificationLenght}

@@ -14,10 +14,14 @@ router.get("/getOffersForUserProfile", OffersController.getOffersForUserProfile)
 router.post("/createSoldOffer", OffersController.createSoldOffer);
 
 router.get("/fetchSoldOffers", OffersController.fetchSoldOffers); 
-router.get("/fetchBoughtOffers", OffersController.fetchBoughtOffers); 
+router.get("/fetchBoughtOffers", OffersController.fetchBoughtOffers);
 
-router.get("/fetchSoldOfferById", OffersController.fetchSoldOfferById) //transactionPage için  
-router.get("/setSeenAllTrue", OffersController.setSeenAllTrue);
+////UserProfilePage rating için fetch edilen soldOfferlar
+router.get("/fetchSoldOffersWithId", OffersController.fetchSoldOffersWithId); 
+router.get("/fetchBoughtOffersWithId", OffersController.fetchBoughtOffersWithId); 
+
+router.get("/fetchSoldOfferWithId", OffersController.fetchSoldOfferWithId) //transactionPage için  
+router.get("/setSeenAllTrue", OffersController.setSeenAllTrue);//Notification için seenByseller ve buyyer 'ı true yapıyor
 router.post("/setSoldOfferCredentials", OffersController.setSoldOfferCredentials); //satıcının ürün satılınca id şifre vs. datasını kaydetmesi
 router.post("/setSoldOfferStage", OffersController.setSoldOfferStage); //satıcının soldOffer stage değiştirme şeyi
 

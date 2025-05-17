@@ -88,30 +88,43 @@ export async function fetchCategories(): Promise<Category[]> {
     return response.json()
   }
 
-  export async function fetchSoldOffers():Promise<[SoldOffer]> {
+  export async function fetchSoldOffers():Promise<SoldOffer[]> {
     const fetchedSoldOffers = await fetchData("/api/offers/fetchSoldOffers") //default method falan yazmayınca GET çalışıyor sanırım denicem
 
     return fetchedSoldOffers.json()
   }
   
 
-  export async function fetchBoughtOffers():Promise<[SoldOffer]> {
+  export async function fetchBoughtOffers():Promise<SoldOffer[]> {
     const fetchedBoughtOffers = await fetchData("/api/offers/fetchBoughtOffers") //default method falan yazmayınca GET çalışıyor sanırım denicem
 
     return fetchedBoughtOffers.json()
   }
   
-  export async function fetchSoldOfferById(_id:string):Promise<SoldOffer> {
-    const fetchedSoldOffers = await fetchData("/api/offers/fetchSoldOfferById/?_id="+_id) //default method falan yazmayınca GET çalışıyor sanırım denicem
+  export async function fetchSoldOfferWithId(_id:string):Promise<SoldOffer> {
+    const fetchedSoldOffers = await fetchData("/api/offers/fetchSoldOfferWithId/?_id="+_id) //default method falan yazmayınca GET çalışıyor sanırım denicem
 
     return fetchedSoldOffers.json()
   }
+  //UserProfilePage rating için fetch edilen soldOfferlar
+  export async function fetchBoughtOffersWithId(userId:string):Promise<SoldOffer[]> {
+    const fetchedBoughtOffers = await fetchData("/api/offers/fetchBoughtOffersWithId/?userId="+userId) //default method falan yazmayınca GET çalışıyor sanırım denicem
+
+    return fetchedBoughtOffers.json()
+  }
+  
+  export async function fetchSoldOffersWithId(userId:string):Promise<SoldOffer[]> {
+    const fetchedSoldOffers = await fetchData("/api/offers/fetchSoldOffersWithId/?userId="+userId) //default method falan yazmayınca GET çalışıyor sanırım denicem
+
+    return fetchedSoldOffers.json()
+  }
+  //Notification için seenByseller ve buyyer 'ı true yapıyor
   export async function setSeenAllTrue():Promise<[SoldOffer]> {
     const fetchedSoldOffers = await fetchData("/api/offers/setSeenAllTrue") //default method falan yazmayınca GET çalışıyor sanırım denicem
 
     return fetchedSoldOffers.json()
   }
-
+  //Deliver Order butonuna basınca offer credentials set ediyor
   export async function setSoldOfferCredentials(offerCredentials:SoldOfferForm, soldOfferId:string):Promise<SoldOffer> {
     const body={offerCredentials,soldOfferId}
     const response = await fetchData("/api/offers/setSoldOfferCredentials",{
@@ -197,6 +210,11 @@ export async function fetchCategories(): Promise<Category[]> {
 
   export async function getloggedInUserId() {
     const response = await fetchData("/api/users/getloggedInUserId")
+    return response.json()
+  }
+
+  export async function fetchUserIdByUsername(username:string) {
+    const response = await fetchData("/api/users/fetchUserIdByUsername/?username="+username+"")
     return response.json()
   }
 

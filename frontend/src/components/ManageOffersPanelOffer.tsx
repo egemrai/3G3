@@ -19,7 +19,7 @@ const ManageOffersPanelOffer = ({offer,refetchOffersForManageOffersPage}:ManageO
     const navigate = useNavigate()
 
     const goEditOfferWithData = () => {
-        navigate("/editOffer/?_id="+ offer._id+"&serviceName="+offer.serviceName+"", { state: { offer: offer } })
+        navigate("/editOffer", { state: { offer: offer, id: offer._id, serviceName: offer.serviceName } })
     }
 
     const deleteOffer= async (deleteOfferData:deleteOfferURLQUery) => {

@@ -49,18 +49,12 @@ const OfferPage1 = ({user, offer, socket}:OfferPageProps) => {
         
     },[user])
 
-    const submit = async()=>{
-        const fetchedOffer = await OffersApi.fetchOffer(serviceName,offerId)
-        if(fetchedOffer)
-        console.log(fetchedOffer.updatedAt)
-    }
-        
-    const test = async(credentials:any)=>{
+    
+    const buyOffer = async(credentials:any)=>{
         try {
             const fetchedOffer = await OffersApi.fetchOffer(serviceName,offerId)
             const date2 =new Date(fetchedOffer.updatedAt)
             console.log(date2.toLocaleString())
-            const test= credentials.buyAmount
 
             if(updatedAt===fetchedOffer.updatedAt){
                 console.log("offer editlenmemiş")
@@ -276,7 +270,7 @@ const OfferPage1 = ({user, offer, socket}:OfferPageProps) => {
                                     </button>
                                     <Form
                                         id="buyForm"
-                                        onSubmit={handleSubmit(test)}></Form>
+                                        onSubmit={handleSubmit(buyOffer)}></Form>
                                         <Form.Control
                                             className={`${style.amountP}`}
                                             {...register("buyAmount",

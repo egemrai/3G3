@@ -11,8 +11,13 @@ interface Offer_SoldOffersPageProps{
 
 const Offer_SoldOffersPage = ({offer}:Offer_SoldOffersPageProps) => {
 
+    const navigate = useNavigate()
     const time = new Date(offer.createdAt)
-    
+
+    function toTransactionPage(id:string){
+        navigate("/transaction/?page=1",{state:{id:id}})
+    }
+    // onClick={()=>toTransactionPage(id)}
     return ( 
     <>
         <Card className={style.card}>
@@ -22,7 +27,7 @@ const Offer_SoldOffersPage = ({offer}:Offer_SoldOffersPageProps) => {
             </div>
             <div className={`${style.cardDiv}`}>
                 <div className={style.titleDiv}>
-                    <Link to={"/transaction/?id="+ offer._id+"&page=1"} className={style.title}>{offer.title}</Link>
+                    <p onClick={()=>toTransactionPage(offer._id)} className={style.title}>{offer.title}</p>
                     <p className={style.idServiceP}>{`${offer.categoryName +"-"+ offer.serviceName.replace(offer.categoryName,"") }`}</p>
                 </div>
                 <div >{`total: ${offer.totalAmount + " "+ offer.currency}`}</div>

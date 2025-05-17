@@ -3,6 +3,13 @@ import style from "../../styles/UserProfilePage.module.css"
 import { Button, Card, Col, Container, Row } from "react-bootstrap"
 import React, { useEffect, useState } from "react"
 import * as OffersApi from "../../network/offers_api"
+import { SoldOffer } from "../../models/SoldOffer"
+
+interface userId_Time{
+    id:string
+    month: string
+    fullYear: string
+}
 
 //bulunmayan username yazınca boş sayfaya gönder
 const UserProfilePage = ()=>{
@@ -16,7 +23,14 @@ const UserProfilePage = ()=>{
     const username= URLparams.username
 
     const [offers, setOffers] = useState<any[]>([])
-    
+    const [user, setUser] = useState<userId_Time>() //id month year komple burdan fetch ediyorum, usermodelde zaten id yanında createdAt var.
+    const [month, setMonth] = useState<string>() //month'u numberdan ay'a çevirmek için
+    const [boughtOffers, setBoughtOffers] = useState<SoldOffer[]>([])
+    const [soldOffers, setSoldOffers] = useState<SoldOffer[]>([])
+    const [totalOffers, setTotalOffers] = useState<SoldOffer[]>([])
+    const [allTimePositive, setAllTimePositive] = useState<number>(0)
+
+
     const fetchOffers = async() =>{
         try {
             const fetchedOffers = await OffersApi.fetchOffersForUserProfile(username)
@@ -25,13 +39,65 @@ const UserProfilePage = ()=>{
             console.error(error)
             alert("userProfile offer fetch error")
         }
-        
     }
+    
+    const fetchUserIdByUsername = async() =>{
+        try {
+            const fetchedUser = await OffersApi.fetchUserIdByUsername(username)
+             setUser(fetchedUser)
+            const monthMap: Record<string, string> = {  //Month yazı çevirme kısmı data
+                "0": "January",
+                "1": "February",
+                "2": "March",
+                "3": "April",
+                "4": "May",
+                "5": "June",
+                "6": "July",
+                "7": "August",
+                "8": "September",
+                "9": "October",
+                "10": "November",
+                "11": "December"
+            }
+            setMonth(monthMap[fetchedUser.month]) // fetch ile number olarak gelen ay'ı, yazı değerine çevirdim
+        } catch (error) {
+            console.error(error)
+            alert("userProfile userId fetch error")
+        }
+    }
+
+    const fetchSoldOffersForAll = async()=>{
+        try {
+            if(user){
+                const [fetchedBoughtOffers,fetchedSoldOffers] = await Promise.all(
+                    [await OffersApi.fetchBoughtOffersWithId(user?.id),
+                    await OffersApi.fetchSoldOffersWithId(user?.id)])
+                setBoughtOffers(fetchedBoughtOffers)
+                setSoldOffers(fetchedSoldOffers)
+                setTotalOffers([...fetchedBoughtOffers,...fetchedSoldOffers])
+                const positiveBoughtOffers = fetchedBoughtOffers.filter(soldOffer=>soldOffer.buyerRating==="positive")
+                const positiveSoldOffers = fetchedSoldOffers.filter(soldOffer=>soldOffer.sellerRating==="positive")
+                setAllTimePositive(positiveBoughtOffers.length + positiveSoldOffers.length)
+            }
+        } catch (error) {
+            console.error(error)
+            alert("userProfile userId fetch error")
+        }
+    }
+    
     useEffect(()=>{
         document.body.style.backgroundColor= "#FAFAFA" //1 kere profile girince, diğer urller de gri oluyor, direkt sitenin document değişiyor komple
         fetchOffers()
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[])
+
+    useEffect(()=>{
+        fetchUserIdByUsername()
+    },[])
+
+    useEffect(()=>{
+        fetchSoldOffersForAll()
+    },[user])
 
     //CATEGORY KISMI
     const [clickIndex, setClickIndex]= useState(0)
@@ -139,22 +205,10 @@ function setServiceRow(){
                         
                         <div className={`${style.dateDiv}`}>
                             <div className="">
-                                <span>member since</span>
+                                <span>Member since</span>
                             </div>
                             <div className="">
-                                <span>1999 june</span>
-                            </div>
-                        </div>
-
-                        <p className= {`${style.marginTB2} border-top`}></p>
-
-                        <div className={`${style.dateDiv}`}>
-                            <div className="">
-                                <span >Succesful delivery</span>
-                            </div>
-                            <div className="">
-                                <p className={`${style.totalOrder}`}>%100</p>
-                                <span >total lifetime orders: 4222</span>
+                                <span>{`${month +" "+ user?.fullYear}`}</span>
                             </div>
                         </div>
 
@@ -162,18 +216,26 @@ function setServiceRow(){
 
                         <div className={`${style.dateDiv}`}>
                             <div className="">
-                                <p>last 90 days</p>
-                                <p>all time rating</p>
+                                <span >Total orders</span>
+                            </div>
+                            <div className="">
+                                <span > {totalOffers.length}</span>
+                            </div>
+                        </div>
+
+                        <p className= {`${style.marginTB2} border-top`}></p>
+
+                        <div className={`${style.dateDiv}`}>
+                            <div className="">
+                                <p>All time rating</p>
                             </div>
                             <div className={`${style.dateDiv}`}>
-                                <div className={`${style.text_green}`}>
-                                    <p onClick={()=>{}}>%91.88</p>
-                                    <p>%96.34</p>
+                                <div className={`${style.text_green}`}>  {/* totaloffers alltimepositive*/}
+                                    <p>{((allTimePositive*100)/totalOffers.length).toFixed(2)}%</p>
                                     
                                 </div>
                                 <div className={`${style.text_red}`}>
-                                    <p>%8.12</p>
-                                    <p>%3.66</p>
+                                    <p>{(100-((allTimePositive*100)/totalOffers.length)).toFixed(2)}%</p>
                                 </div>
                                 
                             </div>

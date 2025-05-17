@@ -69,6 +69,8 @@ useEffect(() => {
     console.log("gönderen:", data.from);
   });
 
+  
+
   newSocket.on("disconnect", () => {
     console.log("Sunucudan bağlantı koptu.");
   });
@@ -94,7 +96,7 @@ useEffect(() => {
          loggedInUser={loggedInUser}
          signInUsername={loggedInUser?.username}
          onLogoutSuccessfull={logOut}
-         
+         socket={socket}
          /> 
 
           <Routes>

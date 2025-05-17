@@ -58,7 +58,7 @@ io.use((socket: Socket, next: (err?: ExtendedError) => void) => {
   next();
 });
 
-const userSocketMap = new Map<string, string[]>()
+export const userSocketMap = new Map<string, string[]>()
 
 io.on("connection", (socket) => {
     const userId = socket.handshake.auth.userId

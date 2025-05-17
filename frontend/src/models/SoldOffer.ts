@@ -13,6 +13,7 @@ export interface SoldOffer{
     buyerRating:string
     stage:string
     offerDetails:Record<string, any>
+    offerCredentials:Record<string, any>[]
     _id:string
     seenBySeller:boolean
     seenByBuyer:boolean

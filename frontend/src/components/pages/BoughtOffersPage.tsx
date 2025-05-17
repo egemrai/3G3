@@ -40,7 +40,7 @@ const BoughtOffersPage= () => {
 
     //PAGINATION AYARLAMA KISMI
     const [currentpage, setCurrentPage] = useState<number>(1)
-    const offersPerPAge = 30;
+    const offersPerPAge = 10;
     const offersLenght = boughtOffers.length
     const totalPages = Math.ceil(offersLenght/offersPerPAge)
     const startIndex = (currentpage-1)* offersPerPAge

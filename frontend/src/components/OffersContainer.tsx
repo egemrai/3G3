@@ -22,7 +22,7 @@ const OffersContainer= () => {
             if(!URLParams.category || !URLParams.service){
                 throw new Error("URLParams(category ya da service) yok")
             }
-            if(username){//UserProfilePage'den service tıklanırsa fetchlenen offerlar
+            if(username){//UserProfilePage'den service tıklanırsa, sadece profilinden tıklanan kullanıcının offerlerını fetch ediyor
                 fetchedOffers = await offers_api.fetchOffers(URLParams.category, URLParams.service,username)
             }else{
                 fetchedOffers = await offers_api.fetchOffers(URLParams.category, URLParams.service)

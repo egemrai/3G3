@@ -5,6 +5,8 @@ import * as ValorantOfferModels from "../models/offers/valorant"
 import UserModel from "../models/user"
 import {  Model } from "mongoose";
 import soldOfferModel from "../models/soldOffer";
+import { io } from "../server";
+import { userSocketMap } from "../server";
 
 interface getOffersQuery{
     nosqlTableName: string
@@ -209,7 +211,7 @@ export const getOffersForUserProfile:RequestHandler<unknown,unknown,unknown,getO
 
 interface SoldOfferBody{
     amount:number, offerDetails:object, buyAmount:number, categoryName:string, serviceName:string, sellerId:string,
-    currency:string, description:string, price:number, title:string,
+    currency:string, description:string, price:number, title:string, _id:string,
     server?:string, rank?:string, champions?:number, skins?:number, deliveryTime?:number, stock?:number, 
     desiredRank?:string, serviceType?: string, agents?:number
     
@@ -217,14 +219,46 @@ interface SoldOfferBody{
 
 export const createSoldOffer:RequestHandler<unknown,unknown,SoldOfferBody,unknown> = async (req,res,next)=>{
 const buyerId = req.session.userId
-const {buyAmount:quantity,serviceName,categoryName,sellerId,currency,description,price,title} = req.body
+const {buyAmount:quantity,serviceName,categoryName,sellerId,currency,description,price,title, _id:offerId} = req.body
 
 try {
 
-    if(!buyerId || !quantity || !categoryName ||!serviceName ||!sellerId ||!currency ||!description ||!price ||!title){
+    if(!buyerId || !offerId || !quantity || !categoryName ||!serviceName ||!sellerId ||!currency ||!description ||!price ||!title){
         throw createHttpError(404,"soldOffer missing parameters")
     }
-        
+
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const modelMap: Record<string, Model<any>> = {
+        "LolModel": LolOfferModels.LolModel,
+        "LolAccountModel": LolOfferModels.LolAccountModel,
+        "LolBoostModel": LolOfferModels.LolBoostModel,
+        "LolRPModel": LolOfferModels.LolRPModel,
+        "LolCoachModel": LolOfferModels.LolCoachModel,
+        "ValorantModel": ValorantOfferModels.ValorantModel,
+        "ValorantAccountModel": ValorantOfferModels.ValorantAccountModel,
+        "ValorantBoostModel": ValorantOfferModels.ValorantBoostModel,
+        "ValorantVPModel": ValorantOfferModels.ValorantVPModel,
+        "ValorantCoachModel": ValorantOfferModels.ValorantCoachModel,
+    }
+    const serviceNameModel = serviceName.concat("Model")
+    const offerModel = modelMap[serviceNameModel]
+    if(!offerModel){
+        throw createHttpError(400,"createSoldOffer, stock kontrol fetch için offerModel yok")
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const boughtOffer= await offerModel.findById(offerId) as any
+    if(!boughtOffer){
+        throw createHttpError(400,"satın alınmak istenen offer yok")
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if(boughtOffer.stock && (quantity>boughtOffer.stock)){
+        throw createHttpError(400,"satın alınmak istenen miktar stokta yok")
+    }else{
+        boughtOffer.stock= boughtOffer.stock-quantity
+        await boughtOffer.save()
+    }
+
     //YENİ CATEGORY YA DA SERVICE EKLEDİKCE OFFERDETAILS'A FAZLALIĞI EKLEMEYİ UNUTMA
     //ekstra offerDetails'a eklenicek şeyleri bu satır alına yazıyorum:
     //server, rank, champions, skins, deliveryTime, stock, desiredRank, serviceType, agents, 
@@ -246,7 +280,7 @@ try {
             champions: req.body.champions ?? "",
             skins: req.body.skins ?? "",
             deliveryTime: req.body.deliveryTime ?? "",
-            stock: req.body.stock ?? "",
+            stock: boughtOffer.stock ?? "",
             desiredRank: req.body.desiredRank || "",
             serviceType: req.body.serviceType || "",
             agents: req.body.agents ?? "",
@@ -255,8 +289,18 @@ try {
         
     })
 
+    const sellerSocketId = userSocketMap.get(sellerId)
+    const message = "ürün satıldı kanks"
+    if(sellerSocketId){
+        sellerSocketId.forEach(eachSocketId=>
+            io.to(eachSocketId).emit("soldOfferNotificationForSellerFromServer",{
+                message,
+                newSoldOffer
+            })
+        )
+    }
+
     res.status(200).json(newSoldOffer)
-    
 } catch (error) {
     next(error)
 }
@@ -281,13 +325,35 @@ export const fetchBoughtOffers:RequestHandler= async(req,res,next)=>{
         next(error)
     }
 }
+interface fetchSoldOffersWithIdQuery{
+    userId: string
+}
+export const fetchSoldOffersWithId:RequestHandler<unknown,unknown,unknown,fetchSoldOffersWithIdQuery>= async(req,res,next)=>{
+    const userId = req.query.userId
+    try {
+        const fetchedSoldOffers = await soldOfferModel.find({sellerId:userId, stage:"pending"})
+        res.status(200).json(fetchedSoldOffers)
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const fetchBoughtOffersWithId:RequestHandler<unknown,unknown,unknown,fetchSoldOffersWithIdQuery>= async(req,res,next)=>{
+    const userId = req.query.userId
+    try {
+        const fetchedBoughtOffers = await soldOfferModel.find({buyerId:userId, stage:"pending"})
+        res.status(200).json(fetchedBoughtOffers)
+    } catch (error) {
+        next(error)
+    }
+}
 
 
 //TransactionPage için 1 tane soldOffer fetch
-interface fetchSoldOfferByIdQuery{
+interface fetchSoldOfferWithIdQuery{
     _id: string
 }
-export const fetchSoldOfferById:RequestHandler<unknown,unknown,unknown,fetchSoldOfferByIdQuery>= async(req,res,next)=>{
+export const fetchSoldOfferWithId:RequestHandler<unknown,unknown,unknown,fetchSoldOfferWithIdQuery>= async(req,res,next)=>{
     const offerId = req.query._id
     try {
         const fetchedBoughtOffer = await soldOfferModel.findById(offerId)
@@ -350,6 +416,7 @@ export const setSoldOfferCredentials:RequestHandler<unknown,unknown,SoldOfferCre
         try {
         if(!sellerId || !credentials || !soldOfferId){
             throw createHttpError(404,"setSoldOfferCredentials parametre yok")}
+
    
         // const fetchedSoldOffer = await soldOfferModel.findOneAndUpdate({sellerId:sellerId, _id:soldOfferId},{$set:{credentials}}, // $set olmadan çalışmadı çünkü mongoose key falan algılıyomuş, mk $set'i de array kabul etmiyomuş  {credentials} yaptım
         //     {
@@ -357,6 +424,10 @@ export const setSoldOfferCredentials:RequestHandler<unknown,unknown,SoldOfferCre
         // }) 
 
         const fetchedSoldOffer = await soldOfferModel.findOne({sellerId:sellerId, _id:soldOfferId})
+
+        if(fetchedSoldOffer?.stage !=="preparing"){
+            throw createHttpError(404,"setSoldOfferCredentials parametre yok")
+        }
 
         if(fetchedSoldOffer){
             fetchedSoldOffer.offerCredentials = credentials
@@ -372,24 +443,64 @@ export const setSoldOfferCredentials:RequestHandler<unknown,unknown,SoldOfferCre
 
 interface SoldOfferBody{
     soldOfferId:string
-    stage:string
+    offerStage:string
 }
 export const setSoldOfferStage:RequestHandler<unknown,unknown,SoldOfferBody,unknown> = async(req,res,next) =>{
-    const sellerId = req.session.userId
+    const sellerOrBuyerId = req.session.userId //iki tarafın da kullanması için yaptım, satıcı ve alıcının stage değişiklikleri belli, farklı biri olursa sessiondaki idleri uyuşmucağı için soldOffer bulanamıcak
     const soldOfferId = req.body.soldOfferId
-    const stage = req.body.stage
+    const stage = req.body.offerStage
         try {
-        if(!sellerId || !soldOfferId || !stage){
+        if(!sellerOrBuyerId || !soldOfferId || !stage){
             throw createHttpError(404,"setSoldOfferStage parametre yok")}
 
-        const fetchedSoldOffer = await soldOfferModel.findOne({sellerId:sellerId, _id:soldOfferId})
 
-        if(fetchedSoldOffer){
-            fetchedSoldOffer.stage = stage
-            await fetchedSoldOffer?.save()
+        if(stage==="preparing"|| stage=== "ready"){
+            const fetchedSoldOffer = await soldOfferModel.findOne({sellerId:sellerOrBuyerId, _id:soldOfferId})
+
+            // if(fetchedSoldOffer){
+            //     fetchedSoldOffer.stage = stage
+            //     await fetchedSoldOffer?.save()
+            // }
+
+            // res.status(200).json(fetchedSoldOffer)
+
+            if(fetchedSoldOffer){                               //neye set olacağını direkt belirledim, böyle daha safe olur belki
+                if(fetchedSoldOffer.stage ==="pending"){
+                    fetchedSoldOffer.stage = "preparing"
+                    await fetchedSoldOffer?.save()
+                }
+                
+                else if(fetchedSoldOffer.stage ==="preparing"){
+                    fetchedSoldOffer.stage = "ready"
+                    fetchedSoldOffer.seenByBuyer = false
+                    await fetchedSoldOffer?.save()
+
+                    const buyerId =fetchedSoldOffer.buyerId.toString()
+                    const buyerSocketId = userSocketMap.get(buyerId)
+                    const message = "satıl aldığın ürünün bilgileri satıcı tarafından hazırlandı"
+                    if(buyerSocketId){
+                        buyerSocketId.forEach(eachSocketId =>
+                            io.to(eachSocketId).emit("soldOfferNotificationForBuyerFromServer",{
+                                message,
+                                fetchedSoldOffer
+                            })
+                        )
+                    
+            }
+                }
+            }
+
+            res.status(200).json(fetchedSoldOffer)
+        }else if(stage==="viewed"|| stage=== "confirmed"){
+            const fetchedSoldOffer = await soldOfferModel.findOne({buyerId:sellerOrBuyerId, _id:soldOfferId})
+
+            if(fetchedSoldOffer){
+                fetchedSoldOffer.stage = stage
+                await fetchedSoldOffer?.save()
+            }
+
+            res.status(200).json(fetchedSoldOffer)
         }
-
-        res.status(200).json(fetchedSoldOffer)
 
     } catch (error) {
         next(error)

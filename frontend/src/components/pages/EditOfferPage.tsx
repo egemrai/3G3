@@ -15,10 +15,10 @@ import * as OffersApi from "../../network/offers_api"
 const EditOfferPage = () => {
 
     const location = useLocation()
-    const searchParams = new URLSearchParams(location.search)
+    // const searchParams = new URLSearchParams(location.search)
     
-    const offerId = searchParams.get("_id")
-    const offerServiceName = searchParams.get("serviceName")
+    const offerId = location.state.id
+    const offerServiceName = location.state.serviceName
     if(!offerId || !offerServiceName){
         throw new Error("offerId ya da serviceName yok")
     }

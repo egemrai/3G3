@@ -135,3 +135,26 @@ export const getloggedInUserId:RequestHandler = async(req,res,next)=>{
         next(error)
     }
 }
+
+interface fetchUserIdByUsernameURL{
+    username:string
+}
+export const fetchUserIdByUsername:RequestHandler<unknown,unknown,unknown,fetchUserIdByUsernameURL> = async(req,res,next)=>{
+    const username = req.query.username
+    try {
+        if(!username){
+            throw createHttpError(400,"fetchUserIdByUsername, username missing")
+        }
+        const response = await UserModel.findOne({username:username}).select("_id createdAt")
+        const month = response?.createdAt.getMonth()
+        const fullYear = response?.createdAt.getFullYear()
+        const ege = {id:response?._id,
+                    month:month,
+                    fullYear: fullYear
+        }
+        
+        res.status(200).json(ege)
+    } catch (error) {
+        next(error)
+    }
+}
