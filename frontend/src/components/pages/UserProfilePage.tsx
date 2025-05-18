@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom"
 import style from "../../styles/UserProfilePage.module.css"
-import { Button, Card, Col, Container, Row } from "react-bootstrap"
+import { Button, Card, Col, Container, Modal, ModalBody, Row } from "react-bootstrap"
 import React, { useEffect, useState } from "react"
 import * as OffersApi from "../../network/offers_api"
 import { SoldOffer } from "../../models/SoldOffer"
@@ -32,6 +32,8 @@ const UserProfilePage = ()=>{
     const [soldOffers, setSoldOffers] = useState<SoldOffer[]>([])
     const [totalOffers, setTotalOffers] = useState<SoldOffer[]>([])
     const [allTimePositive, setAllTimePositive] = useState<number>(0)
+    const [showRatingOffersModal, setShowRatingOffersModal] = useState<boolean>(false)
+    const [ratingRowIndex, setRatingRowIndex] = useState<number>(0)
 
 
     const fetchOffers = async() =>{
@@ -197,6 +199,12 @@ function setServiceRow(){
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[selectedService])
 
+    //Ratıng SoldOffers Gösterme kısmı
+
+    const ratingSoldOffersGrid = 2
+
+
+
     return(
         <>
         <Container>
@@ -234,11 +242,11 @@ function setServiceRow(){
                             </div>
                             <div className={`${style.dateDiv}`}>
                                 <div className={`${style.text_green}`}>  {/* totaloffers alltimepositive*/}
-                                    <p>{((allTimePositive*100)/totalOffers.length).toFixed(2)}%</p>
+                                    <p onClick={()=>setShowRatingOffersModal(true)}>{((allTimePositive*100)/totalOffers.length).toFixed(2)}%</p>
                                     
                                 </div>
                                 <div className={`${style.text_red}`}>
-                                    <p>{(100-((allTimePositive*100)/totalOffers.length)).toFixed(2)}%</p>
+                                    <p onClick={()=>setShowRatingOffersModal(true)}>{(100-((allTimePositive*100)/totalOffers.length)).toFixed(2)}%</p>
                                 </div>
                                 
                             </div>
@@ -302,6 +310,51 @@ function setServiceRow(){
                 </div>
             </div>
             </Container>
+
+            {showRatingOffersModal && 
+            <Modal show={true} onHide={()=>setShowRatingOffersModal(false)}>
+                <ModalBody>
+                    <Modal.Title>{`${URLparams.username}'s orders`}</Modal.Title>
+
+                    <Col  className={`${style.viewRatingCol}`}>
+                        <Row as={Button} onClick={()=>setRatingRowIndex(0)} 
+                            className={ratingRowIndex===0
+                                ?`${style.positiveRatingRowClicked} ${style.viewRatingRow}` 
+                                :`${style.viewRatingRow}`
+                            }
+                            >
+                            <span>Positive rating</span>
+                        </Row>
+                        <Row as={Button} onClick={()=>setRatingRowIndex(1)} 
+                            className={ratingRowIndex===1
+                                ?`${style.negativeRatingRowClicked} ${style.viewRatingRow}` 
+                                :`${style.viewRatingRow}`
+                            }>
+                            <span>Negative rating</span>
+                        </Row>
+                    </Col>
+                    <div className={`${style.allRadioDiv}`}>
+                        <label className={`${style.ratingRadioDiv}`}>
+                            <span>All</span> 
+                            <input className={`${style.radio}`} type="radio" name="rating" value="positive" />
+                        </label >
+
+                        <label className={`${style.ratingRadioDiv}`}>
+                            <span>As Seller</span>  
+                            <input className={`${style.radio}`} type="radio" name="rating" value="positive" />
+                        </label>
+
+                        <label className={`${style.ratingRadioDiv}`}>
+                            <span>As Buyer</span> 
+                            <input className={`${style.radio}`} type="radio" name="rating" value="positive" />
+                        </label>
+                    </div>
+                    
+                    
+                </ModalBody>
+            </Modal>
+            }
+            
         </>
     )
 }

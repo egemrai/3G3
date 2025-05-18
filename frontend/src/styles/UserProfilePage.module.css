@@ -195,3 +195,71 @@
     height: 50%;
     width: 100%;
 }
+
+/* VIEWRATING MODAL için*/
+.viewRatingModal{
+    min-height: 500px;
+    overflow: auto;
+}
+
+.viewRatingCol{
+    margin-top: 2%;
+    width: 100%;
+    display: flex;
+    border-bottom:  lightgray 1px solid;
+    justify-content: center;
+    column-gap: 5%;
+}
+
+.viewRatingRow{
+    width: 50%;
+    justify-self: center;
+    background-color: white;
+    border: 0;
+    color: black;
+    overflow: hidden;
+    border-radius: 0;
+    
+}
+
+.viewRatingRow:hover{
+    background-color: lightgray;
+    color: black;
+}
+
+.positiveRatingRowClicked{
+    color: lightgreen !important;
+    border-bottom: 2px solid lightgreen !important;
+}
+
+.positiveRatingRowClicked:hover{
+    color: lightgreen;
+    border-bottom: 2px solid lightgreenred;
+}
+
+.negativeRatingRowClicked{
+    color: red !important;
+    border-bottom: 2px solid red !important;
+}
+
+.negativeRatingRowClicked:hover{
+    color: red;
+    border-bottom: 2px solid red;
+}
+
+.allRadioDiv{
+    margin-top: 10px;
+    height: 50px;
+    display:grid;
+    grid-template-columns: repeat(3, 1fr)
+}
+
+.ratingRadioDiv{
+   justify-self: center;
+}
+
+.radio{
+    margin-left: 4px;
+    position: relative;
+    top: 2px;
+}
