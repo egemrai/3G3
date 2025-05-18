@@ -2,7 +2,7 @@ import { Category } from "../models/category"
 import { Service } from "../models/service"
 import { User } from "../models/user"
 import { OfferSmall } from "../models/offerSmall"
-import { SoldOffer } from "../models/SoldOffer"
+import { SoldOffer, SoldOfferEditRatingForm } from "../models/SoldOffer"
 import { SoldOfferForm } from "../models/SoldOffer"
 
 async function fetchData(input: RequestInfo, init?: RequestInit) {
@@ -128,6 +128,21 @@ export async function fetchCategories(): Promise<Category[]> {
   export async function setSoldOfferCredentials(offerCredentials:SoldOfferForm, soldOfferId:string):Promise<SoldOffer> {
     const body={offerCredentials,soldOfferId}
     const response = await fetchData("/api/offers/setSoldOfferCredentials",{
+      method:"POST",
+      headers:{
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+
+    })
+
+    return response.json()
+  }
+
+  //EditRatingForm save butonuna basınca rating save ediyor
+  export async function editSoldOfferRating(ratingData:SoldOfferEditRatingForm, soldOfferId:string) {
+    const body={ratingData,soldOfferId}
+    const response = await fetchData("/api/offers/editSoldOfferRating",{
       method:"POST",
       headers:{
         "Content-Type": "application/json"

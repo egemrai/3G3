@@ -220,6 +220,7 @@ interface SoldOfferBody{
 export const createSoldOffer:RequestHandler<unknown,unknown,SoldOfferBody,unknown> = async (req,res,next)=>{
 const buyerId = req.session.userId
 const {buyAmount:quantity,serviceName,categoryName,sellerId,currency,description,price,title, _id:offerId} = req.body
+let boughtOfferReady= false
 
 try {
 
@@ -256,7 +257,7 @@ try {
         throw createHttpError(400,"satın alınmak istenen miktar stokta yok")
     }else{
         boughtOffer.stock= boughtOffer.stock-quantity
-        await boughtOffer.save()
+        boughtOfferReady = true
     }
 
     //YENİ CATEGORY YA DA SERVICE EKLEDİKCE OFFERDETAILS'A FAZLALIĞI EKLEMEYİ UNUTMA
@@ -288,6 +289,10 @@ try {
         offerCredentials:[]
         
     })
+
+    if(boughtOfferReady && newSoldOffer){ //SOLDOFFER CREATE EDİLİRKEN HATA OLURSA BOŞUNA STOCKTAN ÜRÜN EKSİLTMEMEK İÇİN AYIRDIM
+        await boughtOffer.save()
+    }
 
     const sellerSocketId = userSocketMap.get(sellerId)
     const message = "ürün satıldı kanks"
@@ -435,6 +440,71 @@ export const setSoldOfferCredentials:RequestHandler<unknown,unknown,SoldOfferCre
         }
 
         res.status(200).json(fetchedSoldOffer)
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+interface editSoldOfferRatingBody{
+    
+    ratingData: {rating:string,comment:string},
+    soldOfferId:string
+}
+
+export const editSoldOfferRating:RequestHandler<unknown,unknown,editSoldOfferRatingBody,unknown> = async(req,res,next) =>{
+    const userId = req.session.userId
+    const ratingData = req.body.ratingData
+    const soldOfferId = req.body.soldOfferId
+        try {
+        if(!userId || !ratingData || !soldOfferId){
+            throw createHttpError(404,"editSoldOfferRating parametre yok")}
+
+        const fetchedSoldOffer = await soldOfferModel.findById(soldOfferId)
+        if(!fetchedSoldOffer){
+            throw createHttpError(400,"fetchedSoldOffer undefined")
+        }
+
+        const currentDate = new Date()
+        const editDeadlineDate= new Date(fetchedSoldOffer.createdAt)
+        editDeadlineDate.setMonth(editDeadlineDate.getMonth() +1)
+
+        if((editDeadlineDate.getTime() - currentDate.getTime()) <0){
+            throw createHttpError(400,"editlemek için 1 aylık izin verilen süre doldu")
+        }
+
+        // if(fetchedSoldOffer?.stage !=="preparing"){              //BURAYI SONRADAN EKLE, HANGİ STAGEDE RATING GÖSTERCEKSEN
+        //     throw createHttpError(404,"setSoldOfferCredentials parametre yok")
+        // }
+        
+        if(fetchedSoldOffer.sellerId.toString()===userId.toString()){
+            if(fetchedSoldOffer.sellerEditedRating===true){
+                throw createHttpError(400,"rating daha önce editlenmiş")
+            }
+            fetchedSoldOffer.buyerRating = ratingData.rating
+            fetchedSoldOffer.buyerComment = ratingData.comment
+            fetchedSoldOffer.sellerEditedRating = true
+            console.log("if girdi")
+            await fetchedSoldOffer.save()
+            console.log("if .save sonrası")
+        }
+        else if(fetchedSoldOffer.buyerId.toString()===userId.toString()){
+            if(fetchedSoldOffer.buyerEditedRating===true){
+                throw createHttpError(400,"rating daha önce editlenmiş")
+            }
+            fetchedSoldOffer.sellerRating = ratingData.rating
+            fetchedSoldOffer.sellerComment = ratingData.comment
+            fetchedSoldOffer.buyerEditedRating = true
+            console.log("else if girdi")
+            
+            await fetchedSoldOffer.save()
+            console.log("else if .save sonrası")
+        }
+        else{
+            throw createHttpError(400,"userId eşleşmiyor")
+        }
+
+        res.status(200).json(true)
 
     } catch (error) {
         next(error)

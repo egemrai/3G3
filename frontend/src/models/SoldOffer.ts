@@ -10,7 +10,11 @@ export interface SoldOffer{
     totalAmount:number
     title:string
     sellerRating:string //alıcının satıcıya verdiği puan
+    sellerComment:string//alıcının satıcıya yaptığı yorum
+    sellerEditedRating:boolean //satıcının edit hakkı
     buyerRating:string
+    buyerComment:string
+    buyerEditedRating:boolean
     stage:string
     offerDetails:Record<string, any>
     offerCredentials:Record<string, any>[]
@@ -31,13 +35,8 @@ export interface SoldOfferForm{  // react hook form type'ı için bunu ekstra ya
         extraNotes:string}[]
 }
 
-//git test
-
-
-//pcden laptop'a test
-
-//laptoptan pcye test
-
-//pcden laptopa test
-
-//test          
+export interface SoldOfferEditRatingForm{  // react hook form type'ı için bunu ekstra yaptım
+    rating:string
+    comment:string
+}
+     

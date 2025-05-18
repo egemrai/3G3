@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import style from "../../styles/TransactionPage.module.css"
 import { Button, Card, Col, Container, Form, Modal, ModalBody, Row } from "react-bootstrap"
 import React, { useEffect, useState } from "react"
-import { SoldOffer, SoldOfferForm } from "../../models/SoldOffer"
+import { SoldOffer, SoldOfferEditRatingForm, SoldOfferForm } from "../../models/SoldOffer"
 import * as OffersApi from "../../network/offers_api"
 import * as UsersApi from "../../network/offers_api"
 import DetailsTransactionOffer from "../DetailsTransactionOffer"
@@ -29,10 +29,24 @@ const TransactionPage = ()=>{
     }, [offerId]);
 
     const {register, handleSubmit, formState : {errors, isSubmitting}}  = useForm<SoldOfferForm>({mode: "all"})
+    const {register:register2, handleSubmit:handleSubmit2, formState : {errors:errors2, isSubmitting:isSubmitting2}}  = useForm<SoldOfferEditRatingForm>({mode: "all"})
 
     async function setSoldOfferCredentials(credentials:SoldOfferForm){
         try {
             const response = await OffersApi.setSoldOfferCredentials(credentials,offer!._id)
+            console.log(response)
+             if(offer && response){
+            setSoldOfferStage("ready")
+            }
+        } catch (error) {
+            console.error(error)
+            alert("submit button hata");
+        }
+    }
+
+    async function editSoldOfferRating(ratingData:SoldOfferEditRatingForm){
+        try {
+            const response = await OffersApi.editSoldOfferRating(ratingData,offer!._id)
             console.log(response)
              if(offer && response){
             setSoldOfferStage("ready")
@@ -55,8 +69,12 @@ const TransactionPage = ()=>{
     const [viewedButtonDisabled,setViewedButtonDisabled] = useState<boolean>(false)
     const [confirmedButtonDisabled,setConfirmedButtonDisabled] = useState<boolean>(false)
     const [preparingButtonDisabled,setPreparingButtonDisabled] = useState<boolean>(false)
-    const [showratingModal,setShowratingModal] = useState<boolean>(false)
+    const [showRatingModal,setShowRatingModal] = useState<boolean>(false)
+    const [showEditRatingModal,setShowEditRatingModal] = useState<boolean>(false)
     const [ratingRowIndex,setRatingRowIndex] = useState<number>(0)
+    const [lastEditDate,setLastEditDate] = useState<JSX.Element>()
+    const [editDateDiff,seEditDateDiff] = useState<number>()
+    
 
 
     async function fetchUserId() {
@@ -71,11 +89,25 @@ const TransactionPage = ()=>{
 
     async function fetchSoldOffer(_id:string) {
         try {
+            //soldOffer fetch ve set kısmı
             const fetchedSoldOffer = await OffersApi.fetchSoldOfferWithId(_id)
             setOffer(fetchedSoldOffer)
+            //soldoffer fetch edildikten sonra, createdAt'i time'a atama kısmı
             const fetchtime = new Date(fetchedSoldOffer.createdAt)
             setTime(fetchtime)
-            
+            //Son edit tarihinin jsxElement olarak hazırlanıp, set edildiği kısım
+            const originalDate = new Date(fetchtime);
+            originalDate.setMonth(originalDate.getMonth() + 1); //setMonth kullanırken ay'a 1 ekliyoruz
+
+            const day = String(originalDate.getDate()).padStart(2, '0'); // padStart soldaki param, uzunluğu belirtiyor yani 01 10 12; sağdaki boşluğu ne ile dolduracağını, a kullansan a1 a5 falan gibi. String çevirme sebebi padStart numberda çalışmıyor
+            const month = String(originalDate.getMonth() + 1).padStart(2, '0');// burda 1 eklememizin sebebi, js'de ay index'i 0dan başlıyor, ocak tarihini göstermek için 00 kullanıcak mesela, onu engellemek için görüntü amaçlı
+            const year = originalDate.getFullYear();
+
+            const formattedDate = `${day}/${month}/${year}`;
+            setLastEditDate(<span>{formattedDate}</span>)
+            //edit butonunu satış sonrası 1 ay geçmişse disable etme kısmı 
+            const currentDate= new Date()
+            seEditDateDiff(originalDate.getTime()-currentDate.getTime())
         } catch (error) {
             console.error(error)
         }
@@ -156,7 +188,6 @@ async function setSoldOfferStage(stage:string) {  // databasede soldOffer.stage 
     }).slice(startIndex,startIndex+ offersPerPAge)
 
     const buyerCredentialsGrid = offer?.offerCredentials.map((data,i)=>{
-
         return(
             <React.Fragment>
             <Col>
@@ -274,6 +305,8 @@ async function setSoldOfferStage(stage:string) {  // databasede soldOffer.stage 
         
     })
 
+    
+
     return(
         <>
         {offer&&seller&&buyer
@@ -306,7 +339,7 @@ async function setSoldOfferStage(stage:string) {  // databasede soldOffer.stage 
                     </div>
                     <div className={`${style.chat}`}>{`Total: ${offer.totalAmount + " "+ offer.currency}`}</div>
                     <div className={`${style.chat}`}>
-                        <button onClick={()=> setShowratingModal(true)} className={`${style.chatAndEditButton}`}>
+                        <button onClick={()=> setShowRatingModal(true)} className={`${style.chatAndEditButton}`}>
                             View rating
                         </button>
                         <button className={`${style.chatAndEditButton}`}>
@@ -318,8 +351,8 @@ async function setSoldOfferStage(stage:string) {  // databasede soldOffer.stage 
                 
            
             {/*VIEW RATING MODAL */}
-            {showratingModal &&
-            <Modal  show={true} onHide={()=>setShowratingModal(false)}>
+            {showRatingModal &&
+            <Modal  show={true} onHide={()=>setShowRatingModal(false)}>
                 <ModalBody className={`${style.viewRatingModal}`}>
                     <Modal.Title> View rating</Modal.Title>
                     <Col  className={`${style.viewRatingCol}`}>
@@ -342,27 +375,81 @@ async function setSoldOfferStage(stage:string) {  // databasede soldOffer.stage 
 
                     {ratingRowIndex===0
                         ? <>
-                          <p> {buyer.username} give {offer.sellerRating} rating</p>
+                          <p> {buyer.username}'s rating: {offer.sellerRating}</p>
+                          <p> {buyer.username}'s comment: {offer.sellerComment}</p>
                           {userId===offer.buyerId &&
-                          <Modal.Footer>
-                            <p>bu offer'in ratingi tek sefer icin editle</p>
-                            </Modal.Footer>}
+                          <div className={`${style.editButtonDiv}`}>
+                            <p>You can only edit your rating once in a month after transaction. {lastEditDate}</p>
+                            <Button className={`${style.openEditRatingModalButton}`} onClick={()=>setShowEditRatingModal(true)} disabled={offer.buyerEditedRating || editDateDiff! <0}>Edit</Button>
+                          </div>}
                           </> 
-
-                        
                         : <>
-                          <p> {seller.username} give {offer.buyerRating} rating</p>
+                          <p> {seller.username}'s rating: {offer.buyerRating}</p>
+                          <p> {seller.username}'s comment: {offer.buyerComment}</p>
                           {userId===offer.sellerId &&
-                          <Modal.Footer>
-                            <p>bu offer'in ratingi tek sefer icin editle</p>
-                            </Modal.Footer>}
+                            <div className={`${style.editButtonDiv}`}>
+                                <p>You can only edit your rating once in a month after transaction. {lastEditDate}</p>
+                                <Button className={`${style.openEditRatingModalButton}`} onClick={()=>setShowEditRatingModal(true)} disabled={offer.sellerEditedRating || editDateDiff! <0}>Edit</Button>
+                            </div>
+                          }
                           </>
                           }
                 </ModalBody>
-                
             </Modal>}
 
+            {/*VIEW RATING MODAL */}
+            {showEditRatingModal &&
+            <Modal show={true} onHide={()=>setShowEditRatingModal(false)}>
+                <ModalBody className={`${style.viewEditRatingModal}`}>
+                    <Modal.Title>Edit rating</Modal.Title>
+
+            <Form onSubmit={handleSubmit2(editSoldOfferRating)}
+                id="editRatingForm"
+                >
+
+                <Form.Group className={`${style.formGroup}`} controlId={"rating"}>
+                <Form.Label id="rating">{"rating:"}</Form.Label>
+                <Form.Select
+                    {...register2(`rating`, {
+                    required: "Required",
                     
+                    })}
+                    isInvalid={!!errors2?.rating}>
+                    <option value="positive">Positive</option>
+                    <option value="negative">Negative</option>
+                </Form.Select> 
+                {errors2?.rating?.message && (
+                <Form.Control.Feedback type="invalid">
+                    {errors2?.rating.message}
+                </Form.Control.Feedback>
+                )}
+                </Form.Group>
+
+                <Form.Group className={`${style.formGroup}`} controlId={"comment"}>
+                <Form.Label id="comment">{"comment:"}</Form.Label>
+                <Form.Control as={"textarea"}
+                    {...register2(`comment`, {
+                    required: "Required",
+                    
+                    })}
+                    isInvalid={!!errors2?.comment}
+                /> 
+                {errors2?.comment?.message && (
+                <Form.Control.Feedback type="invalid">
+                    {errors2?.comment.message}
+                </Form.Control.Feedback>
+                )}
+                </Form.Group>
+
+                <Button className={`${style.editRatingSubmitButton}`}
+                type="submit"
+                disabled={isSubmitting2}>
+                    Save
+                </Button>
+            </Form>        
+                </ModalBody>
+            </Modal>
+            }
                 
                 {showDetails &&
                         <DetailsTransactionOffer

@@ -223,3 +223,37 @@
     color: red;
     border-bottom: 2px solid red;
 }
+
+.editButtonDiv{
+    display: flex;
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    width: 90%;
+    text-align: center;
+
+}
+
+.openEditRatingModalButton{
+    height: 40px;
+    width: 60px;
+
+}
+
+/* VIEW EDIT RATING MODAL için*/
+
+.viewEditRatingModal{
+    min-height: 600px;
+    overflow: auto;
+}
+
+.formGroup{
+    margin: 4% 0%;
+}
+
+.editRatingSubmitButton{
+    height: 60px;
+    width: 120px;
+    margin: 0 auto;
+    display: block;
+}

@@ -23,6 +23,7 @@ router.get("/fetchBoughtOffersWithId", OffersController.fetchBoughtOffersWithId)
 router.get("/fetchSoldOfferWithId", OffersController.fetchSoldOfferWithId) //transactionPage için  
 router.get("/setSeenAllTrue", OffersController.setSeenAllTrue);//Notification için seenByseller ve buyyer 'ı true yapıyor
 router.post("/setSoldOfferCredentials", OffersController.setSoldOfferCredentials); //satıcının ürün satılınca id şifre vs. datasını kaydetmesi
+router.post("/editSoldOfferRating", OffersController.editSoldOfferRating); //satıcı ya da alıcının soldOffer rating edit save butonu
 router.post("/setSoldOfferStage", OffersController.setSoldOfferStage); //satıcının soldOffer stage değiştirme şeyi
 
 router.delete("/deleteAllBoughtOffers", OffersController.deleteAllBoughtOffers); 
