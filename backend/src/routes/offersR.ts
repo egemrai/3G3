@@ -26,6 +26,9 @@ router.post("/setSoldOfferCredentials", OffersController.setSoldOfferCredentials
 router.post("/editSoldOfferRating", OffersController.editSoldOfferRating); //satıcı ya da alıcının soldOffer rating edit save butonu
 router.post("/setSoldOfferStage", OffersController.setSoldOfferStage); //satıcının soldOffer stage değiştirme şeyi
 
+
+
+router.get("/setSoldOffersToComplited", OffersController.setSoldOffersToComplited); 
 router.delete("/deleteAllBoughtOffers", OffersController.deleteAllBoughtOffers); 
 
 

@@ -330,13 +330,15 @@ export const fetchBoughtOffers:RequestHandler= async(req,res,next)=>{
         next(error)
     }
 }
+
+//USERPROFILE ICIN SOLDOFFERFETCH
 interface fetchSoldOffersWithIdQuery{
     userId: string
 }
 export const fetchSoldOffersWithId:RequestHandler<unknown,unknown,unknown,fetchSoldOffersWithIdQuery>= async(req,res,next)=>{
     const userId = req.query.userId
     try {
-        const fetchedSoldOffers = await soldOfferModel.find({sellerId:userId, stage:"pending"})
+        const fetchedSoldOffers = await soldOfferModel.find({sellerId:userId, stage: { $in: ["completed", "confirmed"]}})
         res.status(200).json(fetchedSoldOffers)
     } catch (error) {
         next(error)
@@ -346,7 +348,7 @@ export const fetchSoldOffersWithId:RequestHandler<unknown,unknown,unknown,fetchS
 export const fetchBoughtOffersWithId:RequestHandler<unknown,unknown,unknown,fetchSoldOffersWithIdQuery>= async(req,res,next)=>{
     const userId = req.query.userId
     try {
-        const fetchedBoughtOffers = await soldOfferModel.find({buyerId:userId, stage:"pending"})
+        const fetchedBoughtOffers = await soldOfferModel.find({buyerId:userId, stage:{ $in: ["completed", "confirmed"]}})
         res.status(200).json(fetchedBoughtOffers)
     } catch (error) {
         next(error)
@@ -473,9 +475,9 @@ export const editSoldOfferRating:RequestHandler<unknown,unknown,editSoldOfferRat
             throw createHttpError(400,"editlemek için 1 aylık izin verilen süre doldu")
         }
 
-        // if(fetchedSoldOffer?.stage !=="preparing"){              //BURAYI SONRADAN EKLE, HANGİ STAGEDE RATING GÖSTERCEKSEN
-        //     throw createHttpError(404,"setSoldOfferCredentials parametre yok")
-        // }
+        if(fetchedSoldOffer?.stage !== ("confirmed") && fetchedSoldOffer?.stage !== "completed"){             
+            throw createHttpError(404,"editSoldOfferRating stage error")
+        }
         
         if(fetchedSoldOffer.sellerId.toString()===userId.toString()){
             if(fetchedSoldOffer.sellerEditedRating===true){
@@ -547,10 +549,10 @@ export const setSoldOfferStage:RequestHandler<unknown,unknown,SoldOfferBody,unkn
 
                     const buyerId =fetchedSoldOffer.buyerId.toString()
                     const buyerSocketId = userSocketMap.get(buyerId)
-                    const message = "satıl aldığın ürünün bilgileri satıcı tarafından hazırlandı"
+                    const message = "satın aldığın ürünün bilgileri satıcı tarafından hazırlandı"
                     if(buyerSocketId){
                         buyerSocketId.forEach(eachSocketId =>
-                            io.to(eachSocketId).emit("soldOfferNotificationForBuyerFromServer",{
+                            io.to(eachSocketId).emit("boughtOfferNotificationForBuyerFromServer",{
                                 message,
                                 fetchedSoldOffer
                             })
@@ -561,13 +563,40 @@ export const setSoldOfferStage:RequestHandler<unknown,unknown,SoldOfferBody,unkn
             }
 
             res.status(200).json(fetchedSoldOffer)
-        }else if(stage==="viewed"|| stage=== "confirmed"){
+        }else if(stage==="viewed"|| stage=== "confirmed" || stage=== "canceled"){
             const fetchedSoldOffer = await soldOfferModel.findOne({buyerId:sellerOrBuyerId, _id:soldOfferId})
 
             if(fetchedSoldOffer){
-                fetchedSoldOffer.stage = stage
-                await fetchedSoldOffer?.save()
+                if(stage==="viewed"){
+                    fetchedSoldOffer.stage = stage
+                    await fetchedSoldOffer?.save()
+                }
+                else if(stage==="canceled"){
+                    fetchedSoldOffer.stage = stage
+                    fetchedSoldOffer.seenBySeller = false
+                    await fetchedSoldOffer?.save()
+
+                    const sellerSocketId = userSocketMap.get(fetchedSoldOffer.sellerId.toString())
+                    const message = "sattığın ürün cancellandı"
+                    if(sellerSocketId){
+                        sellerSocketId.forEach(eachSocketId=>
+                            io.to(eachSocketId).emit("canceledOfferNotificationForSellerFromServer",{
+                        message,
+                        fetchedSoldOffer
+                            })
+                        )
+                    }
+
+                }
+                else if(stage==="confirmed"){
+                    fetchedSoldOffer.stage = stage
+                    const now = new Date()
+                    fetchedSoldOffer.confirmedAt = now
+                    await fetchedSoldOffer?.save()
+                }
             }
+            
+           
 
             res.status(200).json(fetchedSoldOffer)
         }
@@ -578,7 +607,42 @@ export const setSoldOfferStage:RequestHandler<unknown,unknown,SoldOfferBody,unkn
 }
 
 
+//soldOfferslarda confirmed olanlar uygunsa completed yapma, postman üzerinden
+export const setSoldOffersToComplited:RequestHandler = async(req,res,next)=>{
+    try {
+        const soldOffers = await soldOfferModel.find({stage:"confirmed"})
+        if(!soldOffers){
+            throw createHttpError(400,"setSoldOffersToComplited soldOffers boş")
+        }
+        const now = new Date()
+        
+        const Account=  Promise.all(soldOffers.filter(e=>e.serviceName.replace(`${e.categoryName}`,"")==="Account").map(async(soldOffer)=>{
+            if(soldOffer.confirmedAt){
+                if((now.getTime() - soldOffer.confirmedAt?.getTime()) > 1209600000){
+                    soldOffer.stage= "completed"
+                    await soldOffer.save()
+                    return(soldOffer)
+            }
+            }
+        }))  
 
+        const others=  Promise.all(soldOffers.filter(e=>e.serviceName.replace(`${e.categoryName}`,"")!=="Account").map(async(soldOffer)=>{
+            soldOffer.stage= "completed"
+            await soldOffer.save()
+            return(soldOffer)
+            
+        }))  
+
+        console.log(Account)
+        console.log(others)
+
+        res.status(200).json(true)
+    } catch (error) {
+        next(error)
+    }
+}
+
+//tüm soldoffersları silme, postman üzerinden
 export const deleteAllBoughtOffers:RequestHandler= async(req,res,next)=>{  //Postman için tüm collection silme requesti, websitesinde yok
     try {
          await soldOfferModel.deleteMany({})

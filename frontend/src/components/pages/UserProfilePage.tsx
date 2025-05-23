@@ -4,6 +4,7 @@ import { Button, Card, Col, Container, Modal, ModalBody, Row } from "react-boots
 import React, { useEffect, useState } from "react"
 import * as OffersApi from "../../network/offers_api"
 import { SoldOffer } from "../../models/SoldOffer"
+import { UserProfileRatingBoughtOffer, UserProfileRatingSoldOffer } from "../UserProfileRatingSoldOffer"
 
 interface userId_Time{
     id:string
@@ -31,9 +32,13 @@ const UserProfilePage = ()=>{
     const [boughtOffers, setBoughtOffers] = useState<SoldOffer[]>([])
     const [soldOffers, setSoldOffers] = useState<SoldOffer[]>([])
     const [totalOffers, setTotalOffers] = useState<SoldOffer[]>([])
-    const [allTimePositive, setAllTimePositive] = useState<number>(0)
+    const [allTimePositive, setAllTimePositive] = useState<SoldOffer[]>([])
+    const [allTimeNegative, setallTimeNegative] = useState<SoldOffer[]>([])
     const [showRatingOffersModal, setShowRatingOffersModal] = useState<boolean>(false)
-    const [ratingRowIndex, setRatingRowIndex] = useState<number>(0)
+    const [ratingRowIndex, setRatingRowIndex] = useState<string>("positive")
+    const [ratingSortIndex, setRatingSortIndex] = useState<string>("all")
+    const [ratingSoldOffersGrid, setRatingSoldOffersGrid] = useState<JSX.Element[]>([])
+    const [ratingOfferShowCount, setRatingOfferShowCount] = useState<number>(1)
 
 
     const fetchOffers = async() =>{
@@ -82,7 +87,14 @@ const UserProfilePage = ()=>{
                 setTotalOffers([...fetchedBoughtOffers,...fetchedSoldOffers])
                 const positiveBoughtOffers = fetchedBoughtOffers.filter(soldOffer=>soldOffer.buyerRating==="positive")
                 const positiveSoldOffers = fetchedSoldOffers.filter(soldOffer=>soldOffer.sellerRating==="positive")
-                setAllTimePositive(positiveBoughtOffers.length + positiveSoldOffers.length)
+                setAllTimePositive([...positiveBoughtOffers, ...positiveSoldOffers])
+                console.log("setAllTimePositive:",[...positiveBoughtOffers, ...positiveSoldOffers])
+                console.log("setAllTimePositive:",[...positiveBoughtOffers, ...positiveSoldOffers])
+                const negativeBoughtOffers = fetchedBoughtOffers.filter(soldOffer=>soldOffer.buyerRating==="negative")
+                const negativeSoldOffers = fetchedSoldOffers.filter(soldOffer=>soldOffer.sellerRating==="negative")
+                setallTimeNegative([...negativeBoughtOffers, ...negativeSoldOffers])
+                 console.log("setallTimeNegative:",[...negativeBoughtOffers, ...negativeSoldOffers])
+                 console.log("setallTimeNegative:",[...negativeBoughtOffers, ...negativeSoldOffers])
             }
         } catch (error) {
             console.error(error)
@@ -200,10 +212,105 @@ function setServiceRow(){
     },[selectedService])
 
     //Ratıng SoldOffers Gösterme kısmı
+    function soldOfferRatingDalgası() {
+        const offersPerPAge = 1
+        
+        if(ratingRowIndex==="positive"){
+            if(ratingSortIndex==="seller"){
+                const ege = allTimePositive.filter(offer=> offer.sellerId=== user?.id).map((offer)=>{
+                    return(
+                        <UserProfileRatingSoldOffer 
+                        offer={offer}
+                        />
+                    )
+                }).slice(0,offersPerPAge*ratingOfferShowCount)
+                setRatingSoldOffersGrid(ege||[])
+            }      
+            else if(ratingSortIndex==="buyer"){
+                const ege = allTimePositive.filter(offer=> offer.buyerId=== user?.id).map((offer)=>{
+                    return(
+                        <UserProfileRatingBoughtOffer 
+                        offer={offer}
+                        />
+                    )
+                }).slice(0,offersPerPAge*ratingOfferShowCount)
+                setRatingSoldOffersGrid(ege||[])
+            }
+            else if(ratingSortIndex==="all"){
+                const ege = allTimePositive.map((offer)=>{
+                    if(offer.sellerId=== user?.id){
+                        return(
+                        <UserProfileRatingSoldOffer 
+                        offer={offer}
+                        />
+                    )
+                    }
+                    else if(offer.buyerId=== user?.id){
+                        return(
+                        <UserProfileRatingBoughtOffer 
+                        offer={offer}
+                        />
+                    )
+                    }
+                    else{
+                        return( <p>empty</p>)
+                    }
+                }).slice(0,offersPerPAge*ratingOfferShowCount)
+                setRatingSoldOffersGrid(ege||[])
+            }
+        }
 
-    const ratingSoldOffersGrid = 2
+        else if(ratingRowIndex==="negative"){
+            if(ratingSortIndex==="seller"){
+                const ege = allTimeNegative.filter(offer=> offer.sellerId=== user?.id).map((offer)=>{
+                    return(
+                        <UserProfileRatingSoldOffer 
+                        offer={offer}
+                        />
+                    )
+                }).slice(0,offersPerPAge*ratingOfferShowCount)
+                setRatingSoldOffersGrid(ege||[])
+            }      
+            else if(ratingSortIndex==="buyer"){
+                const ege = allTimeNegative.filter(offer=> offer.buyerId=== user?.id).map((offer)=>{
+                    return(
+                        <UserProfileRatingBoughtOffer 
+                        offer={offer}
+                        />
+                    )
+                }).slice(0,offersPerPAge*ratingOfferShowCount)
+                setRatingSoldOffersGrid(ege||[])
+            }
+            else if(ratingSortIndex==="all"){
+                const ege = allTimeNegative.map((offer)=>{
+                    if(offer.sellerId=== user?.id){
+                        return(
+                        <UserProfileRatingSoldOffer 
+                        offer={offer}
+                        />
+                    )
+                    }
+                    else if(offer.buyerId=== user?.id){
+                        return(
+                        <UserProfileRatingBoughtOffer 
+                        offer={offer}
+                        />
+                    )
+                    }
+                    else{
+                        return( <p>empty</p>)
+                    }
+                }).slice(0,offersPerPAge*ratingOfferShowCount)
+                setRatingSoldOffersGrid(ege||[])
+            }
+        }
+    }
 
+    useEffect(()=>{
+        
+         soldOfferRatingDalgası()
 
+    },[offers,ratingRowIndex,ratingSortIndex,ratingOfferShowCount])
 
     return(
         <>
@@ -242,11 +349,11 @@ function setServiceRow(){
                             </div>
                             <div className={`${style.dateDiv}`}>
                                 <div className={`${style.text_green}`}>  {/* totaloffers alltimepositive*/}
-                                    <p onClick={()=>setShowRatingOffersModal(true)}>{((allTimePositive*100)/totalOffers.length).toFixed(2)}%</p>
+                                    <p onClick={()=>{setShowRatingOffersModal(true);setRatingRowIndex("positive")}}>{((allTimePositive.length*100)/totalOffers.length).toFixed(2)}%</p>
                                     
                                 </div>
                                 <div className={`${style.text_red}`}>
-                                    <p onClick={()=>setShowRatingOffersModal(true)}>{(100-((allTimePositive*100)/totalOffers.length)).toFixed(2)}%</p>
+                                    <p onClick={()=>{setShowRatingOffersModal(true);setRatingRowIndex("negative")}}>{(100-((allTimePositive.length*100)/totalOffers.length)).toFixed(2)}%</p>
                                 </div>
                                 
                             </div>
@@ -312,21 +419,21 @@ function setServiceRow(){
             </Container>
 
             {showRatingOffersModal && 
-            <Modal show={true} onHide={()=>setShowRatingOffersModal(false)}>
-                <ModalBody>
+            <Modal  show={true} onHide={()=>setShowRatingOffersModal(false)}>
+                <ModalBody className={`${style.viewRatingModal}`}>
                     <Modal.Title>{`${URLparams.username}'s orders`}</Modal.Title>
 
                     <Col  className={`${style.viewRatingCol}`}>
-                        <Row as={Button} onClick={()=>setRatingRowIndex(0)} 
-                            className={ratingRowIndex===0
+                        <Row as={Button} onClick={()=>setRatingRowIndex("positive")} 
+                            className={ratingRowIndex==="positive"
                                 ?`${style.positiveRatingRowClicked} ${style.viewRatingRow}` 
                                 :`${style.viewRatingRow}`
                             }
                             >
                             <span>Positive rating</span>
                         </Row>
-                        <Row as={Button} onClick={()=>setRatingRowIndex(1)} 
-                            className={ratingRowIndex===1
+                        <Row as={Button} onClick={()=>setRatingRowIndex("negative")} 
+                            className={ratingRowIndex==="negative"
                                 ?`${style.negativeRatingRowClicked} ${style.viewRatingRow}` 
                                 :`${style.viewRatingRow}`
                             }>
@@ -336,20 +443,27 @@ function setServiceRow(){
                     <div className={`${style.allRadioDiv}`}>
                         <label className={`${style.ratingRadioDiv}`}>
                             <span>All</span> 
-                            <input className={`${style.radio}`} type="radio" name="rating" value="positive" />
+                            <input onClick={()=>setRatingSortIndex("all")} className={`${style.radio}`} type="radio" name="rating" value="positive" />
                         </label >
 
                         <label className={`${style.ratingRadioDiv}`}>
                             <span>As Seller</span>  
-                            <input className={`${style.radio}`} type="radio" name="rating" value="positive" />
+                            <input onClick={()=>setRatingSortIndex("seller")} className={`${style.radio}`} type="radio" name="rating" value="positive" />
                         </label>
 
                         <label className={`${style.ratingRadioDiv}`}>
                             <span>As Buyer</span> 
-                            <input className={`${style.radio}`} type="radio" name="rating" value="positive" />
+                            <input onClick={()=>setRatingSortIndex("buyer")} className={`${style.radio}`} type="radio" name="rating" value="positive" />
                         </label>
                     </div>
                     
+                    {ratingSoldOffersGrid?.length >0
+                    ?<>
+                    {ratingSoldOffersGrid}
+                    <Button onClick={()=>setRatingOfferShowCount(e=>e+1)} className={`${style.serviceButtonMore4}`}>Show more</Button>
+                    </>
+                    :<p>empty</p>
+                    }
                     
                 </ModalBody>
             </Modal>

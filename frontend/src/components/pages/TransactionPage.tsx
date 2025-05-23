@@ -47,13 +47,14 @@ const TransactionPage = ()=>{
     async function editSoldOfferRating(ratingData:SoldOfferEditRatingForm){
         try {
             const response = await OffersApi.editSoldOfferRating(ratingData,offer!._id)
-            console.log(response)
-             if(offer && response){
-            setSoldOfferStage("ready")
+            if(response){
+                alert("Edit saved")
             }
+            console.log(response)
+             
         } catch (error) {
             console.error(error)
-            alert("submit button hata");
+            alert("save edit button hata");
         }
     }
 
@@ -69,8 +70,10 @@ const TransactionPage = ()=>{
     const [viewedButtonDisabled,setViewedButtonDisabled] = useState<boolean>(false)
     const [confirmedButtonDisabled,setConfirmedButtonDisabled] = useState<boolean>(false)
     const [preparingButtonDisabled,setPreparingButtonDisabled] = useState<boolean>(false)
+    const [canceledButtonDisabled,setCanceledButtonDisabled] = useState<boolean>(false)
     const [showRatingModal,setShowRatingModal] = useState<boolean>(false)
     const [showEditRatingModal,setShowEditRatingModal] = useState<boolean>(false)
+    const [showCancelModal,setShowCancelModal] = useState<boolean>(false)
     const [ratingRowIndex,setRatingRowIndex] = useState<number>(0)
     const [lastEditDate,setLastEditDate] = useState<JSX.Element>()
     const [editDateDiff,seEditDateDiff] = useState<number>()
@@ -313,6 +316,7 @@ async function setSoldOfferStage(stage:string) {  // databasede soldOffer.stage 
         ?<>
         <Container>
             <Card className={style.card}>
+                
                 <div className={style.offerDiv}>
                     <div className={`${style.whiteSpacePre}`}>{`Order id:  ${offer._id}   /   Sold on: ${time.toLocaleString()}`}</div>
                     
@@ -335,8 +339,8 @@ async function setSoldOfferStage(stage:string) {  // databasede soldOffer.stage 
                                 <p className={`${style.quantity}`}>Quantity: x{offer.quantity}</p>
                             </div>
                             
-                        
                     </div>
+                    
                     <div className={`${style.chat}`}>{`Total: ${offer.totalAmount + " "+ offer.currency}`}</div>
                     <div className={`${style.chat}`}>
                         <button onClick={()=> setShowRatingModal(true)} className={`${style.chatAndEditButton}`}>
@@ -346,9 +350,34 @@ async function setSoldOfferStage(stage:string) {  // databasede soldOffer.stage 
                             Chat
                         </button>
                     </div>
-                    <div className={`${style.chat}`}>{offer.stage}</div>
+                    <div className={`${style.egem}`}>
+                        <p className={`${style.chdeat}`}>{offer.stage}</p>
+                        {offer.stage==="confirmed" && offer.buyerId===userId &&
+                        <button
+                        className={`${style.cancelButton}`}
+                        disabled={canceledButtonDisabled}
+                        
+                        onClick={()=>setShowCancelModal(true)}>
+                                Cancel
+                        </button>}
+                    </div>
                 </div>
-                
+            {/*CANCEL MODAL*/}
+            {showCancelModal && 
+                <Modal show={true} onHide={()=>setShowCancelModal(false)}>
+                    <Modal.Body>
+                        <p>Are you sure to cancel the order?</p>
+                        <Button className={`${style.editRatingSubmitButton}`} 
+                        onClick={async()=>
+                        {setCanceledButtonDisabled(true);
+                        await setSoldOfferStage("canceled")
+                        setShowCancelModal(false)
+                        setCanceledButtonDisabled(false)}}>
+                            Cancel order
+                        </Button>
+                    </Modal.Body>
+                </Modal>
+            }
            
             {/*VIEW RATING MODAL */}
             {showRatingModal &&
@@ -455,7 +484,7 @@ async function setSoldOfferStage(stage:string) {  // databasede soldOffer.stage 
                         <DetailsTransactionOffer
                         offer={offer}
                         onHide={()=>{setShowDetails(false)}}/>
-                        }
+                        }        
             </Card>
             
         </Container>

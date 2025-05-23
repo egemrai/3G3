@@ -5,6 +5,7 @@ import offerRoutes from "./routes/offersR"
 import userRoutes from "./routes/usersR"
 import categoryRoutes from "./routes/categoriesR"
 import createOfferRoutes from "./routes/createEditOffersR"
+import chatRoutes from "./routes/chatR"
 import createHttpError from "http-errors"
 import {isHttpError} from "http-errors"
 import session from "express-session"
@@ -43,6 +44,8 @@ app.use("/api/category", categoryRoutes)
 app.use("/api/users", userRoutes)
 
 app.use("/api/createOffer", createOfferRoutes)
+
+app.use("/api/chat", chatRoutes)
 
 
 app.use((req, res, next) => {

@@ -199,7 +199,10 @@
 /* VIEWRATING MODAL için*/
 .viewRatingModal{
     min-height: 500px;
-    overflow: auto;
+    max-height: 700px;
+    overflow-y: auto;
+    
+    
 }
 
 .viewRatingCol{
@@ -262,4 +265,29 @@
     margin-left: 4px;
     position: relative;
     top: 2px;
+}
+
+/*RATING ICINDEKI OFFERLAR GRID*/
+
+.ratingOfferCard{
+    min-height: 130px;
+    max-height: 240px;
+    overflow: auto;
+}
+
+.ratingOfferTitle{
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /*max 2 satır*/
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* white-space: break; */
+    width: fit-content;
+}
+
+.line{
+    border-bottom: solid rgba(222, 213, 213, 0.924) 3px;
+    width: 100%;
+    display: block;
+    margin-top: 20px;
 }

@@ -30,10 +30,14 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarL
         
     const [soldOffers, setSoldOffers] = useState<SoldOffer[]>([])
     const [boughtOffers, setBoughtOffers] = useState<SoldOffer[]>([])
+    const [canceledOffers, setCanceledOffers] = useState<SoldOffer[]>([])
     const [notificationLenght, setNotificationLenght] = useState<number>(0) //notification butonu rengi ve sayıyı 0lamak için
     
     function toTransactionPage(id:string){
-        navigate("/transaction/?page=1",{state:{id:id}})
+        navigate("/")
+        setTimeout(() => {  //mecvut sayfa transaction ise, setTimeout ile önce random bi sayfaya gidip sonra hemen loopa transaction'a gitmeyi ekliyor
+        navigate("/transaction/?page=1",{state:{id:id}}) 
+        }, 0)
     }
 
     //SOCKETS
@@ -47,28 +51,39 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarL
     setNotificationLenght((e)=>e+1)
     })
 
-    socket.on("soldOfferNotificationForBuyerFromServer", (data:any) => {
+    socket.on("boughtOfferNotificationForBuyerFromServer", (data:any) => {
     console.log("serverdan mesaj:", data.message)
     console.log("serverdan mesaj:", data.fetchedSoldOffer)
     setBoughtOffers((e)=>[...e,data.fetchedSoldOffer])
     setNotificationLenght((e)=>e+1)
     })
 
+    socket.on("canceledOfferNotificationForSellerFromServer", (data:any) => {
+    console.log("serverdan mesaj:", data.message)
+    console.log("serverdan mesaj:", data.fetchedSoldOffer)
+    setCanceledOffers((e)=>[...e,data.fetchedSoldOffer])
+    setNotificationLenght((e)=>e+1)
+    })
+
     return () => {
       socket.off("soldOfferNotificationForSellerFromFrontend")
-      socket.off("soldOfferNotificationForBuyerFromServer")
+      socket.off("boughtOfferNotificationForBuyerFromServer")
+      socket.off("canceledOfferNotificationForSellerFromServer")
     }
+
   }
 }, [socket])
 
     async function fetchSoldOffers() {
         const fetchedSoldOffers = await offers_api.fetchSoldOffers()
-        const filteredSoldOffers =  fetchedSoldOffers.filter(offer=>offer.seenBySeller===false) //seen false ise, yani görünmediyse notif'de görüncek
+        const filteredSoldOffers =  fetchedSoldOffers.filter(offer=>(offer.seenBySeller===false && offer.stage!=="canceled")) //seen false ise, yani görünmediyse notif'de görüncek
+        const filteredCanceledOffers =  fetchedSoldOffers.filter(offer=>(offer.seenBySeller===false && offer.stage==="canceled")) //seen false ise, yani görünmediyse notif'de görüncek
         const fetchedBoughtOffers = await offers_api.fetchBoughtOffers()
         const filteredBoughtOffers =  fetchedBoughtOffers.filter(offer=>offer.seenByBuyer===false)
         setSoldOffers(filteredSoldOffers)
         setBoughtOffers(filteredBoughtOffers)
-        setNotificationLenght(filteredSoldOffers.length + filteredBoughtOffers.length)
+        setCanceledOffers(filteredCanceledOffers)
+        setNotificationLenght(filteredSoldOffers.length + filteredBoughtOffers.length + filteredCanceledOffers.length)
     }
 
     useEffect(()=>{
@@ -88,12 +103,20 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarL
             <Card key={index}  onClick={()=>toTransactionPage(id)} className={`${style.dropdownMenuCard}`}>title: {title}</Card>
         )
     })
-
+    
     const boughtOffersGrid = boughtOffers.map((offer,index)=>{
         const title= offer.title
         const id= offer._id
         return(
             <Card key={index} onClick={()=>toTransactionPage(id)} className={`${style.dropdownMenuCard}`}>title: {title}</Card>
+        )
+    })
+
+    const canceledOffersGrid = canceledOffers.map((offer,index)=>{
+        const title= offer.title
+        const id= offer._id
+        return(
+            <Card key={index}  onClick={()=>toTransactionPage(id)} className={`${style.dropdownMenuCard}`}>title: {title}</Card>
         )
     })
 
@@ -123,15 +146,15 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarL
                             create offer
                         </Nav.Item>
 
-                        <Nav.Item className={`${style.createOfferButton} rounded-pill me-3 my-auto`} as={Link} to={"/createOffer"}  >
+                        <Nav.Item className={`${style.createOfferButton} rounded-pill me-3 my-auto`} as={Link} to={"/chat"}  >
                             message
                         </Nav.Item>
                         <Dropdown //NOTIFICATION TIKLAYINCA DİREKT KULLANICININ BÜTÜN SEENBYSELLER VE BUYER'I FALSE OLAN SOLDOFFER'LARINI TRUE YAPIYOR
                         onToggle={(isOpen)=>{
-                            if(isOpen){
+                            if(isOpen){     //dropdown açılınca çalışan fonksiyonlar
                                 setSeenTrue()
                             }
-                            if(!isOpen){
+                            if(!isOpen){    //dropdown kapanınca çalışan fonksiyonlar
                                 setSoldOffers([])
                                 setBoughtOffers([])
                             }
@@ -150,12 +173,22 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarL
                                 <Dropdown.Menu className={`${style.dropdownMenu}`}>
                                     <div>
                                         <div className={`${style.dropdownMenuName}`} >
+                                            <p>Canceled Offers</p>
+                                            <Link to={"/soldOffers/?page=1"} className={`${style.dropdownMenuLink}`}>view all</Link>
+                                        </div>
+                                        {canceledOffersGrid.length>0
+                                        ?canceledOffersGrid
+                                        :<Card className={`${style.dropdownMenuCard}`}> No new canceled offers</Card>}
+                                        
+                                    </div>
+                                    <div>
+                                        <div className={`${style.dropdownMenuName}`} >
                                             <p>Sold Offers</p>
                                             <Link to={"/soldOffers/?page=1"} className={`${style.dropdownMenuLink}`}>view all</Link>
                                         </div>
                                         {soldOffersGrid.length>0
                                         ?soldOffersGrid
-                                        :<Card className={`${style.dropdownMenuCard}`}>yeni bi şeyler yok</Card>}
+                                        :<Card className={`${style.dropdownMenuCard}`}>No new sold offers</Card>}
                                         
                                     </div>
 
@@ -166,7 +199,7 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarL
                                         </div>
                                         {boughtOffersGrid.length>0
                                         ?boughtOffersGrid
-                                        :<Card className={`${style.dropdownMenuCard}`}>yeni bi şeyler yok</Card>}
+                                        :<Card className={`${style.dropdownMenuCard}`}>No new bought offers</Card>}
                                     </div>
                                 </Dropdown.Menu>
                             </Dropdown>

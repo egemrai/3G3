@@ -4,6 +4,22 @@
     height: 250px;
 }
 
+.cancelButton{
+    position: relative;
+    top: 50px;
+    height: 40px;
+    width: 90px;
+    
+}
+
+.egem{
+    display: grid;
+    height: 114px;
+    justify-self: center;
+    text-align: center;
+}
+
+
 .offerDiv{
     padding-left: 1%;
     display: grid;

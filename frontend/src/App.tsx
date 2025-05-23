@@ -21,6 +21,7 @@ import TransactionPage from './components/pages/TransactionPage';
 import connectSocket from "./socket"
 import SoldOffersPage from './components/pages/SoldOffersPage';
 import BoughtOffersPage from './components/pages/BoughtOffersPage';
+import ChatPage from './components/pages/ChatPage';
 
 function App() {
 
@@ -126,6 +127,8 @@ useEffect(() => {
             <Route path='/boughtOffers' element={<BoughtOffersPage/>}/>
 
             <Route path='/transaction' element={<TransactionPage/>}/>
+
+            <Route path='/chat' element={<ChatPage/>}/>
 
             <Route
             path='/*'  //url üsttekilerden biri olmazsa, olanı kullanıyor
