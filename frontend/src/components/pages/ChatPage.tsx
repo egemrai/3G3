@@ -90,7 +90,7 @@ const ChatPage = () => {
                     fefawefaaawefawefawefawefawfawf fefawefaaawefawefawefawefawfawf fefawefafawefaew fawefawefwaefwaefaewwlefmawlkefmklawfmlkwaffmklawfmlkwafefmklawfmlkwafefmklawfmlkwafefmklawfmdqwdqwdwafee`} </p>
                 <div className={`${style.time_checkDiv}`}>
                     <span>{`14:52 `}</span>
-                    <span>{`??`}</span>
+                    <span>{`✓`}</span>
                 </div>
             </div>
             
@@ -130,11 +130,11 @@ const ChatPage = () => {
                                 {...register(`message`, {
                                 required: "Required",
                                 })}
-                                onInput={(e) => {
+                                onInput={(e) => {               //chatgpt baktım
                                     const el = e.currentTarget;
-                                    el.style.height = "auto"; // önce eski yüksekliği sıfırla
+                                    el.style.height = "40px";
                                     const maxHeight = 5 * 24; // 5 satır × line-height
-                                    el.style.height = `${Math.min(el.scrollHeight, maxHeight)}px`;
+                                    el.style.height = `${Math.min(el.scrollHeight, maxHeight)}px`; //Math.min() en yüksek olanı return ediyor
                                     el.style.overflowY = el.scrollHeight > maxHeight ? "auto" : "hidden";
                                 }}
                                     />
