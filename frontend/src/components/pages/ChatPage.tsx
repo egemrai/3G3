@@ -80,33 +80,34 @@ const ChatPage = () => {
 
     const messagesGrid= Array.from({length:10},(_,i) =>{
         return(
-            <div className={`${style.conversation}`}>
-                <div className={`${style.conversationInfo}`}>
-                    <div>
-                        <p>username:ege</p>
-                        <p className={`${style.conversationMessage}`}>messagemes aewdawedawefaew awfeawefawefwefwae waefwaeagd awefawefaewfaewf afwefawfewafawweemessagemessagemessagemessagemessagemessage</p>
-                    </div>
+            <div 
+            className={i % 2 === 1 
+            ? `${style.sentMessage}` 
+            : `${style.receivedMessage}`}
+            >
+                <p className={`${style.messageP}`}>{`dşlfama awfaaawefawefaw 
                     
-                    <div>
-                        <p className={`${style.conversationInfoP}`}>ay yıl gün</p>
-                        <p className={`${style.conversationInfoP}`}>saat</p>
-                    </div>
+                    fefawefaaawefawefawefawefawfawf fefawefaaawefawefawefawefawfawf fefawefafawefaew fawefawefwaefwaefaewwlefmawlkefmklawfmlkwaffmklawfmlkwafefmklawfmlkwafefmklawfmlkwafefmklawfmdqwdqwdwafee`} </p>
+                <div className={`${style.time_checkDiv}`}>
+                    <span>{`14:52 `}</span>
+                    <span>{`??`}</span>
                 </div>
-                
-                
             </div>
+            
         )
     })
+
+    
        
     
     return (
         <>
-            <div className={`${style.container}`}>
+            <div className={`${style.container}`}> {/*conversation kısmı*/}
                 <div className={`${style.conversationDiv}`}> {/*conversation div*/}
                     {conversationsGrid}
                 </div>
 
-                <div className={`${style.chatDiv}`}> {/*sohbet div*/}
+                <div className={`${style.chatDiv}`}> {/*chatDiv kısmı*/}
                     <div className={`${style.chatInfoDıv}`}> {/*username ve lastseen kısmı div*/}
                     <p className={`${style.conversationInfoP}`}>username kısmı</p>
                     <p className={`${style.conversationInfoP}`}>lastSeen kısmı</p>
@@ -116,7 +117,9 @@ const ChatPage = () => {
 
                     <div className={`${style.messagesDiv}`}> {/*mesajların göründüğü kısım*/}
                         {messagesGrid}
-                        <div className={`${style.sendMessageDiv}`}>   {/*mesajın gönderildiği kısım*/} {/*mesajın yazıldığı kısım*/}
+                        
+                    </div>
+                    <div className={`${style.sendMessageDiv}`}>   {/*mesajın gönderildiği kısım sendMessageDiv*/} {/*mesajın yazıldığı kısım*/}
                             <Form onSubmit={handleSubmit(()=>{})}
                                 id="sendMessageForm">
 
@@ -144,11 +147,10 @@ const ChatPage = () => {
                             id="sendMessageForm">
                                 {"->"}
                             </button>
-                        </div>
-                    </div>
-                </div>
+                    </div> {/*mesajın gönderildiği kısım sonu sendMessageDiv*/}
+                </div>{/*chatDiv sonu*/}
                 
-            </div>
+            </div>{/*conversation sonu*/}
 
         </>
 
