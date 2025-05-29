@@ -67,18 +67,24 @@ const TransactionPage = ()=>{
     const [credentialsModalIndex, setCredentialsModalIndex] = useState<number|null> (null) //satıcı soldOffer credentials vermek için card'a tıklayınca hangi modal'in açılıp kapanacağı, alıcının card ve modal kısmı için de bunu kullanıcam çalışır sanırım
     const [currentPage, setCurrentPage] = useState<number> (1) // credentialts card sayfası
     const [userId,setUserId] = useState<string>() // şu anki kullanıcının userIdsi
-    const [viewedButtonDisabled,setViewedButtonDisabled] = useState<boolean>(false)
-    const [confirmedButtonDisabled,setConfirmedButtonDisabled] = useState<boolean>(false)
-    const [preparingButtonDisabled,setPreparingButtonDisabled] = useState<boolean>(false)
-    const [canceledButtonDisabled,setCanceledButtonDisabled] = useState<boolean>(false)
-    const [showRatingModal,setShowRatingModal] = useState<boolean>(false)
-    const [showEditRatingModal,setShowEditRatingModal] = useState<boolean>(false)
-    const [showCancelModal,setShowCancelModal] = useState<boolean>(false)
+    const [viewedButtonDisabled,setViewedButtonDisabled] = useState<boolean>(false) //buton onClick async old için basınca disable yapmak için
+    const [confirmedButtonDisabled,setConfirmedButtonDisabled] = useState<boolean>(false)//buton onClick async old için basınca disable yapmak için
+    const [preparingButtonDisabled,setPreparingButtonDisabled] = useState<boolean>(false)//buton onClick async old için basınca disable yapmak için
+    const [canceledButtonDisabled,setCanceledButtonDisabled] = useState<boolean>(false)//buton onClick async old için basınca disable yapmak için
+    const [showRatingModal,setShowRatingModal] = useState<boolean>(false)//modalShow
+    const [showEditRatingModal,setShowEditRatingModal] = useState<boolean>(false)//modalShow
+    const [showCancelModal,setShowCancelModal] = useState<boolean>(false)//modalShow
     const [ratingRowIndex,setRatingRowIndex] = useState<number>(0)
     const [lastEditDate,setLastEditDate] = useState<JSX.Element>()
     const [editDateDiff,seEditDateDiff] = useState<number>()
     
-
+    const goChatPage = ()=>{
+        if(userId===offer?.sellerId)
+            navigate("/chat", {state:{chatReceiverId:offer?.buyerId}})
+        else{
+            navigate("/chat", {state:{chatReceiverId:offer?.sellerId}})
+        }
+    }
 
     async function fetchUserId() {
         try {
@@ -346,7 +352,8 @@ async function setSoldOfferStage(stage:string) {  // databasede soldOffer.stage 
                         <button onClick={()=> setShowRatingModal(true)} className={`${style.chatAndEditButton}`}>
                             View rating
                         </button>
-                        <button className={`${style.chatAndEditButton}`}>
+                        <button className={`${style.chatAndEditButton}`}
+                        onClick={()=>goChatPage()}>
                             Chat
                         </button>
                     </div>

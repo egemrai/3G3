@@ -44,15 +44,25 @@
     cursor: pointer;
 }
 
+.selectedConversation{
+    background-color: rgb(46, 47, 47);
+}
+
 .conversationInfo{
     display: grid;
     grid-template-columns: 5fr 2fr;
     
 }
 
-.conversationInfoP{
-    
+.conversationInfoDate{
     margin-bottom: 4px;
+    font-size: small;
+    color: lightgray;
+    justify-self: center;
+}
+.conversationInfoP{
+    margin-bottom: 6px;
+    color: lightgray;
 }
 
 .conversationMessage{
@@ -82,14 +92,16 @@
     border: 0px solid white;
     padding: 1% 0 0 1.5%;
     flex-shrink: 0;
-    
 }
 
+.chatInfoP{
+    margin-bottom: 6px;
+}
 
 .messagesDiv{
     flex-grow: 1;
     display: grid;
-    max-height: 89%;
+    grid-auto-rows: min-content;   /* az mesaj olunca, mesaj alanları ekranı kaplamak için gereksiz büyüyodu, bunu ekledim*/
     overflow-y: auto;
     width: 136h;
     row-gap: 10px;
@@ -115,6 +127,7 @@
     padding: 1% 2% 1% 2%;
     width: auto;
     margin-right: 30px;
+    flex-grow: 0;
 }
 
 .receivedMessage{
@@ -128,6 +141,7 @@
     padding: 1% 2% 1% 2%;
     width: auto;
     margin-left: 30px;
+    flex-grow: 0;
 }
 
 .messageP{
@@ -135,6 +149,10 @@
     white-space: pre-wrap;
     max-height: 600px;
     overflow-y: auto;
+}
+
+.messageTickColor{
+    color: aqua;
 }
 
 .time_checkDiv{

@@ -29,13 +29,13 @@ const BoughtOffersPage= () => {
 
 
 
-    useEffect(
-        ()=>{
-            fetchBoughtOffers()
-            if(page){
-                setCurrentPage(Math.trunc(Number(page)))
-            }
+    useEffect(()=>{
+        document.body.style.backgroundColor= "#FAFAFA"
+        fetchBoughtOffers()
+        if(page){
+            setCurrentPage(Math.trunc(Number(page)))
         }
+    }
         ,[])
 
     //PAGINATION AYARLAMA KISMI

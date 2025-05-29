@@ -40,6 +40,7 @@ const OfferPage2 = ({user, socket}:OfferPage2Props) => {
         }
     
         useEffect(()=>{
+            document.body.style.backgroundColor= "#FAFAFA"
             fetchOffer()
         },[])
         

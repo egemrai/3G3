@@ -7,6 +7,33 @@ import { Socket } from "socket.io";
 import { ExtendedError } from "socket.io/dist/namespace"
 import { Session } from "./app";
 
+//#region backend_api
+async function fetchData(input: RequestInfo, init?: RequestInit) {
+    const response = await fetch(input, init)
+    if(response.ok){
+        return response
+    }
+    else{
+        try {
+            const errorBody= await response.json()
+            const errorMessage= errorBody.error
+            throw new Error(errorMessage)
+        } catch (error) {
+          console.log(error)
+            throw new Error("failed to parse error")
+        }
+    } 
+}
+//backendden request yolladığımız için URL'yi full şekilde yazılıyor
+export async function setUserOffline(id:string) {
+    const response = await fetchData("http://localhost:5000/api/users/setUserOffline/?id="+id)
+    return response.json()
+  }
+export async function setUserOnline(id:string) {
+  const response = await fetchData("http://localhost:5000/api/users/setUserOnline/?id="+id)
+  return response.json()
+}
+//#endregion
 
 const port= env.PORT
 
@@ -41,7 +68,8 @@ io.use((socket: Socket, next: (err?: ExtendedError) => void) => {
   const userIdFromSession = session?.userId;
   const userIdFromAuth = socket.handshake.auth.userId;
 
-  console.log(socket.request.headers.cookie)
+  
+  // console.log("socket.request.headers.cookie:",socket.request.headers.cookie)
 
   if (!userIdFromSession) {
     console.log("Session yok, bağlantı reddedildi.");
@@ -60,8 +88,10 @@ io.use((socket: Socket, next: (err?: ExtendedError) => void) => {
 
 export const userSocketMap = new Map<string, string[]>()
 
-io.on("connection", (socket) => {
+io.on("connection",  (socket) => {
+
     const userId = socket.handshake.auth.userId
+    setUserOnline(userId)
     console.log("Yeni kullanıcı bağlandı:", socket.id , " userId:", userId);
 
    
@@ -84,11 +114,11 @@ io.on("connection", (socket) => {
         
       })
     
-    
-    // console.log(io.sockets.sockets);
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async() => {
         console.log("Kullanıcı ayrıldı:", socket.id);
+        //Zaten önce bu çalışıyormuş, başına await eklemeyi unutmuşum. artık socket sayısı 1 ise if'e giriyor
+        await setUserOffline(userId) //önce bu fonksiyon çalışır diye düşünüp socket sayısı 1 ise if içine girip offline yapıyordum, sonra disconnect olunca direkt socketi kapattığını fark edip, !socket ise if'e girmesini sağladım
         const socketsLenght = userSocketMap.get(userId)?.length
         if(socketsLenght && socketsLenght>1){
             const filteredSockets = newSockets.filter((currentSocket)=> currentSocket !== socket.id)
@@ -96,6 +126,7 @@ io.on("connection", (socket) => {
         }else{
             userSocketMap.delete(userId)
         }
+        
         console.log(userSocketMap)
     });
 });

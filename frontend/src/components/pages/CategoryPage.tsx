@@ -11,6 +11,7 @@ const CategoryPage = () => {
     const [categories, setCategories] = useState<CategoryModel[]>([])
 
     useEffect(() => {
+        document.body.style.backgroundColor= "#FAFAFA"
         async function loadOffers() {
           try {
           const fetchedCategories = await OffersApi.fetchCategories()

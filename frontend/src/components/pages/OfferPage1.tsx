@@ -39,7 +39,7 @@ const OfferPage1 = ({user, offer, socket}:OfferPageProps) => {
            }})
 
     let buyAmount = watch("buyAmount")
-    const [buyButton, setBuyButton] = useState<boolean>(false)
+    const [buyButton, setBuyButton] = useState<boolean>(false) //satıcı kendi ürün sayfasına gelirse chat ve buy butonu disable için
     const [totalAmount, setTotalAmount] = useState<number>(price)
         
     useEffect(()=>{
@@ -78,8 +78,10 @@ const OfferPage1 = ({user, offer, socket}:OfferPageProps) => {
            targetUserId: satıcınınId,
            message: "şu kullanıcıdan çar satın aldım: ", satıcıUsername
          });
-       
-        
+    }
+
+    const goChatPage = ()=>{
+        navigate("/chat", {state:{chatReceiverId:satıcınınId}})
     }
 
     //DELIVERY TIME ve DURATION AYARLAMA KISMI
@@ -343,10 +345,10 @@ const OfferPage1 = ({user, offer, socket}:OfferPageProps) => {
                                 <button onClick={()=>navigate("/profile/"+satıcıUsername)}
                                     className={`${style.sellerButton}`}>seller: {satıcıUsername}</button>
                                 <Button className={`${style.chatButton}`}
-                                onClick={()=>{
-                                    const currentAmount = getValues("buyAmount")
-                                    socketTest()
-                                }}>Chat</Button>
+                                disabled={buyButton}
+                                onClick={()=>
+                                    goChatPage()
+                                }>Chat</Button>
                             </div>
                         </div>
 

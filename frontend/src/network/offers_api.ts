@@ -223,8 +223,18 @@ export async function fetchCategories(): Promise<Category[]> {
     return response.json()
   }
 
+  export async function fetchUser(_id:string) {
+    const response = await fetchData("/api/users/fetchUser/?_id="+_id)
+    return response.json()
+  }
+
   export async function getloggedInUserId() {
     const response = await fetchData("/api/users/getloggedInUserId")
+    return response.json()
+  }
+
+  export async function fetchloggedInUser() {
+    const response = await fetchData("/api/users/fetchloggedInUser")
     return response.json()
   }
 
@@ -232,6 +242,8 @@ export async function fetchCategories(): Promise<Category[]> {
     const response = await fetchData("/api/users/fetchUserIdByUsername/?username="+username+"")
     return response.json()
   }
+
+  
 
 //#endregion
 

@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import createHttpError from "http-errors";
 import UserModel from "../models/user";
 import bcrypt from "bcrypt"
-
+import { userSocketMap } from "../server";
 
 export const GetloggedInUser: RequestHandler = async (req, res, next) => {
     const userId= req.session.userId
@@ -136,6 +136,16 @@ export const getloggedInUserId:RequestHandler = async(req,res,next)=>{
     }
 }
 
+export const fetchloggedInUser:RequestHandler = async(req,res,next)=>{
+    const userId = req.session.userId 
+    try {
+        const response = await UserModel.findById(userId)
+        res.status(200).json(response)
+    } catch (error) {
+        next(error)
+    }
+}
+
 interface fetchUserIdByUsernameURL{
     username:string
 }
@@ -154,6 +164,72 @@ export const fetchUserIdByUsername:RequestHandler<unknown,unknown,unknown,fetchU
         }
         
         res.status(200).json(ege)
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const setUserOnline:RequestHandler<unknown,unknown,unknown,setUserOfflineQuery> = async(req,res,next)=>{
+    const userId= req.query.id
+    try {
+        if(!userId){
+            throw createHttpError(400,"setUserOnline userId yok")
+        }
+        const fetchedUser = await UserModel.findById(userId)
+        if(!fetchedUser){
+            throw createHttpError(400,"setUserOnline fetchedUser yok")
+        }
+        fetchedUser.online = true
+        await fetchedUser.save()
+        
+        res.status(200).json(true)
+    } catch (error) {
+        next(error)
+    }
+}
+
+interface setUserOfflineQuery{
+    id:string
+}
+export const setUserOffline:RequestHandler<unknown,unknown,unknown,setUserOfflineQuery> = async(req,res,next)=>{  //offline olduğu saati de kaydediyorum lastSeen hesaplamak için
+    const userId= req.query.id
+    try {
+        if(!userId){
+            throw createHttpError(400,"setUserOffline userId yok")
+        }
+        
+        const userSockets = userSocketMap.get(userId)
+
+        //serverda setUserOffline'ın başına await eklemeyi unuttuğum için socketi direkt kapatıyormuş, o yüzden başta !userSockets ile if'e sokmuştum
+        if(userSockets && userSockets.length ===1){ //pc ve telefondan siteye girmişse 2 sockete sahip olunuyor. Biri kapandığında hala 1 socket kalacağı için !userSockets ile hiç socket kalmadığını anlayınca offline yapıyoruz
+            const fetchedUser = await UserModel.findById(userId)
+            if(!fetchedUser){
+                throw createHttpError(400,"setUserOffline fetchedUser yok")
+            }
+            const date = new Date()
+            fetchedUser.online = false
+            fetchedUser.lastOnline = date
+            await fetchedUser.save()
+
+            res.status(200).json(true)
+        }
+        
+    } catch (error) {
+        next(error)
+    }
+}
+
+interface fetchUserQuery{
+    _id:string
+}
+export const fetchUser: RequestHandler<unknown,unknown,unknown,fetchUserQuery> = async(req,res,next)=>{
+    const _id = req.query._id
+    if(!_id){
+        throw createHttpError(400,"fetchUser missing _id")
+    }
+    try {
+        const response = await UserModel.findById(_id)
+        res.status(200).json(response)
     } catch (error) {
         next(error)
     }

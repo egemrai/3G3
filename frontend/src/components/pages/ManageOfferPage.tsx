@@ -32,13 +32,13 @@ const ManageOfferPage = () => {
     }
 
 
-    useEffect(
-        ()=>{
-            fetchAllOffers()
-            if(page){
-                setCurrentPage(Math.trunc(Number(page)))
-            }
+    useEffect(()=>{
+        document.body.style.backgroundColor= "#FAFAFA"
+        fetchAllOffers()
+        if(page){
+            setCurrentPage(Math.trunc(Number(page)))
         }
+    }
         ,[])
 
     //PAGINATION AYARLAMA KISMI

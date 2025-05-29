@@ -18,6 +18,9 @@ const LoginPage= ({onLoginSuccess, onSignupSuccessfull}:LoginPageProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(()=>{
+    document.body.style.backgroundColor= "#FAFAFA"
+  },[])
 
   const [showLoginForm,setShowLoginForm]= useState<boolean>(true)
   const [showSignUpForm,setshowSignUpForm]= useState<boolean>(false)

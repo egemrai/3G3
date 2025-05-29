@@ -1,9 +1,14 @@
 import { Container } from "react-bootstrap"
 import style from "../../styles/HomePage.module.css"
+import { useEffect } from "react"
 
 const HomePage = ()=>{
 
     const browsingHistoryCol= 2
+
+    useEffect(()=>{
+        document.body.style.backgroundColor= "#FAFAFA"
+    },[])
 
     return(
         <>

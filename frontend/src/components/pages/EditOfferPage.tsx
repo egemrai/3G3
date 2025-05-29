@@ -34,6 +34,7 @@ const EditOfferPage = () => {
     }
 
     useEffect(()=>{
+        document.body.style.backgroundColor= "#FAFAFA"
         fetchOffer()
     },[])
     const [offer, setOffer] = useState<any>()

@@ -77,6 +77,7 @@ const CreateOfferPage = () => {
             }
 
            useEffect(()=>{
+               document.body.style.backgroundColor= "#FAFAFA"
                fetchCategories()
            },[])
 

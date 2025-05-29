@@ -4,8 +4,13 @@ import * as chatController from "../controllers/chatC"
 const router= express.Router()
 
 
-router.get("/logout/", chatController.getCategories)
+router.get("/fetchAllConversations/", chatController.fetchAllConversations)
 
+
+router.post("/sendMessage/", chatController.sendMessage)
+
+
+router.delete("/deleteAllConversationsAndMessages/", chatController.deleteAllConversationsAndMessages)
 // router.post("/logout/", chatController.logout)
 
 export default router

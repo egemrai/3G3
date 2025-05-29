@@ -27,7 +27,7 @@ function App() {
 
   const [loggedInUser, setLoggedInUser]= useState<null| User>(null)
 
-  // const socket = connectSocket()
+  
 
   const getUser = async () => {
     try {
@@ -61,7 +61,8 @@ useEffect(() => {
      setSocket(newSocket)
     
      newSocket.on("connect", () => {
-    console.log("Sunucuya bağlandık! ID:", newSocket.id);
+    console.log("Sunucuya bağlandık! ID:", newSocket.id)
+    // setUserOnline()  //setUserOffline backend server.ts de olduğu için bunu da oraya taşıdım
   });
   
   newSocket.on("serverdanMesaj", (data:any) => {
@@ -74,6 +75,7 @@ useEffect(() => {
 
   newSocket.on("disconnect", () => {
     console.log("Sunucudan bağlantı koptu.");
+    //setUserOffline()   //kullanıcı online'ı false yapmayı burda yapmayı denedim, site kapanınca socket emit gelcek bir yer bulamadığı için "on Disconnect" çalışmıyor XD
   });
   // Cleanup
   return () => {
@@ -128,7 +130,7 @@ useEffect(() => {
 
             <Route path='/transaction' element={<TransactionPage/>}/>
 
-            <Route path='/chat' element={<ChatPage/>}/>
+            <Route path='/chat' element={<ChatPage socket={socket}/>}/>
 
             <Route
             path='/*'  //url üsttekilerden biri olmazsa, olanı kullanıyor
