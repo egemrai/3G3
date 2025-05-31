@@ -2,9 +2,11 @@ import { Button, Card, Container, Dropdown, Nav, Navbar} from "react-bootstrap"
 import { Link, useNavigate } from "react-router-dom"
 import style from "../styles/NavBar.module.css"
 import * as offers_api from "../network/offers_api"
+import * as chat_api from "../network/chat_api"
 import { useEffect, useState } from "react"
 import { SoldOffer } from "../models/SoldOffer"
 import { Socket } from "socket.io-client"
+import { Conversation, Message } from "../models/chat"
 
 interface NavbarLoggedInViewProps{
     signInUsername?:string,
@@ -75,20 +77,47 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarL
   }
 }, [socket])
 
+    async function fetchMessages() {
+        try {
+            const userIdResponse = await offers_api.getloggedInUserId()
+            const conversationsResponse = await chat_api.fetchAllConversations()
+            let unseenCount = 0
+            conversationsResponse.forEach((conversation: Conversation) => {
+                conversation.messages.forEach((message: Message) => {
+                    if (message.senderId !== userIdResponse  && message.seenByReceiver === false) {
+                        unseenCount++
+                    }
+                })
+            })
+        setMessageLenght(unseenCount)
+        } catch (error) {
+            alert(error)
+        }
+    }
+
     async function fetchSoldOffers() {
-        const fetchedSoldOffers = await offers_api.fetchSoldOffers()
-        const filteredSoldOffers =  fetchedSoldOffers.filter(offer=>(offer.seenBySeller===false && offer.stage!=="canceled")) //seen false ise, yani görünmediyse notif'de görüncek
-        const filteredCanceledOffers =  fetchedSoldOffers.filter(offer=>(offer.seenBySeller===false && offer.stage==="canceled")) //seen false ise, yani görünmediyse notif'de görüncek
-        const fetchedBoughtOffers = await offers_api.fetchBoughtOffers()
-        const filteredBoughtOffers =  fetchedBoughtOffers.filter(offer=>offer.seenByBuyer===false)
-        setSoldOffers(filteredSoldOffers)
-        setBoughtOffers(filteredBoughtOffers)
-        setCanceledOffers(filteredCanceledOffers)
-        setNotificationLenght(filteredSoldOffers.length + filteredBoughtOffers.length + filteredCanceledOffers.length)
+        try {
+            const fetchedSoldOffers = await offers_api.fetchSoldOffers()
+            const filteredSoldOffers =  fetchedSoldOffers.filter(offer=>(offer.seenBySeller===false && offer.stage!=="canceled")) //seen false ise, yani görünmediyse notif'de görüncek
+            const filteredCanceledOffers =  fetchedSoldOffers.filter(offer=>(offer.seenBySeller===false && offer.stage==="canceled")) //seen false ise, yani görünmediyse notif'de görüncek
+            const fetchedBoughtOffers = await offers_api.fetchBoughtOffers()
+            const filteredBoughtOffers =  fetchedBoughtOffers.filter(offer=>offer.seenByBuyer===false)
+            setSoldOffers(filteredSoldOffers)
+            setBoughtOffers(filteredBoughtOffers)
+            setCanceledOffers(filteredCanceledOffers)
+            setNotificationLenght(filteredSoldOffers.length + filteredBoughtOffers.length + filteredCanceledOffers.length)
+        } catch (error) {
+            alert(error)
+        }
+    }
+
+    async function sena() {
+        Promise.all([fetchSoldOffers(),fetchMessages()])
     }
 
     useEffect(()=>{
-        fetchSoldOffers()
+        sena()
+        
     },[])
 
     async function setSeenTrue() {
@@ -124,7 +153,7 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarL
     return(
         <Navbar className={` ${style.Navbar } `}  expand="xl" sticky="top">
             <Container className= {` ms-auto`}>
-                <Navbar.Brand className={`mx-auto ${style.textWhite}`} as={Link}  to={"/"}>
+                <Navbar.Brand onClick={()=>console.log(messageLenght)} className={`mx-auto ${style.textWhite}`} as={Link}  to={"/"}>
                     3G3
                 </Navbar.Brand>
                 
@@ -146,10 +175,13 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarL
                         <Nav.Item className={`${style.createOfferButton} rounded-pill me-3 my-auto`} as={Link} to={"/createOffer"}  >
                             create offer
                         </Nav.Item>
-
-                        <Nav.Item className={`${style.createOfferButton} rounded-pill me-3 my-auto`} as={Link} to={"/chat"}  >
-                            message
+                        {messageLenght >0
+                        ?<Nav.Item className={`${style.dropdownToogleOn} rounded-pill me-3 my-auto`} as={Link} to={"/chat"}  >
+                            {`message (${messageLenght})`}
                         </Nav.Item>
+                        :<Nav.Item className={`${style.dropdownToogleOff} rounded-pill me-3 my-auto`} as={Link} to={"/chat"}  >
+                            message
+                        </Nav.Item>}
                         <Dropdown //NOTIFICATION TIKLAYINCA DİREKT KULLANICININ BÜTÜN SEENBYSELLER VE BUYER'I FALSE OLAN SOLDOFFER'LARINI TRUE YAPIYOR
                         onToggle={(isOpen)=>{
                             if(isOpen){     //dropdown açılınca çalışan fonksiyonlar

@@ -70,6 +70,9 @@
     background-color: blue;
     font-size: 14px;
     border-radius: 20px;
+    text-decoration:none;
+    
+    
 }
 .dropdownToogleOff:hover{
     color: white;
@@ -82,6 +85,12 @@
     background-color: red;
     font-size: 14px;
     border-radius: 20px;
+    text-decoration:none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 35px;
+    width:110px;
 }
 .dropdownToogleOn:hover{
     color: white;

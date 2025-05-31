@@ -308,7 +308,13 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
         const userLang = navigator.language || 'tr-TR'; // Örn: "tr-TR", "en-US", "de-DE" dili tarayıcıdan alıp, tarihi ona göre ayarlama
         const receiver = conversation.participants.find((p:User) => p._id !== sender!._id)
         const lastMessage = conversation.messages[conversation.messages.length-1] // conversationdaki son mesaj
-        const date = new Date(lastMessage.createdAt) 
+        const date = new Date(lastMessage.createdAt)
+        let unreadMessageCount = 0
+        conversation.messages.forEach(message => {
+          if(message.senderId._id!==sender?._id){
+            unreadMessageCount++
+          }
+        })
         return(
             <div key={i} className={conversationsGridIndex===i
                                     ? `${style.selectedConversation} ${style.conversation}`
@@ -321,7 +327,10 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
             }}>
                 <div className={`${style.conversationInfo}`}>
                     <div>
-                        <p className={`${style.conversationInfoP}`}>{`${receiver &&receiver.username}`}</p>
+                        {unreadMessageCount >0
+                        ?<p className={`${style.conversationInfoP}`}>{`${receiver &&receiver.username } (${unreadMessageCount})`}</p>
+                        :<p className={`${style.conversationInfoP}`}>{`${receiver &&receiver.username }`}</p>}
+                        
                         <p className={`${style.conversationMessage}`}>{`${lastMessage &&lastMessage.message}`}</p>
                     </div>
                     
