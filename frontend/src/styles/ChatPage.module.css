@@ -84,7 +84,7 @@
     flex-direction: column;
     color: white;
     height: 92vh;
-
+    border-left: 1px white solid;
 }
 
 .chatInfoDıv{

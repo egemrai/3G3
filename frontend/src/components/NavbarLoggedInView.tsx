@@ -32,6 +32,7 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarL
     const [boughtOffers, setBoughtOffers] = useState<SoldOffer[]>([])
     const [canceledOffers, setCanceledOffers] = useState<SoldOffer[]>([])
     const [notificationLenght, setNotificationLenght] = useState<number>(0) //notification butonu rengi ve sayıyı 0lamak için
+    const [messageLenght, setMessageLenght] = useState<number>(0) //message butonu rengi ve sayıyı 0lamak için
     
     function toTransactionPage(id:string){
         navigate("/")

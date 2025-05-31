@@ -33,14 +33,13 @@ const ChatPage = ({socket}:ChatPageProps) => {
     
     const [receiver, setReceiver] = useState<User>()
     const [sender, setSender] = useState<User>()
-    const [senderId, setSenderId] = useState<string>("")
     const [receiverId, setReceiverId] = useState<string>("")
     const [conversations, setConversations] = useState<Conversation[]>([])
     const [selectedConversation, setSelectedConversation] = useState<Conversation>()
     const [conversationsGridIndex, setConversationsGridIndex] = useState<number>()
     const [startingMessage, setStartingMessage] = useState<JSX.Element>()
     const [lastseen, setLastseen] = useState<string>()
-    const [conversationLoaded, setConversationLoaded] = useState<boolean>(false)
+    const [conversationLoaded, setConversationLoaded] = useState<boolean>(true) //
 
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -80,11 +79,11 @@ const ChatPage = ({socket}:ChatPageProps) => {
     
     async function fetchSenderId() {
         try {
-            const response = await offers_api.getloggedInUserId()
-            console.log("senderId:",response)
-            setSenderId(response)
+            const response = await offers_api.fetchloggedInUser()
+            
+            setSender(response)
         } catch (error) {
-            alert("senderId fetch error")
+            alert("fetchSenderId fetch error")
             console.error(error)
         }
     }   
@@ -94,7 +93,7 @@ const ChatPage = ({socket}:ChatPageProps) => {
             const response = await offers_api.fetchUser(id)
             setReceiver(response)
         } catch (error) {
-            alert("senderId fetch error")
+            alert("receiver fetch error")
             console.error(error)
         }
     }  
@@ -104,6 +103,7 @@ const ChatPage = ({socket}:ChatPageProps) => {
             const fetchedConversations = await chat_api.fetchAllConversations()
             console.log(fetchedConversations)
             setConversations(fetchedConversations)
+            setConversationLoaded(false)
         } catch (error) {
             // alert(error)
         }
@@ -156,7 +156,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
             const response = await chat_api.sendMessage(ege)
             const temporaryMessage:any = {
                 _id:messageTemporaryId,
-                senderId:senderId,
+                senderId:sender,
                 receiverId:receiver,
                 message: credentials.message,
                 createdAt:date,
@@ -168,6 +168,8 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
                 await wait(2000)
                 console.log("1. await sonrası")
             if(response.fetchedConversation){
+                    console.log("response.fetchedConversation",response.fetchedConversation)
+                    console.log("response.fetchedConversation",response.fetchedConversation)
                     pushNewConversation(response.fetchedConversation)//
                     console.log("2. await öncesi")
                     await wait(2000)
@@ -215,7 +217,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
     },[])
 
     useEffect(() => {
-        if(!conversationLoaded){
+        if(!conversationLoaded){ //buraya sayfa açılınca ve bütün conversationlar fetch edildikten sonra 1 kere girmek istiyorum, default hali true. fetchAllConversations sonunda false yapıyorum. Buraya 1 kere giriyor ve buranın sonunda tekrar true yapıyorum
             if(!conversations[0] && !location?.state?.chatReceiverId){
                 setStartingMessage(<p className={`${style.receivedMessage}`}>Chat butonuna tıklayarak mesajlaşmaya başla</p>)
                 setReceiverId("")
@@ -224,10 +226,11 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
                 setStartingMessage(<p className={`${style.receivedMessage}`}>Mesajlaşmak için sol taraftan bir kullanıcı seç</p>)
                 setReceiverId("")
             }
-            else if(location?.state?.chatReceiverId){
-                setReceiverId(location?.state?.chatReceiverId) // offer ya da transaction vs. den chat açılırsa receiver id var ve 
+            else if(location?.state?.chatReceiverId || receiver){
+                setReceiverId(location?.state?.chatReceiverId) // offer ya da transaction vs. den chat açılırsa receiver id var ve
                 fetchreceiver(location?.state?.chatReceiverId)
-                if(conversations[0]){
+                console.log("location state var")
+                if(conversations.length>0){
                     console.log("egeeg")
                     console.log("egeeg")
                     const defaultConversation = conversations.find((conversation:Conversation)=>{  //find ile koşula uyan ilk elemanı seçicez
@@ -235,7 +238,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
                         console.log("ids:",ids)
                         console.log("ids:",ids)
                         console.log("ids:",ids)
-                        return ids.includes(senderId) && ids.includes(location?.state?.chatReceiverId) //arraydeki 2 id sender ve receiver idleri içeriyorsa find için true dönüyor
+                        return ids.includes(sender!._id) && ids.includes(location?.state?.chatReceiverId) //arraydeki 2 id sender ve receiver idleri içeriyorsa find için true dönüyor
                         })
                     if(defaultConversation){
                         console.log("defaultConversation",defaultConversation)
@@ -303,7 +306,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
     
     const conversationsGrid= conversations.map((conversation,i) =>{
         const userLang = navigator.language || 'tr-TR'; // Örn: "tr-TR", "en-US", "de-DE" dili tarayıcıdan alıp, tarihi ona göre ayarlama
-        const receiver = conversation.participants.find((p:User) => p._id !== senderId)
+        const receiver = conversation.participants.find((p:User) => p._id !== sender!._id)
         const lastMessage = conversation.messages[conversation.messages.length-1] // conversationdaki son mesaj
         const date = new Date(lastMessage.createdAt) 
         return(
@@ -313,9 +316,8 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
             }
             onClick={()=>{setSelectedConversation(conversation)
                           setConversationsGridIndex(i)
-                          setReceiverId((conversation.participants.find((user:User)=>user._id!==senderId))!._id)
-                          setReceiver((conversation.participants.find((user:User)=>user._id!==senderId)))
-                        //   console.log((conversation.participants.find((user:User)=>user._id!==senderId)))
+                          setReceiverId((conversation.participants.find((user:User)=>user._id!==sender?._id))!._id)
+                          setReceiver((conversation.participants.find((user:User)=>user._id!==sender?._id)))
             }}>
                 <div className={`${style.conversationInfo}`}>
                     <div>
@@ -338,15 +340,16 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
         return(
             <div key={i}
             onClick={()=>console.log(message.senderId._id)} 
-            className={message.senderId._id === senderId
+            className={message.senderId._id === sender?._id
             ? `${style.sentMessage}` 
             : `${style.receivedMessage}`}
             >
                 <p className={`${style.messageP}`}>{`${message.message}`} </p>
                 <div className={`${style.time_checkDiv}`}>
-                    <span>{`${date.toLocaleString('tr-TR',{hour:'2-digit',minute:'2-digit'})} `}</span>
-                    {(message.senderId._id === senderId  && message.sent === false)
-
+                    <span>{`${date.toLocaleString('tr-TR',{hour:'2-digit',minute:'2-digit'})} `}</span> {/*message.sent === false*/ }
+                    {message.senderId._id === sender?._id  && 
+                    <>
+                    {message.sent === false
                     ?<span  className={message.seenByReceiver === true 
                         ? `${style.messageTickColor}` 
                         : `${style.styleaGerekYok}`}>{`✓`}
@@ -354,7 +357,9 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
                     :<span  className={message.seenByReceiver === true 
                         ? `${style.messageTickColor}` 
                         : `${style.styleaGerekYok}`}>{`✓✓`}
-                    </span>}
+                    </span>
+                    }
+                    </>}
                 </div>
             </div>
             

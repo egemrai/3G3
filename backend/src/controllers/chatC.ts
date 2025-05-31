@@ -85,7 +85,12 @@ export const sendMessage:RequestHandler= async (req, res, next) => {
 
         await Promise.all([conversation.save(),newMessage.save()])
 
-        const fetchedConversation = await ConversationModel.findById(conversation._id).populate("messages").populate("participants")
+        const fetchedConversation = await ConversationModel.findById(conversation._id).populate({path:"messages",
+        populate:[
+            {path:"senderId", model: "User"},
+            {path:"receiverId", model: "User"},
+        ]
+        }).populate("participants")
 
         const fetchedMessage = await MessageModel.findById(newMessage._id).populate("senderId").populate("receiverId")
         
