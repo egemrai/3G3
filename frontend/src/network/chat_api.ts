@@ -24,7 +24,7 @@ async function fetchData(input: RequestInfo, init?: RequestInit) {
 
 export async function fetchAllConversations(): Promise<Conversation[]> {
     const response =  await fetchData("/api/chat/fetchAllConversations")
-  
+    
     return response.json()
 }
 
@@ -37,6 +37,11 @@ export async function sendMessage(credentials:any) {
         body: JSON.stringify(credentials)
     })
 
+    return response.json()
+}
+
+export async function setSeenByReceiverTrue(conversationId:string) {
+    const response =  await fetchData("/api/chat/setSeenByReceiverTrue/?conversationId=" + conversationId)
     return response.json()
 }
 

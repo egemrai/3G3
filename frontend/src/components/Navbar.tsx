@@ -10,9 +10,11 @@ interface NavBarProps{
     signInUsername?:string
     onLogoutSuccessfull: ()=>void
     socket: typeof Socket
+    messageLenght:number
+    socketMessageCount: ()=>void
 }
 
-const NavBar = ({signInUsername, loggedInUser, onLogoutSuccessfull,socket}:NavBarProps) => {
+const NavBar = ({signInUsername, loggedInUser, onLogoutSuccessfull,socket,messageLenght,socketMessageCount}:NavBarProps) => {
 
    
 
@@ -20,9 +22,11 @@ const NavBar = ({signInUsername, loggedInUser, onLogoutSuccessfull,socket}:NavBa
         <>
                      {loggedInUser
                     ?<NavbarLoggedInView
+                    messageLenght={messageLenght}
                     socket={socket}
                     signInUsername={signInUsername}
                     onLogoutSuccessfull={onLogoutSuccessfull}
+                    socketMessageCount={socketMessageCount}
                     />
                     :<NavbarLoggedOutView/>
                     } 

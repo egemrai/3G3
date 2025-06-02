@@ -44,6 +44,98 @@ export const fetchAllConversations:RequestHandler= async(req, res, next) =>{
     }
 }
 
+interface setSeenByReceiverTrueQuery{
+    conversationId: string
+}
+
+export const setSeenByReceiverTrue:RequestHandler<unknown,unknown,unknown,setSeenByReceiverTrueQuery>= async(req, res, next) =>{
+    const receiverId = req.session.userId
+    const conversationId = req.query.conversationId
+    try {
+        if(!receiverId){
+            throw createHttpError(400,"setSeenByReceiverTrue receiverId yok")
+        } 
+        if(!conversationId){
+            throw createHttpError(400,"setSeenByReceiverTrue conversationId yok")
+        } 
+        
+        const conversation = await ConversationModel.findById(conversationId).populate("messages").lean()
+
+        if (!conversation) {
+            throw createHttpError(404, "setSeenByReceiverTrue conversation yok")
+        }
+        
+        const senderId = conversation.participants.find((participant)=>{
+            if(participant._id!==receiverId){
+                return participant._id
+            }
+        })
+        if(!senderId){
+            throw createHttpError(404, "setSeenByReceiverTrue senderId yok")
+        }
+
+        console.log("senderId:",senderId)
+        console.log("senderId:",senderId)
+        console.log("receiverId:",receiverId)
+        console.log("receiverId:",receiverId)
+
+        //Socket.emit kısmı
+        const receiverSockets = userSocketMap.get(senderId.toString())
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        function socketSetSeenByReceiverTrue(conversationId:any,messageSenderId:any){
+            if(receiverSockets){
+                receiverSockets.forEach(eachSocketId =>{
+                    io.to(eachSocketId).emit("socketSetSeenByReceiverTrue",{
+                        messageSenderId:messageSenderId,
+                        conversationId:conversationId
+                    })
+                })
+            }
+        }
+        
+        
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const unseenMessageIds = conversation?.messages.map((message:any)=>{
+            if(message.senderId!==receiverId && message.seenByReceiver===false){
+                console.log("message:",message._id)
+                return message._id.toString()
+            }
+        })
+        
+
+        const cleanedMessageIds = unseenMessageIds.filter(Boolean) // görülmüş mesajlar ve gönderilen mesajlar filtrelenince geriye undefined mesaj idleri kalıyor, onları elemek için
+
+        console.log("cleanedMessageIds:",cleanedMessageIds)
+
+        if(!cleanedMessageIds){
+            throw createHttpError(400, "cleanedMessageIds yok")
+        }
+        const messages = await Promise.all(cleanedMessageIds.map(async (messageId:string)=>{
+            const message = await MessageModel.findById(messageId)
+            if(message){
+                message.seenByReceiver= true
+            }
+            return message
+        }))
+
+        //eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const lastResponse = await Promise.all(messages.map(async (message:any)=>{
+           return await message.save()
+        }))
+
+        
+        console.log("lastResponse:",lastResponse)
+
+        if(lastResponse){
+            socketSetSeenByReceiverTrue(conversation._id,senderId.toString())
+        }
+        
+        res.status(200).json(true)
+    } catch (error) {
+        next(error)
+    }
+}
+
 export const sendMessage:RequestHandler= async (req, res, next) => {
     const senderId = req.session.userId
     console.log(req.body)
@@ -101,24 +193,30 @@ export const sendMessage:RequestHandler= async (req, res, next) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         function socketSendFirstMessage(fetchedMessage:any,fetchedConversation:any){
             if(receiverSockets){
-                receiverSockets.forEach(eachSocketId =>
+                receiverSockets.forEach(eachSocketId =>{
                     io.to(eachSocketId).emit("socketSendFirstMessage",{
                         message:fetchedMessage,
                         conversation:fetchedConversation
                     })
-                )
+                    io.to(eachSocketId).emit("newMessageNotification",{
+                       
+                    })
+                })
             }
         }
         
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         function socketSendDefaultMessage(fetchedMessage:any,fetchedConversation:any){
             if(receiverSockets){
-                receiverSockets.forEach(eachSocketId =>
+                receiverSockets.forEach(eachSocketId =>{
                     io.to(eachSocketId).emit("socketSendDefaultMessage",{
                         message:fetchedMessage,
                         conversation:fetchedConversation
                     })
-                )
+                    io.to(eachSocketId).emit("newMessageNotification",{
+                       
+                    })
+                })
             }
         }
         

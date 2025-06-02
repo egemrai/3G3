@@ -1,5 +1,5 @@
 import { Button, Card, Container, Dropdown, Nav, Navbar} from "react-bootstrap"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import style from "../styles/NavBar.module.css"
 import * as offers_api from "../network/offers_api"
 import * as chat_api from "../network/chat_api"
@@ -12,11 +12,14 @@ interface NavbarLoggedInViewProps{
     signInUsername?:string,
     onLogoutSuccessfull: ()=> void
     socket: typeof Socket
+    messageLenght: number
+    socketMessageCount: ()=> void
 }
 
-const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarLoggedInViewProps) => {
+const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket,messageLenght,socketMessageCount}:NavbarLoggedInViewProps) => {
 
-    const navigate= useNavigate()
+    const navigate = useNavigate()
+    const location = useLocation()
 
     const logout = async () => {
             try {
@@ -34,7 +37,7 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarL
     const [boughtOffers, setBoughtOffers] = useState<SoldOffer[]>([])
     const [canceledOffers, setCanceledOffers] = useState<SoldOffer[]>([])
     const [notificationLenght, setNotificationLenght] = useState<number>(0) //notification butonu rengi ve sayıyı 0lamak için
-    const [messageLenght, setMessageLenght] = useState<number>(0) //message butonu rengi ve sayıyı 0lamak için
+    
     
     function toTransactionPage(id:string){
         navigate("/")
@@ -68,32 +71,23 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarL
     setNotificationLenght((e)=>e+1)
     })
 
+    if(!location.pathname.startsWith("/chat")){
+        socket.on("newMessageNotification", () => {
+            socketMessageCount()
+        })
+    }
+    
     return () => {
-      socket.off("soldOfferNotificationForSellerFromFrontend")
+      socket.off("soldOfferNotificationForSellerFromServer")
       socket.off("boughtOfferNotificationForBuyerFromServer")
       socket.off("canceledOfferNotificationForSellerFromServer")
+      socket.off("newMessageNotification")
     }
 
   }
-}, [socket])
+}, [socket, location.key]) //location.key her navigate çağrısında değiştiği için socketleri direkt render etmeyi sağladı sanırım.
+   
 
-    async function fetchMessages() {
-        try {
-            const userIdResponse = await offers_api.getloggedInUserId()
-            const conversationsResponse = await chat_api.fetchAllConversations()
-            let unseenCount = 0
-            conversationsResponse.forEach((conversation: Conversation) => {
-                conversation.messages.forEach((message: Message) => {
-                    if (message.senderId !== userIdResponse  && message.seenByReceiver === false) {
-                        unseenCount++
-                    }
-                })
-            })
-        setMessageLenght(unseenCount)
-        } catch (error) {
-            alert(error)
-        }
-    }
 
     async function fetchSoldOffers() {
         try {
@@ -111,12 +105,12 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarL
         }
     }
 
-    async function sena() {
-        Promise.all([fetchSoldOffers(),fetchMessages()])
-    }
+    // async function sena() {
+    //     Promise.all([fetchSoldOffers(),fetchMessages()])
+    // }
 
     useEffect(()=>{
-        sena()
+        fetchSoldOffers()
         
     },[])
 
@@ -153,10 +147,12 @@ const NavbarLoggedInView = ({signInUsername, onLogoutSuccessfull,socket}:NavbarL
     return(
         <Navbar className={` ${style.Navbar } `}  expand="xl" sticky="top">
             <Container className= {` ms-auto`}>
-                <Navbar.Brand onClick={()=>console.log(messageLenght)} className={`mx-auto ${style.textWhite}`} as={Link}  to={"/"}>
+                <Navbar.Brand  className={`mx-auto ${style.textWhite}`} as={Link}  to={"/"}>
                     3G3
                 </Navbar.Brand>
-                
+                {/* as={Link}  to={"/"} */}
+                {/* onClick={() =>(window.location.href = "/")  } */}
+                {/* onClick={() =>navigate("/", { replace: true })  } */}
                 <Navbar.Toggle aria-controls="main-navbar"/>
                 <Navbar.Collapse id="main-navbar">
                     <Nav className="ms-4">

@@ -1,5 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
-import {  Container } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import NavBar from './components/Navbar';
 import CategoryPage from './components/pages/CategoryPage';
@@ -9,7 +8,7 @@ import NotFoundPage from './components/pages/NotFoundPage';
 import LoginPage from './components/pages/LoginPage';
 import { User } from './models/user';
 import * as offers_api from "./network/offers_api"
-import OfferPage from './components/pages/OfferPage1';
+import * as chat_api from "./network/chat_api"
 import OfferPage2 from './components/pages/OfferPage2';
 import CreateOfferPage from './components/pages/CreateOfferPage';
 import ManageOfferPage from './components/pages/ManageOfferPage';
@@ -22,11 +21,12 @@ import connectSocket from "./socket"
 import SoldOffersPage from './components/pages/SoldOffersPage';
 import BoughtOffersPage from './components/pages/BoughtOffersPage';
 import ChatPage from './components/pages/ChatPage';
+import { Conversation, Message } from './models/chat';
 
 function App() {
 
   const [loggedInUser, setLoggedInUser]= useState<null| User>(null)
-
+  const [messageLenght, setMessageLenght] = useState<number>(0) //message butonu rengi ve sayıyı 0lamak için
   
 
   const getUser = async () => {
@@ -49,14 +49,49 @@ function App() {
     }
   }
 
-useEffect(()=>{
-  getUser()
-},[])
+  async function fetchMessages() {
+          try {
+              const userIdResponse = await offers_api.getloggedInUserId()
+              const conversationsResponse = await chat_api.fetchAllConversations()
+              let unseenCount = 0
+              conversationsResponse.forEach((conversation: Conversation) => {
+                  conversation.messages.forEach((message: Message) => {
+                      if (message.senderId._id !== userIdResponse  && message.seenByReceiver === false) {
+                          unseenCount++
+                      }
+                  })
+              })
+          setMessageLenght(unseenCount)
+          } catch (error) {
+              alert(error)
+          }
+      }
+  
+  function setSocketMessageCount(param?:number){
+    if(param){
+      setMessageLenght((prev)=>prev-param)
+    }
+    else{
+      setMessageLenght((prev)=>prev+1)
+    }
+    
+  }
 
-const [socket,setSocket] = useState<any>()
+  useEffect(()=>{
+    getUser()
+  },[])
 
-useEffect(() => {
-  if (loggedInUser) {
+  useEffect(()=>{
+    if(loggedInUser){
+      fetchMessages()
+    }
+  },[loggedInUser])
+
+
+  const [socket,setSocket] = useState<any>()
+
+  useEffect(() => {
+   if(loggedInUser) {
      const newSocket =  connectSocket(loggedInUser._id.toString()); // burada await ile socket nesnesini alıyoruz
      setSocket(newSocket)
     
@@ -100,6 +135,8 @@ useEffect(() => {
          signInUsername={loggedInUser?.username}
          onLogoutSuccessfull={logOut}
          socket={socket}
+         messageLenght={messageLenght}
+         socketMessageCount={setSocketMessageCount}
          /> 
 
           <Routes>
@@ -130,7 +167,9 @@ useEffect(() => {
 
             <Route path='/transaction' element={<TransactionPage/>}/>
 
-            <Route path='/chat' element={<ChatPage socket={socket}/>}/>
+            <Route path='/chat' element={<ChatPage 
+                                          socket={socket}
+                                          socketMessageCount={setSocketMessageCount}/>}/>
 
             <Route
             path='/*'  //url üsttekilerden biri olmazsa, olanı kullanıyor
