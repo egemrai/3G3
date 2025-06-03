@@ -311,6 +311,10 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
                 return newConversations
             })
             if(selectedConversation &&(selectedConversation._id===data.conversation._id)){
+                // setSelectedConversation((prev:any)=>{
+                //     prev.messages.push(data.message)
+                //     return prev
+                // })
                 // setSeenByReceiverTrue(data.conversation._id)
                 console.log("setSeenByReceiverTrue")
             }
@@ -320,22 +324,22 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
         })
 
         socket.on("socketSetSeenByReceiverTrue", (data:any) => {
-            if(selectedConversation && selectedConversation?._id === data.conversationId){
-                console.log("selectedConversation:",selectedConversation)
-                setSelectedConversation((prev:any)=>{
-                    const updatedMessages = prev.messages.map((message:any)=>{
-                        if(message.senderId._id === data.messageSenderId && message.seenByReceiver === false){
-                            console.log("socketSetSeenByReceiverTrue:  If içine girdi")
-                            return {
-                                ...message,
-                                seenByReceiver: true,
-                            }
-                        }
-                        return message
-                    })
-                    return {...prev,messages:updatedMessages}
-                })
-            }
+            // if(selectedConversation && selectedConversation?._id === data.conversationId){
+            //     console.log("selectedConversation:",selectedConversation)
+            //     setSelectedConversation((prev:any)=>{
+            //         const updatedMessages = prev.messages.map((message:any)=>{
+            //             if(message.senderId._id === data.messageSenderId && message.seenByReceiver === false){
+            //                 console.log("socketSetSeenByReceiverTrue:  If içine girdi")
+            //                 return {
+            //                     ...message,
+            //                     seenByReceiver: true,
+            //                 }
+            //             }
+            //             return message
+            //         })
+            //         return {...prev,messages:updatedMessages}
+            //     })
+            // }
             setConversations((prev:any)=>{
                 const newConversations = prev.map((conversation:any)=>{
                     if(conversation._id === data.conversationId){
@@ -352,6 +356,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
                     }
                     return conversation
                 })
+                setTimeout(()=>{console.log("setConversation çalıştı socket seen true:",selectedConversation)},1000)
                 return newConversations
             })
             // console.log("messageSenderId:", data.messageSenderId)
