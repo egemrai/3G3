@@ -111,6 +111,7 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
 
     async function setSeenByReceiverTrue(conversationId:string) {
         try {
+            console.log("setSeenByReceiverTrue çalıştı")
             const fetchedConversations = await chat_api.setSeenByReceiverTrue(conversationId)
             setConversations((prev:any)=>{  //conversation tıklayınca okunmamış mesajları 0lamak için
                 const newConversations = prev.map((conversation:any)=>{
@@ -124,7 +125,7 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
                 })
                 return newConversations
             })
-            console.log(fetchedConversations)
+            
             
         } catch (error) {
             // alert(error)
@@ -137,8 +138,6 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
         try {
             const newMessageAddedConversation = selectedConversation
             if(newMessageAddedConversation){
-                console.log("response",response)
-                console.log("response",response)
                 newMessageAddedConversation.messages.push(response)
                 setSelectedConversation(newMessageAddedConversation)
                 setConversations((prev:any)=>{
@@ -186,29 +185,29 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
                 sent:false
             }
                 pushNewMessage(temporaryMessage) //tek ve çift tık ayarlayıp, mesaj response beklememek için random _id ile bir mesaj push ediyoruz
-                console.log("1. await öncesi")
-                await wait(2000)
-                console.log("1. await sonrası")
+                // console.log("1. await öncesi")
+                // await wait(2000)
+                // console.log("1. await sonrası")
             if(response.fetchedConversation){
-                    console.log("response.fetchedConversation",response.fetchedConversation)
-                    console.log("response.fetchedConversation",response.fetchedConversation)
+                    // console.log("response.fetchedConversation",response.fetchedConversation)
+                    // console.log("response.fetchedConversation",response.fetchedConversation)
                     pushNewConversation(response.fetchedConversation)//
-                    console.log("2. await öncesi")
-                    await wait(2000)
-                    console.log("2. await sonrası")
+                    // console.log("2. await öncesi")
+                    // await wait(2000)
+                    // console.log("2. await sonrası")
                 }
             if(response){
                 if(selectedConversation){
-                    console.log("3. await öncesi")
-                    await wait(2000)
-                    console.log("3. await sonrası")
+                    // console.log("3. await öncesi")
+                    // await wait(2000)
+                    // console.log("3. await sonrası")
                     const selectedConversationMessages:any = selectedConversation.messages.map((message:any)=>{
                         if(message._id === response.messageTemporaryId){
-                            console.log("mesaj değişti")
+                            // console.log("mesaj değişti")
                             return(response.fetchedMessage)
                         }
                         else{
-                            console.log("mesaj değişmedi")
+                            // console.log("mesaj değişmedi")
                             return(message)
                     }
                 })
@@ -218,7 +217,6 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
                 }                         
             }
                
-            console.log("esas response:",response)
         } catch (error) {
             alert(error)
         }
@@ -254,21 +252,12 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
             }
             else if(location?.state?.chatReceiverId || receiver){
                 fetchreceiver(location?.state?.chatReceiverId) // offer ya da transaction vs. den chat açılırsa receiver id var ve
-                console.log("location state var")
                 if(conversations.length>0){
-                    console.log("egeeg")
-                    console.log("egeeg")
                     const defaultConversation = conversations.find((conversation:Conversation)=>{  //find ile koşula uyan ilk elemanı seçicez
                         const ids = conversation.participants.map((p)=>p._id)    //map ile sender ve receiver'ın idsini array olarak saklıyoruz
-                        console.log("ids:",ids)
-                        console.log("ids:",ids)
-                        console.log("ids:",ids)
                         return ids.includes(sender!._id) && ids.includes(location?.state?.chatReceiverId) //arraydeki 2 id sender ve receiver idleri içeriyorsa find için true dönüyor
                         })
                     if(defaultConversation){
-                        console.log("defaultConversation",defaultConversation)
-                        console.log("defaultConversation",defaultConversation)
-                        console.log("defaultConversation",defaultConversation)
                         setSelectedConversation(defaultConversation)
                         setReceiver(defaultConversation.participants.find((user:User)=>user._id===receiver?._id))
                     }
@@ -299,8 +288,8 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
     useEffect(() => {
     if (socket) {
         socket.on("socketSendFirstMessage", (data:any) => {
-            console.log("socketSendFirstmessage:", data.message)
-            console.log("socketSendFirstconversation:", data.conversation)
+            // console.log("socketSendFirstmessage:", data.message)
+            // console.log("socketSendFirstconversation:", data.conversation)
             setConversations((prev)=>{
                 if(!prev) return prev
                 const newConversations = [...prev,data.conversation]
@@ -310,8 +299,8 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
         })
 
         socket.on("socketSendDefaultMessage", (data:any) => {
-            console.log("socketDefaultmessage:", data.message)
-            console.log("socketDefaultconversation:", data.conversation)
+            // console.log("socketDefaultmessage:", data.message)
+            // console.log("socketDefaultconversation:", data.conversation)
             setConversations((prev:any)=>{
                 const newConversations = prev.map((conversation:any)=>{
                    if(conversation._id===data.conversation._id){
@@ -322,8 +311,8 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
                 return newConversations
             })
             if(selectedConversation &&(selectedConversation._id===data.conversation._id)){
-                setSeenByReceiverTrue(data.conversation._id)
-                console.log("setSeenByReceiverTru")
+                // setSeenByReceiverTrue(data.conversation._id)
+                console.log("setSeenByReceiverTrue")
             }
             else{
                 socketMessageCount()
@@ -331,8 +320,42 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
         })
 
         socket.on("socketSetSeenByReceiverTrue", (data:any) => {
-            console.log("eeeemessageSenderId:", data.messageSenderId)
-            console.log("eeeeconversationId:", data.conversationId)
+            if(selectedConversation && selectedConversation?._id === data.conversationId){
+                console.log("selectedConversation:",selectedConversation)
+                setSelectedConversation((prev:any)=>{
+                    const updatedMessages = prev.messages.map((message:any)=>{
+                        if(message.senderId._id === data.messageSenderId && message.seenByReceiver === false){
+                            console.log("socketSetSeenByReceiverTrue:  If içine girdi")
+                            return {
+                                ...message,
+                                seenByReceiver: true,
+                            }
+                        }
+                        return message
+                    })
+                    return {...prev,messages:updatedMessages}
+                })
+            }
+            setConversations((prev:any)=>{
+                const newConversations = prev.map((conversation:any)=>{
+                    if(conversation._id === data.conversationId){
+                        const updatedMessages = conversation.messages.map((message:any)=>{
+                            if((message.senderId._id === data.messageSenderId) && message.seenByReceiver === false){
+                                return{
+                                    ...message,
+                                    seenByReceiver: true,
+                                }
+                            }
+                            return message
+                        })
+                        return {...conversation,messages:updatedMessages}
+                    }
+                    return conversation
+                })
+                return newConversations
+            })
+            // console.log("messageSenderId:", data.messageSenderId)
+            // console.log("conversationId:", data.conversationId)
         })
 
         return () => {
@@ -394,7 +417,6 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
         const date = new Date(message.createdAt)
         return(
             <div key={i}
-            onClick={()=>console.log(message.senderId._id)} 
             className={message.senderId._id === sender?._id
             ? `${style.sentMessage}` 
             : `${style.receivedMessage}`}
@@ -469,9 +491,8 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
                                     
                                 }}
                                 onKeyDown={(e) => {
-                                    if (e.key === "Enter" && !e.shiftKey) {
+                                    if (e.key === "Enter" && !e.shiftKey) { //enter basma control, shift ile basılırsa çalışmaz
                                     e.preventDefault() // yeni satır oluşmasını engeller
-                                    console.log("Enter'a bastı")
                                     handleSubmit(sendMessage)()
                                     }
                                 }}

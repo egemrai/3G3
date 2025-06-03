@@ -66,7 +66,7 @@ export const setSeenByReceiverTrue:RequestHandler<unknown,unknown,unknown,setSee
         }
         
         const senderId = conversation.participants.find((participant)=>{
-            if(participant._id!==receiverId){
+            if(participant._id.toString() !== receiverId.toString()){
                 return participant._id
             }
         })
@@ -74,10 +74,6 @@ export const setSeenByReceiverTrue:RequestHandler<unknown,unknown,unknown,setSee
             throw createHttpError(404, "setSeenByReceiverTrue senderId yok")
         }
 
-        console.log("senderId:",senderId)
-        console.log("senderId:",senderId)
-        console.log("receiverId:",receiverId)
-        console.log("receiverId:",receiverId)
 
         //Socket.emit kısmı
         const receiverSockets = userSocketMap.get(senderId.toString())
@@ -87,7 +83,9 @@ export const setSeenByReceiverTrue:RequestHandler<unknown,unknown,unknown,setSee
                 receiverSockets.forEach(eachSocketId =>{
                     io.to(eachSocketId).emit("socketSetSeenByReceiverTrue",{
                         messageSenderId:messageSenderId,
-                        conversationId:conversationId
+                        conversationId:conversationId,
+                        eachSocketId:eachSocketId,
+                        senderId:senderId
                     })
                 })
             }
@@ -97,15 +95,13 @@ export const setSeenByReceiverTrue:RequestHandler<unknown,unknown,unknown,setSee
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const unseenMessageIds = conversation?.messages.map((message:any)=>{
             if(message.senderId!==receiverId && message.seenByReceiver===false){
-                console.log("message:",message._id)
+                
                 return message._id.toString()
             }
         })
         
 
         const cleanedMessageIds = unseenMessageIds.filter(Boolean) // görülmüş mesajlar ve gönderilen mesajlar filtrelenince geriye undefined mesaj idleri kalıyor, onları elemek için
-
-        console.log("cleanedMessageIds:",cleanedMessageIds)
 
         if(!cleanedMessageIds){
             throw createHttpError(400, "cleanedMessageIds yok")
@@ -123,9 +119,6 @@ export const setSeenByReceiverTrue:RequestHandler<unknown,unknown,unknown,setSee
            return await message.save()
         }))
 
-        
-        console.log("lastResponse:",lastResponse)
-
         if(lastResponse){
             socketSetSeenByReceiverTrue(conversation._id,senderId.toString())
         }
@@ -136,9 +129,10 @@ export const setSeenByReceiverTrue:RequestHandler<unknown,unknown,unknown,setSee
     }
 }
 
+
 export const sendMessage:RequestHandler= async (req, res, next) => {
     const senderId = req.session.userId
-    console.log(req.body)
+    
     const {message,receiverId,messageTemporaryId} = req.body
     
     try {
