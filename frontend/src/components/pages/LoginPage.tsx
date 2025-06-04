@@ -37,6 +37,7 @@ const LoginPage= ({onLoginSuccess, onSignupSuccessfull}:LoginPageProps) => {
 
       const [usernameLogin, passwordLogin]= watch(["username","password"])
       
+      
     
       const submitLogin = async (credentials:LoginCredentials) => {
         try {
@@ -57,6 +58,8 @@ const LoginPage= ({onLoginSuccess, onSignupSuccessfull}:LoginPageProps) => {
         handleSubmit:handleSubmit2,
         formState: { errors:errors2, isSubmitting: isSubmitting2 }
       } = useForm<SignUpCredentials>({ mode: "all" }) 
+      
+      const [usernameSignUp, passwordSignUp]= watch2(["username","password"])
 
       const submitSignUp= async (credentials:SignUpCredentials)=> {
         try {
@@ -90,7 +93,7 @@ const LoginPage= ({onLoginSuccess, onSignupSuccessfull}:LoginPageProps) => {
                 required:"Required",
                 pattern: {
                   value: /^.{1,22}$/,
-                  // value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,22}$/gm,
+                  // value:  /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,22}$/gm,
                   message: 'Username must contain at least one uppercase letter, one lowercase letter, one number, and be between 8-22 characters.'
                 }
               })}
@@ -147,13 +150,13 @@ const LoginPage= ({onLoginSuccess, onSignupSuccessfull}:LoginPageProps) => {
             </InputGroup>
             
             <Form.Control.Feedback type="invalid">
-                {/* {errors?.password?.message} */}
-                <Container className={`${style.container}`}>
+                {errors?.password?.message}
+                {/* <Container className={`${style.container}`}>
                         {regex822.test(passwordLogin) 
                         ?<span className={`${style.green}`}>8-22 characters,</span>
                         :<span>8-22 characters,</span>
                         }
-                    </Container>
+                    </Container> */}
             </Form.Control.Feedback>
         </Form.Group>
           
@@ -190,13 +193,40 @@ const LoginPage= ({onLoginSuccess, onSignupSuccessfull}:LoginPageProps) => {
               <Form.Label>{"username"}</Form.Label>
               <Form.Control
                 {...register2("username",{
-                  required:"Required"
+                  required:"Required",
+                  pattern: {
+                  value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,22}$/gm,
+                  // value: /^.{1,22}$/ ,
+                  message: 'Username must contain at least one uppercase letter, one lowercase letter, one number, and be between 8-22 characters.'
+                }
                 } 
                   )}
                 isInvalid={!!errors2?.username}
               />
               <Form.Control.Feedback type="invalid">
-                  {errors2?.username?.message}
+                  {/* {errors2?.username?.message} */}
+                {
+                  <>
+                    <Container className={`${style.container}`}>
+                        {regex822.test(usernameSignUp) 
+                        ?<span className={`${style.green}`}>8-22 characters,</span>
+                        :<span>8-22 characters,</span>
+                        }
+                        {regexBig.test(usernameSignUp) 
+                        ?<span className={`${style.green}`}> min 1 uppercase letter,</span>
+                        :<span> min 1 uppercase letter,</span>
+                        }
+                        {regexSmall.test(usernameSignUp) 
+                        ?<span className={`${style.green}`}> min 1 lowercase letter,</span>
+                        :<span> min 1 lowercase letter,</span>
+                        }
+                        {regexNumber.test(usernameSignUp) 
+                        ?<span className={`${style.green}`}> min 1 number</span>
+                        :<span> min 1 number</span>
+                        }
+                    </Container>
+                  </>
+                } 
               
               </Form.Control.Feedback>     
             </Form.Group>
@@ -229,7 +259,11 @@ const LoginPage= ({onLoginSuccess, onSignupSuccessfull}:LoginPageProps) => {
                     :"password"
                     }
               {...register2("password",{
-                  required:"Required"
+                  required:"Required",
+                  pattern: {
+                    value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,22}$/gm,
+                    message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and be between 8-22 characters.'
+                  }
                 })}
               isInvalid={!!errors2?.password}
               />
@@ -238,11 +272,34 @@ const LoginPage= ({onLoginSuccess, onSignupSuccessfull}:LoginPageProps) => {
                 ? <FaEye/>
                 : <FaEyeSlash/>}
               </Button>            
-            </InputGroup>
+            
             
             <Form.Control.Feedback type="invalid">
-                 {errors2?.password?.message} 
+                 {/* {errors2?.password?.message}  */}
+                 {
+                  <>
+                    <Container className={`${style.container}`}>
+                        {regex822.test(passwordSignUp) 
+                        ?<span className={`${style.green}`}>8-22 characters,</span>
+                        :<span>8-22 characters,</span>
+                        }
+                        {regexBig.test(passwordSignUp) 
+                        ?<span className={`${style.green}`}> min 1 uppercase letter,</span>
+                        :<span> min 1 uppercase letter,</span>
+                        }
+                        {regexSmall.test(passwordSignUp) 
+                        ?<span className={`${style.green}`}> min 1 lowercase letter,</span>
+                        :<span> min 1 lowercase letter,</span>
+                        }
+                        {regexNumber.test(passwordSignUp) 
+                        ?<span className={`${style.green}`}> min 1 number</span>
+                        :<span> min 1 number</span>
+                        }
+                    </Container>
+                  </>
+                }
             </Form.Control.Feedback>
+            </InputGroup>
         </Form.Group>
           
             <Button className={`${style.submitButton}`}
