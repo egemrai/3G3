@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Category as CategoryModel } from "../../models/category";
 import * as chat_api from "../../network/chat_api"
 import * as offers_api from "../../network/offers_api"
@@ -35,7 +35,7 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
     const [receiver, setReceiver] = useState<User|null>()
     const [sender, setSender] = useState<User>()
     const [conversations, setConversations] = useState<Conversation[]>([])
-    const [selectedConversation, setSelectedConversation] = useState<Conversation|null>()
+    const [selectedConversationId, setSelectedConversationId] = useState<string>()
     const [conversationsGridIndex, setConversationsGridIndex] = useState<number>()
     const [startingMessage, setStartingMessage] = useState<JSX.Element>()
     const [lastseen, setLastseen] = useState<string>()
@@ -45,7 +45,7 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
     const messagesEndRef = useRef<HTMLDivElement>(null)
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" }) //smoothtu, auto yaptım
     }
 
     function saatiAyarla(){
@@ -101,7 +101,7 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
     async function fetchAllConversations() {
         try {
             const fetchedConversations = await chat_api.fetchAllConversations()
-            console.log(fetchedConversations)
+            console.log("fetchedConversations:",fetchedConversations)
             setConversations(fetchedConversations)
             setConversationLoaded(false)
         } catch (error) {
@@ -113,18 +113,23 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
         try {
             console.log("setSeenByReceiverTrue çalıştı")
             const fetchedConversations = await chat_api.setSeenByReceiverTrue(conversationId)
-            setConversations((prev:any)=>{  //conversation tıklayınca okunmamış mesajları 0lamak için
-                const newConversations = prev.map((conversation:any)=>{
-                    if(conversation._id===conversationId){
-                        conversation.messages.map((message:any)=>{
-                        if(message.seenByReceiver===false){
-                            message.seenByReceiver=true}
-                        return message})
-                    }
-                    return conversation
+            if(fetchedConversations){
+                setConversations((prev:Conversation[])=>{  //conversation tıklayınca okunmamış mesajları 0lamak için
+                    return prev.map((conversation:Conversation)=>{
+                        if(conversation._id===conversationId){
+                           const newMessages = conversation.messages.map((message:Message)=>{
+                                if(message.seenByReceiver===false){
+                                    return {...message,seenByReceiver:true}
+                                    }
+                                return message
+                            })
+                            return {...conversation,messages:newMessages}
+                        }
+                        return conversation
+                    })
                 })
-                return newConversations
-            })
+            }
+            
             
             
         } catch (error) {
@@ -136,37 +141,35 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
 
     function pushNewMessage(response:Message){
         try {
-            const newMessageAddedConversation = selectedConversation
-            if(newMessageAddedConversation){
-                newMessageAddedConversation.messages.push(response)
-                setSelectedConversation(newMessageAddedConversation)
-                setConversations((prev:any)=>{
-                const newConversations = prev.map((conversation:any)=>{
-                   if(conversation._id===newMessageAddedConversation._id){
-                       return newMessageAddedConversation
-                   }
-                   else return conversation
+            setConversations((prev: Conversation[])=>{
+                return prev.map((conversation:any)=>{
+                    if(conversation._id===selectedConversationId){
+                        return {
+                            ...conversation,
+                            messages:[...(conversation.messages|| []),response]
+                        }
+                    }
+                    return conversation
                 })
-                return newConversations
             })
-            }
         } catch (error) {
             alert("pushNewMessage error")
         }
     }
 
     function pushNewConversation(response:Conversation){
-         const newConversationAddedConversation = conversations
-            if(newConversationAddedConversation){
-                
-                newConversationAddedConversation.push(response)
-                setConversationsGridIndex(newConversationAddedConversation.length-1) // yeni eklenen conversationu focus style göstermek için
-                setConversations(newConversationAddedConversation) //conversations'a yeni geleni ekledik
-                setSelectedConversation(response)//mesajı ekleyebilmek için yeni gelen conversationu seçtik
-            }
+        try {
+            setConversations((prev: Conversation[])=>{ //conversations'a yeni geleni ekledik
+                setSelectedConversationId(response._id)//mesajı ekleyebilmek için yeni gelen conversationu seçtik
+                setConversationsGridIndex(prev.length) // yeni eklenen conversationu focus style göstermek için
+                return [...prev,response]
+            })
+        } catch (error) {
+            alert("pushNewConversation error")
+        }
     }
 
-const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+// const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
     async function sendMessage(credentials:Messageform) {
         const messageTemporaryId = crypto.randomUUID()
@@ -184,37 +187,33 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
                 seenByReceiver:false,
                 sent:false
             }
-                pushNewMessage(temporaryMessage) //tek ve çift tık ayarlayıp, mesaj response beklememek için random _id ile bir mesaj push ediyoruz
-                // console.log("1. await öncesi")
-                // await wait(2000)
-                // console.log("1. await sonrası")
-            if(response.fetchedConversation){
-                    // console.log("response.fetchedConversation",response.fetchedConversation)
-                    // console.log("response.fetchedConversation",response.fetchedConversation)
-                    pushNewConversation(response.fetchedConversation)//
-                    // console.log("2. await öncesi")
-                    // await wait(2000)
-                    // console.log("2. await sonrası")
-                }
+            pushNewMessage(temporaryMessage) //tek ve çift tık ayarlayıp, mesaj response beklememek için random _id ile bir mesaj push ediyoruz
+            if(response.firstMessageCheck){
+                console.log("response.fetchedConversation",response.fetchedConversation)
+                console.log("response.fetchedConversation",response.fetchedConversation)
+                pushNewConversation(response.fetchedConversation)//
+            }
             if(response){
-                if(selectedConversation){
-                    // console.log("3. await öncesi")
-                    // await wait(2000)
-                    // console.log("3. await sonrası")
-                    const selectedConversationMessages:any = selectedConversation.messages.map((message:any)=>{
-                        if(message._id === response.messageTemporaryId){
-                            // console.log("mesaj değişti")
-                            return(response.fetchedMessage)
+                console.log("response.fetchedConversation:", response.fetchedConversation)
+                console.log("response.messageTemporaryId:", response.messageTemporaryId)
+                console.log("response.fetchedMessage:", response.fetchedMessage)
+                setConversations((prev:Conversation[])=>{
+                    return prev.map((conversation:Conversation)=>{
+                        if(conversation._id === response.fetchedConversation._id){
+                            const newMessages = conversation.messages.map((message:Message)=>{
+                                if(message._id === response.messageTemporaryId){
+                                    return response.fetchedMessage
+                                }
+                                return message
+                            })
+                            return {...conversation,
+                                    messages: newMessages
+                            }
                         }
-                        else{
-                            // console.log("mesaj değişmedi")
-                            return(message)
-                    }
-                })
-                const newSelectedConversation = selectedConversation
-                newSelectedConversation.messages = selectedConversationMessages
-                setSelectedConversation(newSelectedConversation)
-                }                         
+                        return conversation
+                    })
+                })    
+                setSelectedConversationId(response.fetchedConversation._id)  
             }
                
         } catch (error) {
@@ -223,12 +222,14 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
     }
 
     
+    const selectedConversation = useMemo(()=>{
+       return conversations.find((conversation)=>conversation._id === selectedConversationId)
+    },[conversations,selectedConversationId])
 
     async function sena(){
         Promise.all([fetchSender(),fetchAllConversations()])
     } 
 
-    
     useEffect(()=>{
         document.body.style.backgroundColor= "#121212"
         // fetchAllConversations()
@@ -236,7 +237,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
         sena()
 
         return()=>{
-            setSelectedConversation(undefined)
+            setSelectedConversationId(undefined)
         }
     },[])
 
@@ -258,7 +259,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
                         return ids.includes(sender!._id) && ids.includes(location?.state?.chatReceiverId) //arraydeki 2 id sender ve receiver idleri içeriyorsa find için true dönüyor
                         })
                     if(defaultConversation){
-                        setSelectedConversation(defaultConversation)
+                        setSelectedConversationId(defaultConversation._id)
                         setReceiver(defaultConversation.participants.find((user:User)=>user._id===receiver?._id))
                     }
                 }
@@ -290,32 +291,28 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
         socket.on("socketSendFirstMessage", (data:any) => {
             // console.log("socketSendFirstmessage:", data.message)
             // console.log("socketSendFirstconversation:", data.conversation)
-            setConversations((prev)=>{
-                if(!prev) return prev
-                const newConversations = [...prev,data.conversation]
-                return newConversations
+            setConversations((prev:Conversation[])=>{
+                return [...prev,{...data.conversation,messages:[data.message]}]
             })
-            
         })
 
         socket.on("socketSendDefaultMessage", (data:any) => {
             // console.log("socketDefaultmessage:", data.message)
             // console.log("socketDefaultconversation:", data.conversation)
-            setConversations((prev:any)=>{
-                const newConversations = prev.map((conversation:any)=>{
+            setConversations((prev:Conversation[])=>{
+                return prev.map((conversation:Conversation)=>{
                    if(conversation._id===data.conversation._id){
-                       conversation.messages.push(data.message)
+                       return {...conversation,messages: [...(conversation.messages || []),data.message]}
                    }
                    return conversation
                 })
-                return newConversations
             })
-            if(selectedConversation &&(selectedConversation._id===data.conversation._id)){
+            if(selectedConversationId===data.conversation._id){
                 // setSelectedConversation((prev:any)=>{
                 //     prev.messages.push(data.message)
                 //     return prev
                 // })
-                // setSeenByReceiverTrue(data.conversation._id)
+                setSeenByReceiverTrue(data.conversation._id)
                 console.log("setSeenByReceiverTrue")
             }
             else{
@@ -324,24 +321,8 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
         })
 
         socket.on("socketSetSeenByReceiverTrue", (data:any) => {
-            // if(selectedConversation && selectedConversation?._id === data.conversationId){
-            //     console.log("selectedConversation:",selectedConversation)
-            //     setSelectedConversation((prev:any)=>{
-            //         const updatedMessages = prev.messages.map((message:any)=>{
-            //             if(message.senderId._id === data.messageSenderId && message.seenByReceiver === false){
-            //                 console.log("socketSetSeenByReceiverTrue:  If içine girdi")
-            //                 return {
-            //                     ...message,
-            //                     seenByReceiver: true,
-            //                 }
-            //             }
-            //             return message
-            //         })
-            //         return {...prev,messages:updatedMessages}
-            //     })
-            // }
-            setConversations((prev:any)=>{
-                const newConversations = prev.map((conversation:any)=>{
+            setConversations((prev:Conversation[])=>{
+                return prev.map((conversation:Conversation)=>{
                     if(conversation._id === data.conversationId){
                         const updatedMessages = conversation.messages.map((message:any)=>{
                             if((message.senderId._id === data.messageSenderId) && message.seenByReceiver === false){
@@ -356,8 +337,6 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
                     }
                     return conversation
                 })
-                setTimeout(()=>{console.log("setConversation çalıştı socket seen true:",selectedConversation)},1000)
-                return newConversations
             })
             // console.log("messageSenderId:", data.messageSenderId)
             // console.log("conversationId:", data.conversationId)
@@ -387,7 +366,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
                                     ? `${style.selectedConversation} ${style.conversation}`
                                     : `${style.conversation}`
             }
-            onClick={()=>{setSelectedConversation(conversation)
+            onClick={()=>{setSelectedConversationId(conversation._id)
                           setConversationsGridIndex(i)
                           setReceiver((conversation.participants.find((user:User)=>user._id!==sender?._id)))
                           if(unreadMessageCount >0){

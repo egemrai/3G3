@@ -218,11 +218,11 @@ export const sendMessage:RequestHandler= async (req, res, next) => {
         if(startOfConversation){
             socketSendFirstMessage(fetchedMessage,fetchedConversation)
             
-            res.status(200).json({fetchedConversation:fetchedConversation,fetchedMessage:fetchedMessage,messageTemporaryId:messageTemporaryId})
+            res.status(200).json({firstMessageCheck:true, fetchedConversation:fetchedConversation,fetchedMessage:fetchedMessage,messageTemporaryId:messageTemporaryId})
         }
         else{
             socketSendDefaultMessage(fetchedMessage,fetchedConversation)
-            res.status(200).json({fetchedMessage:fetchedMessage,messageTemporaryId:messageTemporaryId})
+            res.status(200).json({fetchedConversation:fetchedConversation, fetchedMessage:fetchedMessage,messageTemporaryId:messageTemporaryId})
         }
         
     } catch (error) {

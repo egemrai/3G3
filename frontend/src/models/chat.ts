@@ -16,4 +16,5 @@ export interface Message{
     updatedAt:string
     seenByReceiver:boolean
     sent:boolean
+    _id:string
 }
