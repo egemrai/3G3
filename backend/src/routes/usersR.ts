@@ -18,6 +18,8 @@ router.get("/fetchUser", userController.fetchUser)
 router.get("/setUserOnline", userController.setUserOnline) //socket connect çalışınca kullanıcıyı online göstermek için
 router.get("/setUserOffline", userController.setUserOffline) //socket disconnect çalışınca kullanıcıyı offline göstermek ve disconnect zamanını tutmak için
 
+router.get("/setWritingTo", userController.setWritingTo) //mesaj yazarken writingTo ayarlamak için
+
 router.post("/signup/", userController.SignUp)
 
 router.post("/login/", userController.login)

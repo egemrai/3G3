@@ -40,6 +40,7 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
     const [startingMessage, setStartingMessage] = useState<JSX.Element>()
     const [lastseen, setLastseen] = useState<string>()
     const [conversationLoaded, setConversationLoaded] = useState<boolean>(true) //
+    const [typingCheck, settypingCheck] = useState<boolean>(false) //typing ayarlamak için, mesaj 1 harf olunca ve check false ise writingTo set ediliyor ve check true yapılıyor. mesaj 0 harf olunca da yine writingTo set ediliyor ve check false yapılıyor
 
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -107,6 +108,20 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
         } catch (error) {
             // alert(error)
         }
+    }
+
+    async function setWritingTo(check?:string) {
+        try {
+            if(check){
+                await offers_api.setWritingTo(receiver?._id)
+            }
+            else{
+                await offers_api.setWritingTo()
+            }
+        } catch (error) {
+            alert(error)
+        }
+        
     }
 
     async function setSeenByReceiverTrue(conversationId:string) {
@@ -213,9 +228,9 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
                         return conversation
                     })
                 })    
-                setSelectedConversationId(response.fetchedConversation._id)  
+                setSelectedConversationId(response.fetchedConversation._id)
             }
-               
+        setWritingTo()
         } catch (error) {
             alert(error)
         }
@@ -442,7 +457,11 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
                     <p className={`${style.chatInfoP}`}>{receiver && `${receiver?.username}`}</p>
                     <p className={`${style.chatInfoP}`}>{receiver &&
                                                         (receiver.online
-                                                         ?  "online"
+                                                         ? (receiver.writingTo === sender?._id
+                                                            ? "typing..."
+                                                            : "online"
+                                                         ) 
+                                                         
                                                          : (lastseen && `${lastseen}`)  )}
                                                          </p>
                     </div>
@@ -478,6 +497,20 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
                                     if (e.key === "Enter" && !e.shiftKey) { //enter basma control, shift ile basılırsa çalışmaz
                                     e.preventDefault() // yeni satır oluşmasını engeller
                                     handleSubmit(sendMessage)()
+                                    }
+                                }}
+                                onChange={(e)=>{
+                                    if(receiver){
+                                        if(typingCheck === false && e.currentTarget.value.length === 1){
+                                            settypingCheck(true)
+                                            setWritingTo(e.currentTarget.value)
+                                            console.log("yazıyor")
+                                        }
+                                        else if(typingCheck === true && e.currentTarget.value.length === 0){
+                                            settypingCheck(false)
+                                            setWritingTo()
+                                            console.log("yazmayı bitirdi")
+                                        } 
                                     }
                                 }}
                                     />

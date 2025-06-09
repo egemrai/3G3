@@ -234,3 +234,35 @@ export const fetchUser: RequestHandler<unknown,unknown,unknown,fetchUserQuery> =
         next(error)
     }
 }
+
+
+interface setWritingToQuery{
+    _id:string
+}
+export const setWritingTo: RequestHandler<unknown,unknown,unknown,setWritingToQuery> = async(req,res,next)=>{
+    const receiverId = req.query._id
+    const senderId = req.session.userId
+    try {
+        if(!senderId){
+        throw createHttpError(400,"setWritingTo missing senderId")
+        }
+
+        const response = await UserModel.findById(senderId)
+        if(!response){
+            throw createHttpError(400,"setWritingTo missing response")
+        }
+        
+        if(receiverId){
+            response.writingTo = receiverId
+        }
+        else{
+            response.writingTo = null
+        }
+
+        await response.save()
+        
+        res.status(200).json(response)
+    } catch (error) {
+        next(error)
+    }
+}

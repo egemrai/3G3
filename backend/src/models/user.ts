@@ -7,6 +7,7 @@ const userSchema = new Schema({
     email: {type: String, required: true,unique: true, select: false},                    //false olan değerler görünmüyor, görünmesi için,
     online: {type: Boolean, default:false, required: true},                    //findbyid(dummy).select("email").exec() yapmak lazım
     lastOnline: {type: Date, default: Date.now,required: false},                    
+    writingTo: {type: String, default: null,required: false},                    
 },{timestamps: true})                                                       
 
 type User = InferSchemaType<typeof userSchema>

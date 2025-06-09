@@ -243,6 +243,11 @@ export async function fetchCategories(): Promise<Category[]> {
     return response.json()
   }
 
+  export async function setWritingTo(_id?:string) {
+    const response = await fetchData("/api/users/setWritingTo/?_id="+_id+"")
+    return response.json()
+  }
+
   
 
 //#endregion

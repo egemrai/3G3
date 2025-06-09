@@ -4,4 +4,5 @@ export interface User{
     _id: string
     online: boolean
     lastOnline: Date
+    writingTo:string
 }
