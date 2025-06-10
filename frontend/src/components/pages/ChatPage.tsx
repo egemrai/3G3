@@ -40,7 +40,7 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
     const [startingMessage, setStartingMessage] = useState<JSX.Element>()
     const [lastseen, setLastseen] = useState<string>()
     const [conversationLoaded, setConversationLoaded] = useState<boolean>(true) //
-    const [typingCheck, settypingCheck] = useState<boolean>(false) //typing ayarlamak için, mesaj 1 harf olunca ve check false ise writingTo set ediliyor ve check true yapılıyor. mesaj 0 harf olunca da yine writingTo set ediliyor ve check false yapılıyor
+    const [typingCheck, setTypingCheck] = useState<boolean>(false) //typing ayarlamak için, mesaj 1 harf olunca ve check false ise writingTo set ediliyor ve check true yapılıyor. mesaj 0 harf olunca da yine writingTo set ediliyor ve check false yapılıyor
 
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -110,18 +110,14 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
         }
     }
 
-    async function setWritingTo(check?:string) {
+    async function setWritingTo(toNullCheck:boolean) {
         try {
-            if(check){
-                await offers_api.setWritingTo(receiver?._id)
-            }
-            else{
-                await offers_api.setWritingTo()
+            if(receiver && selectedConversationId){
+                await offers_api.setWritingTo(receiver._id, toNullCheck, selectedConversationId)
             }
         } catch (error) {
             alert(error)
         }
-        
     }
 
     async function setSeenByReceiverTrue(conversationId:string) {
@@ -229,8 +225,9 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
                     })
                 })    
                 setSelectedConversationId(response.fetchedConversation._id)
+                setTypingCheck(false)
+                setWritingTo(true)
             }
-        setWritingTo()
         } catch (error) {
             alert(error)
         }
@@ -240,6 +237,21 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
     const selectedConversation = useMemo(()=>{
        return conversations.find((conversation)=>conversation._id === selectedConversationId)
     },[conversations,selectedConversationId])
+
+    const receiverInfo = useMemo(()=>{
+       return (<div className={`${style.chatInfoDıv}`}> {/*username ve lastseen kısmı div*/}
+            <p className={`${style.chatInfoP}`}>{receiver && `${receiver?.username}`}</p>
+            <p className={`${style.chatInfoP}`}>{receiver &&
+                                                (receiver.online
+                                                    ? (receiver.writingTo === sender?._id
+                                                    ? "typing..."
+                                                    : "online"
+                                                    ) 
+                                                    
+                                                    : (lastseen && `${lastseen}`)  )}
+                                                    </p>
+        </div>)
+    },[receiver, conversations, selectedConversationId])
 
     async function sena(){
         Promise.all([fetchSender(),fetchAllConversations()])
@@ -353,14 +365,44 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
                     return conversation
                 })
             })
-            // console.log("messageSenderId:", data.messageSenderId)
-            // console.log("conversationId:", data.conversationId)
+        })
+
+        socket.on("socketSetWritingTo", (data:any) => {
+            // console.log("data.senderId ->mesajı kimin yazdığının id'si:",data.senderId)
+            // console.log("data.writingToId ->mesajın kime yazıldığı id'si:",data.writingToId)
+            // console.log("data.toNullCheck ->toWriting'i null yapmak için check, true ise null olcak:",data.writingToId)
+            setConversations((prev:Conversation[])=>{
+                return prev.map((conversation:Conversation)=>{
+                    const participantIds = [conversation.participants[0]._id, conversation.participants[1]._id]
+                    if(participantIds.includes(data.senderId) && participantIds.includes(data.writingToId)){
+                        const updatedParticipants = conversation.participants.map((participant:User)=>{
+                            if(participant._id === data.senderId){
+                                if(data.toNullCheck)
+                                return{
+                                    ...participant,
+                                    writingTo: null,
+                                }
+                                else{
+                                    return{
+                                        ...participant,
+                                        writingTo: data.writingToId,
+                                    } 
+                                }
+                            }
+                            return participant
+                        })
+                        return {...conversation,participants:updatedParticipants}
+                    }
+                    return conversation
+                })
+            })
         })
 
         return () => {
         socket.off("socketSendFirstMessage")
         socket.off("socketSendDefaultMessage")
         socket.off("socketSetSeenByReceiverTrue")
+        socket.off("socketSetWritingTo")
         }
     }
     }, [socket,selectedConversation ])
@@ -450,22 +492,12 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
             <div className={`${style.container}`}> {/*conversation kısmı*/}
                 <div className={`${style.conversationDiv}`}> {/*conversation div*/}
                     {conversationsGrid }
+                    <Button onClick={()=>console.log(receiver)}></Button>
                 </div>
 
                 <div className={`${style.chatDiv}`}> {/*chatDiv kısmı*/}
-                    <div className={`${style.chatInfoDıv}`}> {/*username ve lastseen kısmı div*/}
-                    <p className={`${style.chatInfoP}`}>{receiver && `${receiver?.username}`}</p>
-                    <p className={`${style.chatInfoP}`}>{receiver &&
-                                                        (receiver.online
-                                                         ? (receiver.writingTo === sender?._id
-                                                            ? "typing..."
-                                                            : "online"
-                                                         ) 
-                                                         
-                                                         : (lastseen && `${lastseen}`)  )}
-                                                         </p>
-                    </div>
-
+                    {receiverInfo}
+                    
                     <p className={`${style.line}`}> {" "}</p>
 
                     <div className={`${style.messagesDiv}`}> {/*mesajların göründüğü kısım*/}
@@ -495,21 +527,26 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
                                 }}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter" && !e.shiftKey) { //enter basma control, shift ile basılırsa çalışmaz
-                                    e.preventDefault() // yeni satır oluşmasını engeller
-                                    handleSubmit(sendMessage)()
+                                        e.preventDefault() // yeni satır oluşmasını engeller
+                                        handleSubmit(sendMessage)()
+                                        setTypingCheck(false)
+                                        setWritingTo(true)
                                     }
                                 }}
                                 onChange={(e)=>{
                                     if(receiver){
                                         if(typingCheck === false && e.currentTarget.value.length === 1){
-                                            settypingCheck(true)
-                                            setWritingTo(e.currentTarget.value)
+                                            setTypingCheck(true)
+                                            setWritingTo(false)
                                             console.log("yazıyor")
+                                            console.log("receiver:",receiver)
                                         }
                                         else if(typingCheck === true && e.currentTarget.value.length === 0){
-                                            settypingCheck(false)
-                                            setWritingTo()
+                                            setTypingCheck(false)
+                                            setWritingTo(true)
                                             console.log("yazmayı bitirdi")
+                                            console.log("receiver:",receiver)
+
                                         } 
                                     }
                                 }}
