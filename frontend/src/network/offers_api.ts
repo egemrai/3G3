@@ -245,7 +245,6 @@ export async function fetchCategories(): Promise<Category[]> {
 
   export async function setWritingTo(_id:string, toNullCheck:boolean, selectedConversationId:string) {
       await fetchData("/api/users/setWritingTo/?_id="+_id+"&toNullCheck="+toNullCheck+"&selectedConversationId="+selectedConversationId)
-    console.log("typetest")
   }
 
   

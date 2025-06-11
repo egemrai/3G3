@@ -260,31 +260,35 @@ export const setWritingTo: RequestHandler<unknown,unknown,unknown,setWritingToQu
         //Socket.emit kısmı
         const receiverSockets = userSocketMap.get(receiverId.toString())
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        function socketSetWritingTo(receiverId:string, toNullCheck:boolean){
+        function socketSetWritingTo(receiver:any, toNullCheck:boolean){
             if(receiverSockets){
                 receiverSockets.forEach(eachSocketId =>{
                     io.to(eachSocketId).emit("socketSetWritingTo",{
-                        writingToId:receiverId,
+                        writingToUser:receiver,
                         senderId:senderId,
-                        toNullCheck:toNullCheck
+                        toNullCheck:toNullCheck,
+                        selectedConversationId:selectedConversationId
                     })
                 })
             }
         }
 
-        await response.save()
         
+        console.log("response:",response)
+        console.log("response:",response)
         if(toNullCheck=== "true"){
             console.log("null response:" ,response)
             console.log("toNullCheck null için:" ,toNullCheck)
             response.writingTo = null
-            socketSetWritingTo(receiverId,true)
+            await response.save()
+            socketSetWritingTo(response,true)
         }
         else{
             console.log("setId response:" ,response)
             console.log("toNullCheck setId için:" ,toNullCheck)
             response.writingTo = receiverId
-            socketSetWritingTo(receiverId,false)
+            await response.save()
+            socketSetWritingTo(response,false)
         }
 
         
