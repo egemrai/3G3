@@ -536,28 +536,41 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
                                 }}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter" && !e.shiftKey) { //enter basma control, shift ile basılırsa çalışmaz
+                                        handleSubmit(sendMessage)()
                                         e.preventDefault() // yeni satır oluşmasını engeller
                                         // console.log("submit öncesi")
-                                        handleSubmit(sendMessage)()
+                                        
                                         // console.log("submit sonrası")
                                         setTypingCheck(false)
                                         setWritingTo(true)
                                     }
+                                    // if(receiver){
+                                    //     if(typingCheck === false && e.currentTarget.value.length === 1){
+                                    //         setTypingCheck(true)
+                                    //         setWritingTo(false)
+                                    //         console.log("yazıyor")
+                                    //     }
+                                    //     else if(typingCheck === true && e.currentTarget.value.length === 0){
+                                    //         setTypingCheck(false)
+                                    //         setWritingTo(true)
+                                    //         console.log("yazmayı bitirdi")
+                                    //     } 
+                                    // }
                                 }}
-                                onChange={(e)=>{
-                                    if(receiver){
-                                        if(typingCheck === false && e.currentTarget.value.length === 1){
-                                            setTypingCheck(true)
-                                            setWritingTo(false)
-                                            console.log("yazıyor")
-                                        }
-                                        else if(typingCheck === true && e.currentTarget.value.length === 0){
-                                            setTypingCheck(false)
-                                            setWritingTo(true)
-                                            console.log("yazmayı bitirdi")
-                                        } 
-                                    }
-                                }}
+                                // onChange={(e)=>{
+                                //     if(receiver){
+                                //         if(typingCheck === false && e.currentTarget.value.length === 1){
+                                //             setTypingCheck(true)
+                                //             setWritingTo(false)
+                                //             console.log("yazıyor")
+                                //         }
+                                //         else if(typingCheck === true && e.currentTarget.value.length === 0){
+                                //             setTypingCheck(false)
+                                //             setWritingTo(true)
+                                //             console.log("yazmayı bitirdi")
+                                //         } 
+                                //     }
+                                // }}
                                     />
                             
 
