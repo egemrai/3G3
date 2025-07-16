@@ -536,8 +536,13 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
                                 }}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter" && !e.shiftKey) { //enter basma control, shift ile basılırsa çalışmaz
-                                    e.preventDefault() // yeni satır oluşmasını engeller
-                                    handleSubmit(sendMessage)()
+                                        handleSubmit(sendMessage)()
+                                        e.preventDefault() // yeni satır oluşmasını engeller
+                                        // console.log("submit öncesi")
+                                        
+                                        // console.log("submit sonrası")
+                                        setTypingCheck(false)
+                                        setWritingTo(true)
                                     }
                                     if(receiver){
                                         if(typingCheck === false && e.currentTarget.value.length === 1){
