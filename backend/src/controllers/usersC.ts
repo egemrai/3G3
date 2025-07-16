@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import createHttpError from "http-errors";
 import UserModel from "../models/user";
 import bcrypt from "bcrypt"
+import { io } from "../server";
 import { userSocketMap } from "../server";
 
 export const GetloggedInUser: RequestHandler = async (req, res, next) => {
@@ -238,28 +239,59 @@ export const fetchUser: RequestHandler<unknown,unknown,unknown,fetchUserQuery> =
 
 interface setWritingToQuery{
     _id:string
+    toNullCheck:string
+    selectedConversationId:string
 }
 export const setWritingTo: RequestHandler<unknown,unknown,unknown,setWritingToQuery> = async(req,res,next)=>{
     const receiverId = req.query._id
+    const toNullCheck = req.query.toNullCheck
+    const selectedConversationId = req.query.selectedConversationId
     const senderId = req.session.userId
     try {
-        if(!senderId){
-        throw createHttpError(400,"setWritingTo missing senderId")
+        if(!senderId || !toNullCheck || !receiverId || !selectedConversationId){
+        throw createHttpError(400,"setWritingTo missing parameters")
         }
 
         const response = await UserModel.findById(senderId)
         if(!response){
             throw createHttpError(400,"setWritingTo missing response")
         }
-        
-        if(receiverId){
-            response.writingTo = receiverId
-        }
-        else{
-            response.writingTo = null
+
+        //Socket.emit kısmı
+        const receiverSockets = userSocketMap.get(receiverId.toString())
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        function socketSetWritingTo(receiver:any, toNullCheck:boolean){
+            if(receiverSockets){
+                receiverSockets.forEach(eachSocketId =>{
+                    io.to(eachSocketId).emit("socketSetWritingTo",{
+                        writingToUser:receiver,
+                        senderId:senderId,
+                        toNullCheck:toNullCheck,
+                        selectedConversationId:selectedConversationId
+                    })
+                })
+            }
         }
 
-        await response.save()
+        
+        console.log("response:",response)
+        console.log("response:",response)
+        if(toNullCheck=== "true"){
+            console.log("null response:" ,response)
+            console.log("toNullCheck null için:" ,toNullCheck)
+            response.writingTo = null
+            await response.save()
+            socketSetWritingTo(response,true)
+        }
+        else{
+            console.log("setId response:" ,response)
+            console.log("toNullCheck setId için:" ,toNullCheck)
+            response.writingTo = receiverId
+            await response.save()
+            socketSetWritingTo(response,false)
+        }
+
+        
         
         res.status(200).json(response)
     } catch (error) {
