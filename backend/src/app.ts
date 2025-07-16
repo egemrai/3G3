@@ -11,12 +11,17 @@ import {isHttpError} from "http-errors"
 import session from "express-session"
 import MongoStore from "connect-mongo"
 import env from "./util/validateEnv"
-
+import cors from "cors"
 
 
 
 const app = express()
 
+//cors'u production kısmı için ihtiyaç var diye ekledim, denicem
+app.use(cors({
+  origin: "http://localhost:3000", // Frontend adresi
+  credentials: true
+}))
 
 app.use(morgan("dev"))
 app.use(express.json()) // req.body parse etmek için gerekli

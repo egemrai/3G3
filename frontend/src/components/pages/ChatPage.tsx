@@ -498,8 +498,6 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
                                     e.preventDefault() // yeni satır oluşmasını engeller
                                     handleSubmit(sendMessage)()
                                     }
-                                }}
-                                onChange={(e)=>{
                                     if(receiver){
                                         if(typingCheck === false && e.currentTarget.value.length === 1){
                                             settypingCheck(true)
@@ -513,6 +511,20 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
                                         } 
                                     }
                                 }}
+                                // onChange={(e)=>{
+                                //     if(receiver){
+                                //         if(typingCheck === false && e.currentTarget.value.length === 1){
+                                //             settypingCheck(true)
+                                //             setWritingTo(e.currentTarget.value)
+                                //             console.log("yazıyor")
+                                //         }
+                                //         else if(typingCheck === true && e.currentTarget.value.length === 0){
+                                //             settypingCheck(false)
+                                //             setWritingTo()
+                                //             console.log("yazmayı bitirdi")
+                                //         } 
+                                //     }
+                                // }}
                                     />
                             
 

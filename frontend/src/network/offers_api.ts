@@ -5,6 +5,7 @@ import { OfferSmall } from "../models/offerSmall"
 import { SoldOffer, SoldOfferEditRatingForm } from "../models/SoldOffer"
 import { SoldOfferForm } from "../models/SoldOffer"
 
+
 async function fetchData(input: RequestInfo, init?: RequestInit) {
     const response = await fetch(input, init)
     if(response.ok){
@@ -23,13 +24,19 @@ async function fetchData(input: RequestInfo, init?: RequestInit) {
 }
 
 export async function fetchCategories(): Promise<Category[]> {
-    const response =  await fetchData("/api/category",{method: "GET"})
+    const response =  await fetchData(`${process.env.REACT_APP_TEST_URL}/api/category`,{method: "GET"})
   
     return response.json()
   }
+
+// export async function fetchCategories(): Promise<Category[]> {
+//     const response =  await fetchData("/api/category",{method: "GET"})
+  
+//     return response.json()
+//   }
   
   export async function fetchServices(categoryName:string): Promise<Service[]> {
-      const response = await fetchData("/api/category/" + categoryName+ "?testGameName=LOL",
+      const response = await fetchData(`${process.env.REACT_APP_TEST_URL}/api/category/` + categoryName+ "?testGameName=LOL",
           {method: "GET"})
   
       return response.json()
