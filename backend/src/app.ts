@@ -19,7 +19,7 @@ const app = express()
 
 //cors'u production kısmı için ihtiyaç var diye ekledim, denicem
 app.use(cors({
-  origin: "http://localhost:3000", // Frontend adresi
+  origin: `${env.FRONTEND_DEV_URL}`, // Frontend adresi
   credentials: true
 }))
 

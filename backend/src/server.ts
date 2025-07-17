@@ -26,11 +26,11 @@ async function fetchData(input: RequestInfo, init?: RequestInit) {
 }
 //backendden request yolladığımız için URL'yi full şekilde yazılıyor
 export async function setUserOffline(id:string) {
-    const response = await fetchData("http://localhost:5000/api/users/setUserOffline/?id="+id)
+    const response = await fetchData(`${env.BACKEND_DEV_URL}/api/users/setUserOffline/?id=`+id)
     return response.json()
   }
 export async function setUserOnline(id:string) {
-  const response = await fetchData("http://localhost:5000/api/users/setUserOnline/?id="+id)
+  const response = await fetchData(`${env.BACKEND_DEV_URL}/api/users/setUserOnline/?id=`+id)
   return response.json()
 }
 //#endregion
@@ -43,7 +43,7 @@ const server = http.createServer(app);
 
 export const io = new Server(server, {
     cors: {
-      origin: "http://localhost:3000", // frontend adresi
+      origin: `${env.FRONTEND_DEV_URL}`, // frontend adresi
       credentials: true,
     },
   });

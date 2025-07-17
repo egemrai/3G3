@@ -4,7 +4,7 @@ import io from "socket.io-client"
   
   const fetchedUserId =  userId
 
-const socket = io("http://localhost:5000",{// backend adresi
+const socket = io(process.env.REACT_APP_BACKEND_URL!,{// backend adresi
   transports: ["websocket"],    //transports ekleyince düzgün çalışmaya başlamıştı
   auth:{
     userId: fetchedUserId

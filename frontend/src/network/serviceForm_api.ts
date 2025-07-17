@@ -26,7 +26,7 @@ export interface deleteOfferURLQUery{
     serviceName: string,
 }
 export async function deleteOffer(data:deleteOfferURLQUery){
-    const response = await fetchData("/api/createOffer/deleteOffer/?_id="+ data._id +"&sellerId="+ data.sellerId +"&serviceName="+data.serviceName+"Model" ,{
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/deleteOffer/?_id=`+ data._id +"&sellerId="+ data.sellerId +"&serviceName="+data.serviceName+"Model" ,{
         method: "DELETE",
     })
     return response
@@ -48,7 +48,7 @@ export interface LolAccountCredentials{
 }
 
 export async function createLolAccountOffer(credentials:LolAccountCredentials){
-    const response = await fetchData("/api/createOffer/createLolAccount",{
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/createLolAccount`,{
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -65,7 +65,7 @@ interface editIdData{
 }
 
     export async function editLolAccountOffer(credentials:LolAccountCredentials,editIdData:editIdData):Promise<LolModels.LolAccount>{
-        const response = await fetchData("/api/createOffer/editLolAccount",{
+        const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/editLolAccount`,{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -93,7 +93,7 @@ export interface LolBoostCredentials{
 }
 
 export async function createLolBoostOffer(credentials:LolBoostCredentials){
-    const response = await fetchData("/api/createOffer/createLolBoost",{
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/createLolBoost`,{
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -110,7 +110,7 @@ interface editIdData{
 }
 
     export async function editLolBoostOffer(credentials:LolBoostCredentials,editIdData:editIdData):Promise<LolModels.LolBoost>{
-        const response = await fetchData("/api/createOffer/editLolBoost",{
+        const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/editLolBoost`,{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -136,7 +136,7 @@ export interface LolCoachCredentials{
     active?: boolean
 }
 export async function createLolCoachOffer(credentials:LolCoachCredentials){
-    const response = await fetchData("/api/createOffer/createLolCoach",{
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/createLolCoach`,{
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -153,7 +153,7 @@ interface editIdData{
 }
 
     export async function editLolCoachOffer(credentials:LolCoachCredentials,editIdData:editIdData):Promise<LolModels.LolCoach>{
-        const response = await fetchData("/api/createOffer/editLolCoach",{
+        const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/editLolCoach`,{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -177,7 +177,7 @@ export interface LolRPCredentials{
     stock: number,
 }
 export async function createLolRPOffer(credentials:LolRPCredentials){
-    const response = await fetchData("/api/createOffer/createLolRP",{
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/createLolRP`,{
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -194,7 +194,7 @@ interface editIdData{
 }
 
     export async function editLolRPOffer(credentials:LolRPCredentials,editIdData:editIdData):Promise<LolModels.LolRP>{
-        const response = await fetchData("/api/createOffer/editLolRP",{
+        const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/editLolRP`,{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -222,7 +222,7 @@ export interface ValorantAccountCredentials{
     active?: boolean
 }
 export async function createValorantAccountOffer(credentials:ValorantAccountCredentials){
-    const response = await fetchData("/api/createOffer/createValorantAccount",{
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/createValorantAccount`,{
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -239,7 +239,7 @@ interface editIdData{
 }
 
     export async function editValorantAccountOffer(credentials:ValorantAccountCredentials,editIdData:editIdData):Promise<ValorantModels.ValorantAccount>{
-        const response = await fetchData("/api/createOffer/editValorantAccount",{
+        const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/editValorantAccount`,{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -265,7 +265,7 @@ export interface ValorantBoostCredentials{
     serviceType: string,
 }
 export async function createValorantBoostOffer(credentials:ValorantBoostCredentials){
-    const response = await fetchData("/api/createOffer/createValorantBoost",{
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/createValorantBoost`,{
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -282,7 +282,7 @@ interface editIdData{
 }
 
     export async function editValorantBoostOffer(credentials:ValorantBoostCredentials,editIdData:editIdData):Promise<ValorantModels.ValorantBoost>{
-        const response = await fetchData("/api/createOffer/editValorantBoost",{
+        const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/editValorantBoost`,{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -307,7 +307,7 @@ export interface ValorantCoachCredentials{
     duration: number,
 }
 export async function createValorantCoachOffer(credentials:ValorantCoachCredentials){
-    const response = await fetchData("/api/createOffer/createValorantCoach",{
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/createValorantCoach`,{
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -324,7 +324,7 @@ interface editIdData{
 }
 
     export async function editValorantCoachOffer(credentials:ValorantCoachCredentials,editIdData:editIdData):Promise<ValorantModels.ValorantCoach>{
-        const response = await fetchData("/api/createOffer/editValorantCoach",{
+        const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/editValorantCoach`,{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -347,7 +347,7 @@ export interface ValorantVPCredentials{
     stock: number,
 }
 export async function createValorantVPOffer(credentials:ValorantVPCredentials){
-    const response = await fetchData("/api/createOffer/createValorantVP",{
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/createValorantVP`,{
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -364,7 +364,7 @@ interface editIdData{
 }
 
     export async function editValorantVPOffer(credentials:ValorantVPCredentials,editIdData:editIdData):Promise<ValorantModels.ValorantVP>{
-        const response = await fetchData("/api/createOffer/editValorantVP",{
+        const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/editValorantVP`,{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
