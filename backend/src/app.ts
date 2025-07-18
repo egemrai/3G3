@@ -33,6 +33,9 @@ export const Session = session({
     saveUninitialized: false,
     cookie: {
         maxAge: 720 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
     },
     rolling: true,              //her get,post,vs. requestlerde(sayfa yenileme gibi) session süresini yeniliyor
     store: MongoStore.create({
