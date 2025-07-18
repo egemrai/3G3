@@ -177,7 +177,7 @@ export async function fetchCategories(): Promise<Category[]> {
   }
 
   export async function login(credentials:LoginCredentials): Promise<User> {
-    const response = await fetchData(`https://threeg3.onrender.com/api/users/login`,{
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`,{
         method: "POST",
         headers: {
             "Content-Type": "application/json",
