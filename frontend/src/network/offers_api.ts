@@ -182,6 +182,7 @@ export async function fetchCategories(): Promise<Category[]> {
         headers: {
             "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(credentials)
     })
     return response.json()
