@@ -77,24 +77,26 @@ interface loginBody{
 export const login:RequestHandler<unknown, unknown, loginBody, unknown>= async(req, res, next) => {
     const username= req.body.username
     const password= req.body.password
+console.log("login girdi 1")
+    
 
     try {
         if(!username || !password){
             throw createHttpError(400, "missing parameters")
         }
-
+    console.log("login girdi 2")
         const user= await UserModel.findOne({username: username}).select("password").exec()
 
         if(!user){
             throw createHttpError(400, "invalid credentials")
         }
-
+    console.log("login girdi 3")
         const passwordMatch = await bcrypt.compare(password, user.password)
 
         if(!passwordMatch){
             throw createHttpError(400, "invalid credentials")
         }
-
+console.log("login girdi 4")
         
         req.session.userId= user._id
         res.status(200).json(user)
