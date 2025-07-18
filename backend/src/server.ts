@@ -26,11 +26,11 @@ async function fetchData(input: RequestInfo, init?: RequestInit) {
 }
 //backendden request yolladığımız için URL'yi full şekilde yazılıyor
 export async function setUserOffline(id:string) {
-    const response = await fetchData(`${env.BACKEND_DEV_URL}/api/users/setUserOffline/?id=`+id)
+    const response = await fetchData(`${env.BACKEND_SITE_URL}/api/users/setUserOffline/?id=`+id)
     return response.json()
   }
 export async function setUserOnline(id:string) {
-  const response = await fetchData(`${env.BACKEND_DEV_URL}/api/users/setUserOnline/?id=`+id)
+  const response = await fetchData(`${env.BACKEND_SITE_URL}/api/users/setUserOnline/?id=`+id)
   return response.json()
 }
 //#endregion
