@@ -43,7 +43,7 @@ const server = http.createServer(app);
 
 export const io = new Server(server, {
     cors: {
-      origin: `${env.FRONTEND_DEV_URL}`, // frontend adresi
+      origin: `${env.FRONTEND_SITE_URL}`, // frontend adresi
       credentials: true,
     },
   });
