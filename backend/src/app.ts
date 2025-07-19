@@ -21,7 +21,7 @@ app.set("trust proxy", 1)
 
 //cors'u production kısmı için ihtiyaç var diye ekledim, denicem
 app.use(cors({
-  origin: ["https://3g3.vercel.app", "http://localhost:3000"], // Frontend adresi
+  origin: ["https://threeg3.vercel.app", "http://localhost:3000"], // Frontend adresi
   credentials: true
 }))
 

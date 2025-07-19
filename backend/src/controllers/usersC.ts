@@ -99,10 +99,6 @@ console.log("login girdi 1")
 console.log("login girdi 4")
         
         req.session.userId= user._id
-            req.session.save((err) => {
-                if (err) return next(err);
-                res.status(200).json(user);
-            })
         res.status(200).json(user)
 
     } catch (error) {
