@@ -24,14 +24,14 @@ async function fetchData(input: RequestInfo, init?: RequestInit) {
 }
 
 export async function fetchCategories(): Promise<Category[]> {
-    const response =  await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/category`,{method: "GET"})
+    const response =  await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/category`,{method: "GET",credentials:"include"})
   
     return response.json()
   }
   
   export async function fetchServices(categoryName:string): Promise<Service[]> {
       const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/category/` + categoryName+ "?testGameName=LOL",
-          {method: "GET"})
+          {method: "GET",credentials:"include"})
   
       return response.json()
   }
@@ -42,10 +42,10 @@ export async function fetchCategories(): Promise<Category[]> {
     let response
     if(username){
       response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/categoryName/serviceName/?nosqlTableName=` + query + "Model&username="+username,
-      {method: "GET"})
+      {method: "GET",credentials:"include"})
     }else{
       response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/categoryName/serviceName/?nosqlTableName=` + query + "Model",
-      {method: "GET"})
+      {method: "GET",credentials:"include"})
     }
     
       return response.json()
@@ -54,7 +54,7 @@ export async function fetchCategories(): Promise<Category[]> {
   export async function fetchOffersForManageOffers(): Promise<[]>{
   
     const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/getOffersForManageOffers/`,
-      {method: "GET"})
+      {method: "GET",credentials:"include"})
 
       return response.json()
   }
@@ -62,7 +62,7 @@ export async function fetchCategories(): Promise<Category[]> {
   export async function fetchOffersForUserProfile(username:string): Promise<[]>{
   
     const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/getOffersForUserProfile/?username=` +username,
-      {method: "GET"})
+      {method: "GET",credentials:"include"})
 
       return response.json()
   }
@@ -71,7 +71,7 @@ export async function fetchCategories(): Promise<Category[]> {
   export async function fetchOffer(serviceName: string, _id: string): Promise<OfferSmall>{
 
     const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/getOffer/?nosqlTableName=` + serviceName + "Model&_id="+ _id,
-      {method: "GET"})
+      {method: "GET",credentials:"include"})
 
       return response.json()
   }
@@ -81,7 +81,8 @@ export async function fetchCategories(): Promise<Category[]> {
     const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/createSoldOffer`,{
       method:"POST",
       headers:{
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+      credentials:"include"  
       },
       body: JSON.stringify(credentials)
     })
@@ -90,38 +91,38 @@ export async function fetchCategories(): Promise<Category[]> {
   }
 
   export async function fetchSoldOffers():Promise<SoldOffer[]> {
-    const fetchedSoldOffers = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/fetchSoldOffers`) //default method falan yazmayınca GET çalışıyor sanırım denicem
+    const fetchedSoldOffers = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/fetchSoldOffers`,{credentials: "include"}) //default method falan yazmayınca GET çalışıyor sanırım denicem
 
     return fetchedSoldOffers.json()
   }
   
 
   export async function fetchBoughtOffers():Promise<SoldOffer[]> {
-    const fetchedBoughtOffers = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/fetchBoughtOffers`) //default method falan yazmayınca GET çalışıyor sanırım denicem
+    const fetchedBoughtOffers = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/fetchBoughtOffers`,{credentials: "include"}) //default method falan yazmayınca GET çalışıyor sanırım denicem
 
     return fetchedBoughtOffers.json()
   }
   
   export async function fetchSoldOfferWithId(_id:string):Promise<SoldOffer> {
-    const fetchedSoldOffers = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/fetchSoldOfferWithId/?_id=`+_id) //default method falan yazmayınca GET çalışıyor sanırım denicem
+    const fetchedSoldOffers = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/fetchSoldOfferWithId/?_id=`+_id,{credentials: "include"}) //default method falan yazmayınca GET çalışıyor sanırım denicem
 
     return fetchedSoldOffers.json()
   }
   //UserProfilePage rating için fetch edilen soldOfferlar
   export async function fetchBoughtOffersWithId(userId:string):Promise<SoldOffer[]> {
-    const fetchedBoughtOffers = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/fetchBoughtOffersWithId/?userId=`+userId) //default method falan yazmayınca GET çalışıyor sanırım denicem
+    const fetchedBoughtOffers = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/fetchBoughtOffersWithId/?userId=`+userId,{credentials: "include"}) //default method falan yazmayınca GET çalışıyor sanırım denicem
 
     return fetchedBoughtOffers.json()
   }
   
   export async function fetchSoldOffersWithId(userId:string):Promise<SoldOffer[]> {
-    const fetchedSoldOffers = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/fetchSoldOffersWithId/?userId=`+userId) //default method falan yazmayınca GET çalışıyor sanırım denicem
+    const fetchedSoldOffers = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/fetchSoldOffersWithId/?userId=`+userId,{credentials: "include"}) //default method falan yazmayınca GET çalışıyor sanırım denicem
 
     return fetchedSoldOffers.json()
   }
   //Notification için seenByseller ve buyyer 'ı true yapıyor
   export async function setSeenAllTrue():Promise<[SoldOffer]> {
-    const fetchedSoldOffers = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/setSeenAllTrue`) //default method falan yazmayınca GET çalışıyor sanırım denicem
+    const fetchedSoldOffers = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/setSeenAllTrue`,{credentials: "include"}) //default method falan yazmayınca GET çalışıyor sanırım denicem
 
     return fetchedSoldOffers.json()
   }
@@ -131,7 +132,8 @@ export async function fetchCategories(): Promise<Category[]> {
     const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/setSoldOfferCredentials`,{
       method:"POST",
       headers:{
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+      credentials: "include",  
       },
       body: JSON.stringify(body)
 
@@ -146,7 +148,8 @@ export async function fetchCategories(): Promise<Category[]> {
     const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/editSoldOfferRating`,{
       method:"POST",
       headers:{
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+      credentials: "include",
       },
       body: JSON.stringify(body)
 
@@ -160,7 +163,8 @@ export async function fetchCategories(): Promise<Category[]> {
     const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/setSoldOfferStage`,{
       method:"POST",
       headers:{
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+      credentials: "include",  
       },
       body: JSON.stringify(body)
 
@@ -199,7 +203,8 @@ export async function fetchCategories(): Promise<Category[]> {
     const response= await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/signup`,{
         method: "POST",
         headers:{
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+        credentials: "include",
         },
         body: JSON.stringify(credentials)
 
@@ -210,43 +215,43 @@ export async function fetchCategories(): Promise<Category[]> {
   }
 
   export async function logout() {
-     await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/logout`, {method:"POST"}  //logout controlde zaten res kısmında sadece status var json body yok
+     await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/logout`, {method:"POST",credentials: "include"}  //logout controlde zaten res kısmında sadece status var json body yok
     )
   } 
 
   export async function getLoggedInUser() {
-    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/`, {method: "GET"})
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/`, {method: "GET",credentials: "include"})
 
     return response.json()
   }
 
   export async function fetchUsername(_id:string) {
-    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/fetchUsername/?_id=`+_id)
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/fetchUsername/?_id=`+_id,{credentials: "include"})
     return response.json()
   }
 
   export async function fetchUser(_id:string) {
-    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/fetchUser/?_id=`+_id)
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/fetchUser/?_id=`+_id,{credentials: "include"})
     return response.json()
   }
 
   export async function getloggedInUserId() {
-    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/getloggedInUserId`)
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/getloggedInUserId`,{credentials: "include"})
     return response.json()
   }
 
   export async function fetchloggedInUser() {
-    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/fetchloggedInUser`)
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/fetchloggedInUser`,{credentials: "include"})
     return response.json()
   }
 
   export async function fetchUserIdByUsername(username:string) {
-    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/fetchUserIdByUsername/?username=`+username+"")
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/fetchUserIdByUsername/?username=`+username+"",{credentials: "include"})
     return response.json()
   }
 
   export async function setWritingTo(_id:string, toNullCheck:boolean, selectedConversationId:string) {
-      await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/setWritingTo/?_id=`+_id+"&toNullCheck="+toNullCheck+"&selectedConversationId="+selectedConversationId)
+      await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/setWritingTo/?_id=`+_id+"&toNullCheck="+toNullCheck+"&selectedConversationId="+selectedConversationId,{credentials: "include"})
   }
 
   

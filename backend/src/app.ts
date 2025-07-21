@@ -21,7 +21,7 @@ app.set("trust proxy", true)
 
 //cors'u production kısmı için ihtiyaç var diye ekledim, denicem
 app.use(cors({
-  origin: ["https://threeg3.vercel.app", "http://localhost:3000"], // Frontend adresi
+  origin: ["https://threeg3.vercel.app", "http://localhost:3000"], // Frontend adresi  
   credentials: true
 }))
 
@@ -36,8 +36,8 @@ export const Session = session({
     cookie: {
         maxAge: 720 * 60 * 60 * 1000,
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",          //secure production ise true olması lazım,
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"      //sameSite production ise bunun da none olması lazım
+        secure: env.EGE === "production",//process.env.NODE_ENV === "production",          //secure production ise true olması lazım,
+        sameSite: env.EGE === "production" ? "none" : "lax"      //sameSite production ise bunun da none olması lazım
     },
     rolling: true,              //her get,post,vs. requestlerde(sayfa yenileme gibi) session süresini yeniliyor
     store: MongoStore.create({

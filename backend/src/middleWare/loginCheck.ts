@@ -4,8 +4,8 @@ import createHttpError from "http-errors";
 
 export const ifAuthenticated: RequestHandler = async (req, res, next) => {
     console.log("ifAuthenticated girdi")
-    console.log("req.session ifAuthenticated:",req.session )
-
+    console.log("req.session validate:",req.session )
+    console.log("Session ID validate:", req.sessionID)
     if(req.session.userId){
         next()
     }
