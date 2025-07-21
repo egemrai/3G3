@@ -36,8 +36,8 @@ export const Session = session({
     cookie: {
         maxAge: 720 * 60 * 60 * 1000,
         httpOnly: true,
-        secure: true, //process.env.NODE_ENV === "production",          //secure production ise true olması lazım,
-        sameSite: 'none' //process.env.NODE_ENV === "production" ? "none" : "lax"      //sameSite production ise bunun da none olması lazım
+        secure: process.env.NODE_ENV === "production",          //secure production ise true olması lazım,
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"      //sameSite production ise bunun da none olması lazım
     },
     rolling: true,              //her get,post,vs. requestlerde(sayfa yenileme gibi) session süresini yeniliyor
     store: MongoStore.create({
