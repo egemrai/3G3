@@ -94,11 +94,9 @@ export const login:RequestHandler<unknown, unknown, loginBody, unknown>= async(r
         }
         
         req.session.userId= user._id
-        req.session.save(err => {
-            if (err) return next(err);
-            console.log("req.session:",req.session )
-            res.status(200).json(user);
-        })
+        console.log("req.sessionFromLogin:", req.session)
+        req.session.save()
+        res.status(200).json(user)
         // res.status(200).json(user)
 
     } catch (error) {
