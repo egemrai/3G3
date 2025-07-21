@@ -23,7 +23,7 @@ async function fetchData(input: RequestInfo, init?: RequestInit) {
 }
 
 export async function fetchAllConversations(): Promise<Conversation[]> {
-    const response =  await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/chat/fetchAllConversations`)
+    const response =  await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/chat/fetchAllConversations`,{credentials: "include"})
     
     return response.json()
 }
@@ -32,8 +32,9 @@ export async function sendMessage(credentials:any) {
     const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/chat/sendMessage`,{
         method:"POST",
         headers:{
-        "Content-Type": "application/json"
-        },
+        "Content-Type": "application/json",
+        
+        },credentials: "include",
         body: JSON.stringify(credentials)
     })
 
@@ -41,7 +42,7 @@ export async function sendMessage(credentials:any) {
 }
 
 export async function setSeenByReceiverTrue(conversationId:string) {
-    const response =  await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/chat/setSeenByReceiverTrue/?conversationId=` + conversationId)
+    const response =  await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/chat/setSeenByReceiverTrue/?conversationId=` + conversationId,{credentials: "include"})
     return response.json()
 }
 

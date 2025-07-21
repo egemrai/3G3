@@ -28,6 +28,7 @@ export interface deleteOfferURLQUery{
 export async function deleteOffer(data:deleteOfferURLQUery){
     const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/deleteOffer/?_id=`+ data._id +"&sellerId="+ data.sellerId +"&serviceName="+data.serviceName+"Model" ,{
         method: "DELETE",
+        credentials: "include"
     })
     return response
 }
@@ -51,8 +52,8 @@ export async function createLolAccountOffer(credentials:LolAccountCredentials){
     const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/createLolAccount`,{
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-        },
+            "Content-Type": "application/json",    
+        },credentials: "include",
         body: JSON.stringify(credentials)
     })
     return response.json()
@@ -68,8 +69,8 @@ interface editIdData{
         const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/editLolAccount`,{
             method: "PATCH",
             headers: {
-                "Content-Type": "application/json",
-            },
+                "Content-Type": "application/json",   
+            },credentials: "include",
             body: JSON.stringify({credentials:credentials,
                                   editIdData:editIdData
             })
@@ -96,8 +97,8 @@ export async function createLolBoostOffer(credentials:LolBoostCredentials){
     const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/createLolBoost`,{
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-        },
+            "Content-Type": "application/json",    
+        },credentials: "include",
         body: JSON.stringify(credentials)
     })
     return response.json()
@@ -113,8 +114,8 @@ interface editIdData{
         const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/editLolBoost`,{
             method: "PATCH",
             headers: {
-                "Content-Type": "application/json",
-            },
+                "Content-Type": "application/json",    
+            },credentials: "include",
             body: JSON.stringify({credentials:credentials,
                                   editIdData:editIdData
             })
@@ -140,7 +141,7 @@ export async function createLolCoachOffer(credentials:LolCoachCredentials){
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-        },
+        },credentials: "include",
         body: JSON.stringify(credentials)
     })
     return response.json()
@@ -157,7 +158,7 @@ interface editIdData{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-            },
+            },credentials: "include",
             body: JSON.stringify({credentials:credentials,
                                   editIdData:editIdData
             })
@@ -181,7 +182,7 @@ export async function createLolRPOffer(credentials:LolRPCredentials){
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-        },
+        },credentials: "include",
         body: JSON.stringify(credentials)
     })
     return response.json()
@@ -198,7 +199,7 @@ interface editIdData{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-            },
+            },credentials: "include",
             body: JSON.stringify({credentials:credentials,
                                   editIdData:editIdData
             })
@@ -226,7 +227,7 @@ export async function createValorantAccountOffer(credentials:ValorantAccountCred
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-        },
+        },credentials: "include",
         body: JSON.stringify(credentials)
     })
     return response.json()
@@ -243,7 +244,7 @@ interface editIdData{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-            },
+            },credentials: "include",
             body: JSON.stringify({credentials:credentials,
                                   editIdData:editIdData
             })
@@ -269,7 +270,7 @@ export async function createValorantBoostOffer(credentials:ValorantBoostCredenti
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-        },
+        },credentials: "include",
         body: JSON.stringify(credentials)
     })
     return response.json()
@@ -286,7 +287,7 @@ interface editIdData{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-            },
+            },credentials: "include",
             body: JSON.stringify({credentials:credentials,
                                   editIdData:editIdData
             })
@@ -311,7 +312,7 @@ export async function createValorantCoachOffer(credentials:ValorantCoachCredenti
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-        },
+        },credentials: "include",
         body: JSON.stringify(credentials)
     })
     return response.json()
@@ -328,7 +329,7 @@ interface editIdData{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-            },
+            },credentials: "include",
             body: JSON.stringify({credentials:credentials,
                                   editIdData:editIdData
             })
@@ -351,7 +352,7 @@ export async function createValorantVPOffer(credentials:ValorantVPCredentials){
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-        },
+        },credentials: "include",
         body: JSON.stringify(credentials)
     })
     return response.json()
@@ -368,7 +369,7 @@ interface editIdData{
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-            },
+            },credentials: "include",
             body: JSON.stringify({credentials:credentials,
                                   editIdData:editIdData
             })

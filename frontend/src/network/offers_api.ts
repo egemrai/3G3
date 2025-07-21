@@ -82,8 +82,7 @@ export async function fetchCategories(): Promise<Category[]> {
       method:"POST",
       headers:{
         "Content-Type": "application/json",
-      credentials:"include"  
-      },
+      },credentials:"include",
       body: JSON.stringify(credentials)
     })
 
@@ -133,8 +132,7 @@ export async function fetchCategories(): Promise<Category[]> {
       method:"POST",
       headers:{
         "Content-Type": "application/json",
-      credentials: "include",  
-      },
+      },credentials: "include",
       body: JSON.stringify(body)
 
     })
@@ -149,8 +147,7 @@ export async function fetchCategories(): Promise<Category[]> {
       method:"POST",
       headers:{
         "Content-Type": "application/json",
-      credentials: "include",
-      },
+      },credentials: "include",
       body: JSON.stringify(body)
 
     })
@@ -164,8 +161,7 @@ export async function fetchCategories(): Promise<Category[]> {
       method:"POST",
       headers:{
         "Content-Type": "application/json",
-      credentials: "include",  
-      },
+      },credentials: "include",
       body: JSON.stringify(body)
 
     })
@@ -204,8 +200,8 @@ export async function fetchCategories(): Promise<Category[]> {
         method: "POST",
         headers:{
             "Content-Type": "application/json",
-        credentials: "include",
         },
+        credentials: "include",
         body: JSON.stringify(credentials)
 
 
