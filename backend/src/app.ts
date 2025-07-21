@@ -36,7 +36,7 @@ export const Session = session({
     cookie: {
         maxAge: 720 * 60 * 60 * 1000,
         httpOnly: true,
-        secure: env.EGE === "production",          //secure production ise true olması lazım,
+        secure:  env.EGE === "production",          //secure production ise true olması lazım,
         sameSite: env.EGE === "production" ? "none" : "lax"      //sameSite production ise bunun da none olması lazım
     },
     rolling: true,              //her get,post,vs. requestlerde(sayfa yenileme gibi) session süresini yeniliyor
