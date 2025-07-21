@@ -6,7 +6,7 @@ import createHttpError from "http-errors";
 export const getCategories:RequestHandler= async (req, res, next) => {
     try {
         const allCategories = await CategoryModel.find({active: true}).exec()
-
+        console.log("req.session:",req.session ) //session userid check
         res.status(200).json(allCategories)
     } catch (error) {
         next(error)
