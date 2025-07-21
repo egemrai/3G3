@@ -17,7 +17,7 @@ import cors from "cors"
 
 const app = express()
 
-app.set("trust proxy", 1)
+app.set("trust proxy", true)
 
 //cors'u production kısmı için ihtiyaç var diye ekledim, denicem
 app.use(cors({
