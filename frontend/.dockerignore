@@ -1,0 +1,33 @@
+# Dependencies
+node_modules
+build
+dist
+
+# Environment files
+.env
+.env.*
+*.log
+
+# Git / Docs
+.git
+.gitignore
+Dockerfile
+Dockerfile.dev
+docker-compose.yml
+README.md
+
+# IDE & OS
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Test outputs
+coverage
+*.test.*
+*.spec.*
+
+# Package lock logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
