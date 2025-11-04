@@ -10,7 +10,7 @@ import createHttpError from "http-errors"
 import {isHttpError} from "http-errors"
 import session from "express-session"
 import MongoStore from "connect-mongo"
-import env from "./util/validateEnv"
+import env from "./util/validateEnv"  // normalde env diye bir şey yok, validateEnvden process.env import edip adını env olarak kullandım
 import cors from "cors"
 
 
@@ -21,7 +21,7 @@ app.set("trust proxy", true)
 
 //cors'u production kısmı için ihtiyaç var diye ekledim, denicem
 app.use(cors({
-  origin: ["https://threeg3.vercel.app", "http://localhost:3000"], // Frontend adresi  
+  origin: [env.FRONTEND_SITE_URL,"https://threeg3.vercel.app", "http://localhost:3000"], // Frontend adresi  
   credentials: true
 }))
 
