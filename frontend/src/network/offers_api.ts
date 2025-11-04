@@ -216,7 +216,7 @@ export async function fetchCategories(): Promise<Category[]> {
   } 
 
   export async function getLoggedInUser() {
-    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users/`, {method: "GET",credentials: "include"})
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/users`, {method: "GET",credentials: "include"})
 
     return response.json()
   }
