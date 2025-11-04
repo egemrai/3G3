@@ -98,8 +98,6 @@ export const login:RequestHandler<unknown, unknown, loginBody, unknown>= async(r
         console.log("Session ID userC:", req.sessionID)
         req.session.save()
         res.status(200).json(user)
-        // res.status(200).json(user)
-        res.status(200).json(user)
 
     } catch (error) {
         next(error)
