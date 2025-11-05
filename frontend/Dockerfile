@@ -11,6 +11,8 @@ RUN npm run build
 FROM nginx:alpine
 # build dosyalarını nginx'e kopyala
 COPY --from=build /app/build /usr/share/nginx/html
+# nginx anasayfa dışı f5 hatası için alttaki satır
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # (opsiyonel) kendi nginx konfigürasyonunu ekleyebilirsin
 EXPOSE 80
