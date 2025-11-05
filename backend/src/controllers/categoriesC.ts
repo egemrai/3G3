@@ -4,6 +4,7 @@ import ServiceModel from "../models/service"
 import createHttpError from "http-errors";
 
 export const getCategories:RequestHandler= async (req, res, next) => {
+    console.log("Session ID getCategories:", req.sessionID)
     try {
         const allCategories = await CategoryModel.find({active: true}).exec()
         console.log("req.session:",req.session ) //session userid check
@@ -20,7 +21,7 @@ interface getServicesParam{
 }
 export const getServices: RequestHandler<getServicesParam, unknown, unknown, unknown> = async (req, res, next) => {
     const categoryName= req.params.categoryName // categoryName 2 kelime olursa aradaki %20 kendiliğinden ignorelanıyor
-
+    console.log("Session ID getServices:", req.sessionID)
     //const testGameName= req.query //rep query testi, gameName yerine bunu yazınca ?testGameName değeri urlde neye eşitse o dönüyor
     try {
         if(!categoryName){
