@@ -1,0 +1,17 @@
+
+.div{
+    display: flex;
+    flex-wrap: wrap;
+    aspect-ratio: 1/1;
+    width: 20wh;
+}
+
+.errorMessage{
+    margin: 1wh auto 0;
+    
+}
+
+.resetButton{
+    aspect-ratio: 3/1;
+    width: 30%;
+}

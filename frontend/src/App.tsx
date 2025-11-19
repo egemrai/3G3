@@ -22,6 +22,7 @@ import SoldOffersPage from './components/pages/SoldOffersPage';
 import BoughtOffersPage from './components/pages/BoughtOffersPage';
 import ChatPage from './components/pages/ChatPage';
 import { Conversation, Message } from './models/chat';
+import ClassCounterTestPage from './components/pages/ClassCounterTestPage';
 
 function App() {
 
@@ -170,6 +171,8 @@ function App() {
             <Route path='/chat' element={<ChatPage 
                                           socket={socket}
                                           socketMessageCount={setSocketMessageCount}/>}/>
+
+            <Route path='/classCounterTest' element={<ClassCounterTestPage/>}/>
 
             <Route
             path='/*'  //url üsttekilerden biri olmazsa, olanı kullanıyor
