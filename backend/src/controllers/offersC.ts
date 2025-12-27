@@ -11,18 +11,29 @@ import { userSocketMap } from "../server";
 interface getOffersQuery{
     nosqlTableName: string
     username: string
+    filter: string
+    sort:string
 }
 
-//getOffersda sellerUsername erişmek için 2 kere fetch kullandım, performansı düşürüyodur fyi.
+//getOffersda sellerUsername erişmek için 2 kere fetch kullandım, performansı düşürüyodur fyi. ege
 export const getOffers: RequestHandler<unknown,unknown,unknown,getOffersQuery> = async (req, res, next) => {
     const nosqlTableName= req.query.nosqlTableName
+    const filter = req.query.filter
+    const sort = req.query.sort
     const username= req.query.username
+    console.log("req.query:",req.query)
+    console.log("req.query:",req.query)
+    console.log("req.query:",req.query)
+    console.log("req.query:",req.query)
     let responseWithUsername
 try {
     if(!nosqlTableName){
         throw createHttpError(404,"nosqlTableName yok knk")
     }
-
+    console.log('filter:', (filter))
+    // console.log('filterPARSED:', JSON.parse(filter))   // filter boşsa JSON.parse hata verdiği için error veriyor
+    console.log('Sort:', (sort))
+    
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const modelMap: Record<string, Model<any>> = {
         "LolModel": LolOfferModels.LolModel,
@@ -37,15 +48,13 @@ try {
         "ValorantCoachModel": ValorantOfferModels.ValorantCoachModel,
     };
     
-    const SelectedModel = modelMap[nosqlTableName];
+    const SelectedModel = modelMap[nosqlTableName]
         if (!SelectedModel) {
             throw createHttpError(400, `Geçersiz modelName: ${nosqlTableName}`);
         }
         
-    
     const    response = await SelectedModel.find({active: true}).lean().exec()  //active : "true" şeklinde arattığım için boş dönüyormuş
     //sellerUsername eklemek için lean() kullandım, fetchlenen mongoose datasını direkt js'e çeviriyor. yoksa yeni key ekleme çalışmadı. spread ile yapınca lean() olmadan da çalıştı, mongoose'un _doc:{} objesi dışında farklı bir obje olarak _doc:{}, serllerUsername:'test' olarak ekledi
-    
     
     
     //sellerUsername EKLEME KISMI: sellerId ile kullanıcı datasından username çekip, offer object'ine ekledim
@@ -75,7 +84,6 @@ try {
 }
 
 //herhangi bir smallOffer'a tıkladıktan sonra açılan offer için bilgi çekme
-// BU ŞU AN KULLANILMIYOR, OFFERPAGE BİLGİDİ STATE İLE ALIYOR, STATE YERİNE URL QUERY İLE BUNDAN BİLGİ ALMAYI AYARLICAM Bİ ARA
 interface getOfferQuery {
     _id: string,
     nosqlTableName: string
@@ -651,3 +659,5 @@ export const deleteAllBoughtOffers:RequestHandler= async(req,res,next)=>{  //Pos
         next(error)
     }
 }
+
+//eg

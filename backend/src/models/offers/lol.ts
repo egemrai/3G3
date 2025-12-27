@@ -4,7 +4,7 @@ import { InferSchemaType, model, Schema } from "mongoose";
 const lolSchema = new Schema({
     categoryName: {type: String, required: true},
     serviceName: {type: String, required: true},
-    sellerId:{type: Schema.Types.ObjectId, required: true},
+    sellerId:{type: Schema.Types.ObjectId, ref:'User', required: true},
 },{ discriminatorKey: "serviceName", timestamps: true})                                                       
 
 type Lol = InferSchemaType<typeof lolSchema>

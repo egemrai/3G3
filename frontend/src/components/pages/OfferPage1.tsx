@@ -68,18 +68,7 @@ const OfferPage1 = ({user, offer, socket}:OfferPageProps) => {
             console.error(error)
         }     
     }
-
     
-    const socketTest = ()=> {
-        console.log("ege")
-        // console.log(socket.connected)
-        console.log(typeof(socket))
-         socket.emit("test", {
-           targetUserId: satıcınınId,
-           message: "şu kullanıcıdan çar satın aldım: ", satıcıUsername
-         });
-    }
-
     const goChatPage = ()=>{
         navigate("/chat", {state:{chatReceiverId:satıcınınId}})
     }

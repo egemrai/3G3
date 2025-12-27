@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 import app from "./app"
-import env from "./util/validateEnv"
+import env from "./utils/validateEnv"
 import http from "http";
 import { Server } from "socket.io";
 import { Socket } from "socket.io";

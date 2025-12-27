@@ -1,8 +1,4 @@
 
-import { User } from "../models/user"
-import { OfferSmall } from "../models/offerSmall"
-import { SoldOffer, SoldOfferEditRatingForm } from "../models/SoldOffer"
-import { SoldOfferForm } from "../models/SoldOffer"
 import { Conversation } from "../models/chat"
 
 async function fetchData(input: RequestInfo, init?: RequestInit) {

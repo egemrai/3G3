@@ -46,14 +46,6 @@ const CategoryPage = () => {
             <div>
                 <p>All categories:</p>
             </div> 
-            {/* <Routes>
-                <Route
-                  path={URLcategory.category}
-                  element={
-                    <ServicesContainer />
-                  }
-                />
-            </Routes> */}
         
           </Container>     
         </>

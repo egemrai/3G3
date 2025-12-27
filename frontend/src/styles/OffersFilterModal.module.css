@@ -1,0 +1,51 @@
+
+.displayFlex{
+    display: flex;
+}
+
+.displayGrid{
+    display: grid !important;
+}
+
+.filterDiv{
+    display: flex;
+    height: 100%;
+    width: 110px;
+    margin: 0 0% 0;
+    /* border: solid grey 1px; */
+    
+    justify-content: center;
+    align-items: center;
+}
+
+.filterDiv:hover{
+    cursor: pointer;
+    background-color: #f2f2f2;
+}
+
+.filterNameP{
+    margin: 0;
+}
+
+.checkboxFilterDiv{
+    display: grid !important;
+    grid-template-columns: repeat(2,1fr) !important;
+}
+
+.rangeFilterDiv{
+
+}
+
+.rangeFilterDiv .rangeFilterElement:first-child {
+    border-top: none;
+}
+
+.rangeFilterElement{
+    border-top: 1px solid grey;
+    margin-top: 10px;
+}
+
+
+
+
+

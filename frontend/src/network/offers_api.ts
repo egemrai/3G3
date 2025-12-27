@@ -36,18 +36,18 @@ export async function fetchCategories(): Promise<Category[]> {
       return response.json()
   }
 
+  
   //userProfile'dan service'e tıklayınca, belli kişinin ürünleri görünmesi için username ekledim, username varsa 1 kişi, yoksa normal seçilen nosqlTableName ürünleri görüncek
-  export async function fetchOffers(categoryName:string, serviceName: string, username?: string): Promise<[]>{
-    const query = categoryName.concat(serviceName.toString())
+  export async function fetchOffers(categoryAndServiceName:string, filter: string, sort:string, username?: string): Promise<[]>{
+    const nosqlTableName = categoryAndServiceName
     let response
     if(username){
-      response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/categoryName/serviceName/?nosqlTableName=` + query + "Model&username="+username,
+      response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/categoryName/serviceName/?nosqlTableName=` + nosqlTableName + `Model&filter=`+ filter+ `&sort=` +sort + `&username=`+username,
       {method: "GET",credentials:"include"})
     }else{
-      response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/categoryName/serviceName/?nosqlTableName=` + query + "Model",
+      response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/offers/categoryName/serviceName/?nosqlTableName=` + nosqlTableName + `Model&filter=`+ filter+ `&sort=` +sort,
       {method: "GET",credentials:"include"})
     }
-    
       return response.json()
   }
 

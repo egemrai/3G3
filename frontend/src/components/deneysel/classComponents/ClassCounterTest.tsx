@@ -8,7 +8,8 @@ interface CounterProps {
 
 interface CounterState {
   count: number;
-  loading: boolean;
+  loading: boolean
+  error?: string|null
 }
 
 export default class ClassCounterTest extends React.Component<CounterProps, CounterState> {
@@ -20,6 +21,7 @@ export default class ClassCounterTest extends React.Component<CounterProps, Coun
     this.state = {
       count: props.initialCount ?? 0,
       loading: false,
+      error: null
     };
 
     this.inputRef = React.createRef<HTMLInputElement>();
@@ -29,7 +31,29 @@ export default class ClassCounterTest extends React.Component<CounterProps, Coun
   }
 
   // component mount olduktan sonra çalışır
-  componentDidMount() {
+  async componentDidMount() {
+
+    try {
+      const fetchedX = await 
+      fetch('https://jsonplaceholder.typicode.com/todos/2')
+      .then(response => {
+        console.log('düz fetch response:',response)
+        console.log('düz fetch response.ok:',response.ok)
+        if(!response.ok){
+          // throw Error ( 'status code:' + response.status.toString())
+          this.setState({error:'fetch patladı'})
+        }
+        return(
+          response.json()
+        )
+      })
+      console.log('fetched dalga:', fetchedX.id)
+      this.setState({ count: fetchedX.id })
+    } catch (error) {
+      // throw Error ('fetch hata:', error as Error)
+    }
+    
+
     // örnek: input'a focus
     this.inputRef.current?.focus();
 
@@ -38,7 +62,9 @@ export default class ClassCounterTest extends React.Component<CounterProps, Coun
     setTimeout(() => {
       // veri geldikten sonra loading false yapıyoruz
       this.setState({ loading: false });
-    }, 600);
+    }, 600)
+
+    
   }
 
   // performans optimizasyonu için kullanılabilir
@@ -78,11 +104,32 @@ export default class ClassCounterTest extends React.Component<CounterProps, Coun
 
   render() {
     const { label = "Sayaç" } = this.props
-    const { count, loading } = this.state
+    const { count, loading, error } = this.state
 
     if (count === 8) {
-    throw Error("Sayı 8 olduğu için hata fırlatıldı!")
-  }
+      throw Error("Sayı 8 olduğu için hata fırlatıldı!")
+    }
+    
+    if(error){
+      throw Error("fetch hatası")
+    }
+
+  // if(this.state.count<8){
+  //   this.setState((prev)=> {
+  //     return(
+  //       {count: prev.count+3}
+  //     )
+  //   })
+  // }
+
+  // setTimeout(() => {
+  //     this.setState((prev)=> {
+  //       return(
+  //         {count: prev.count+3}
+  //       )
+  //     })
+  //   }, 600)
+
 
     return (
       <div style={{ border: "1px solid #ddd", padding: 12, borderRadius: 8, width: 260 }}>

@@ -1,17 +1,31 @@
-
-.div{
-    display: flex;
-    flex-wrap: wrap;
+.modal{
+    
+    
+}
+.closeButton{
     aspect-ratio: 1/1;
-    width: 20wh;
+    width: 30px;
+    font-weight: bold;
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(-10%,6%);
+    border: none;
+    background-color: transparent;
+    font-size: 1.6rem;
+    line-height: 1;
+    opacity: .6;
+
 }
 
-.errorMessage{
-    margin: 1wh auto 0;
-    
+.closeButton:hover{
+    opacity: 1;
 }
 
 .resetButton{
+    display: block;
+    margin: 0 auto 0;
     aspect-ratio: 3/1;
     width: 30%;
+    color: red;
 }

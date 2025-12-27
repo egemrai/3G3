@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import NavBar from './components/Navbar';
 import CategoryPage from './components/pages/CategoryPage';
-import ServicesContainer from './components/ServicesContainer';
-import OffersContainer from './components/OffersContainer';
+import ServicesPage from './components/pages/ServicesPage';
+import OffersPage from './components/pages/OffersPage';
 import NotFoundPage from './components/pages/NotFoundPage';
 import LoginPage from './components/pages/LoginPage';
 import { User } from './models/user';
@@ -22,7 +22,8 @@ import SoldOffersPage from './components/pages/SoldOffersPage';
 import BoughtOffersPage from './components/pages/BoughtOffersPage';
 import ChatPage from './components/pages/ChatPage';
 import { Conversation, Message } from './models/chat';
-import ClassCounterTestPage from './components/pages/ClassCounterTestPage';
+import ClassCounterTestPage from './components/deneysel/pages/ClassCounterTestPage';
+import ReduxTestPage from './components/deneysel/pages/ReduxTestPage';
 
 function App() {
 
@@ -150,8 +151,8 @@ function App() {
                                           />}
                                           />
             <Route path='category' element={<CategoryPage/>}/>
-            <Route path='/category/:category' element={<ServicesContainer/>}/>
-            <Route path='/category/:category/:service' element={<OffersContainer/>}/>
+            <Route path='/category/:category' element={<ServicesPage/>}/>
+            <Route path='/category/:category/:service' element={<OffersPage/>}/>
 
             <Route path='/offer' element={<OfferPage2
                                           user={loggedInUser}
@@ -173,6 +174,7 @@ function App() {
                                           socketMessageCount={setSocketMessageCount}/>}/>
 
             <Route path='/classCounterTest' element={<ClassCounterTestPage/>}/>
+            <Route path='/reduxTest' element={<ReduxTestPage/>}/>
 
             <Route
             path='/*'  //url üsttekilerden biri olmazsa, olanı kullanıyor

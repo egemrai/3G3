@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { Service as ServiceModel } from "../models/service"
-import * as OffersApi from "../network/offers_api"
+import { Service as ServiceModel } from "../../models/service"
+import * as OffersApi from "../../network/offers_api"
 import { Col, Container, Row } from "react-bootstrap"
-import Service from "./Service"
+import Service from "../Service"
 
-const ServicesContainer = () => {
+
+//eski ismi ServicesContainer idi
+
+
+const ServicesPage = () => {
     const URLcategory= useParams<{category: string}>()
     
     const [services, setServices] = useState<ServiceModel[]>([])
@@ -58,4 +62,4 @@ const ServicesContainer = () => {
     
 }
 
-export default ServicesContainer
+export default ServicesPage

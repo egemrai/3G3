@@ -6,11 +6,12 @@ import userRoutes from "./routes/usersR"
 import categoryRoutes from "./routes/categoriesR"
 import createOfferRoutes from "./routes/createEditOffersR"
 import chatRoutes from "./routes/chatR"
+import elasticSearchRoutes from "./routes/elasticSearchR"
 import createHttpError from "http-errors"
 import {isHttpError} from "http-errors"
 import session from "express-session"
 import MongoStore from "connect-mongo"
-import env from "./util/validateEnv"  // normalde env diye bir şey yok, validateEnvden process.env import edip adını env olarak kullandım
+import env from "./utils/validateEnv"  // normalde env diye bir şey yok, validateEnvden process.env import edip adını env olarak kullandım
 import cors from "cors"
 
 
@@ -56,6 +57,8 @@ app.use("/api/users", userRoutes)
 app.use("/api/createOffer", createOfferRoutes)
 
 app.use("/api/chat", chatRoutes)
+
+app.use("/api/elasticSearch", elasticSearchRoutes)
 
 
 app.use((req, res, next) => {
