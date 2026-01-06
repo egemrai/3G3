@@ -3,6 +3,7 @@ import { RequestHandler } from "express"
 import { elasticSearchClient } from "../elasticSearch/client";
 import { reindexLolToES } from "../elasticSearch/reindexLolToES";
 import createHttpError from "http-errors";
+import logger from "../logger";
 
 export const elasticSearchPingTest:RequestHandler = async(req,res,next)=>{
     try {
@@ -63,6 +64,7 @@ interface getOffersViaElasticSearchQuery{
     sort: string
     serviceName: string
     username: string
+    page: number
 }
 type RangeValue={
     min?:number,
@@ -83,21 +85,24 @@ export const getOffersViaElasticSearch:RequestHandler<unknown,unknown,unknown,ge
     const sort = req.query.sort
     const serviceName= req.query.serviceName
     const username= req.query.username
+    let page= req.query.page || 1
+    if(page <1) page = 1
+    const limit = 4
     
     let range:Record<string,RangeValue>={} //range filterları ayarlamak için 
 
     const body = {
         index: "offers",
-        //   from: (page - 1) * limit,
-        //   size: limit,
-        //   sort: [
-        //     { _score: "desc" },
-        //     { createdAt: "desc" }
-        //   ],
+        from: (page - 1) * limit,
+        size: limit,
+        track_total_hits: true,
+          sort: [
+            { _score: "desc" },
+          ] as any[],
         query: {
             bool: {
             must: [] as any[],
-            filter: [] as any[]
+            filter: [{term:{'active': true},}] as any[]
             }
         }
     }
@@ -179,12 +184,24 @@ export const getOffersViaElasticSearch:RequestHandler<unknown,unknown,unknown,ge
             if(Object.keys(minMaxObject).length >0){
                 body.query.bool.filter.push({
                     range:{
-                        [key]: minMaxObject
+                        [key]: minMaxObject // {price: {gte : 10, lte: 20 }} şeklinde data örneği
                     },
                 })
             }
             
         })
+
+        //SORT EKLEEM KISMI
+        const sortTable:Record<string,Record<string,string>>={
+            'Highest price' : {price: 'desc'},
+            'Lowest price' : {price: 'asc'},
+            'Newest' : {createdAt: 'desc'},
+            'Oldest' : {createdAt: 'asc'},
+        }
+        if(sort){
+            const editedSort = sortTable[sort]
+            body.sort.push(editedSort,)
+        }
 
         const result = await elasticSearchClient.search(body) // düz filtrelenmiş ES datası
 
@@ -194,14 +211,30 @@ export const getOffersViaElasticSearch:RequestHandler<unknown,unknown,unknown,ge
             editedOffer
             )
         })
-        res.status(200).json(editedResult)
+        
+        let totalOfferCount: number
 
-        console.log('searchInput:',q)
-        console.log('filter:',restOfFilter)
-        console.log('sort:',sort)
-        console.log('serviceName:',serviceName)
-        console.log('username:',username)
-        console.log('range:',range)
+        if (typeof result.hits.total === "number") {
+            totalOfferCount = result.hits.total
+        } else {
+            totalOfferCount = result.hits.total?.value ?? 0
+        }
+
+        res.status(200).json({
+            offers: editedResult,
+            totalOfferCount: totalOfferCount,
+            limit: limit })
+
+
+        
+            
+        logger.debug({q},'searchInput:')
+        logger.debug({restOfFilter},'filter:')
+        logger.debug({sort},'sort:')
+        logger.debug({bodysort :body.sort},'body.sort:')
+        logger.trace({ range }, "range")
+        logger.trace({ serviceName }, "serviceName")
+        logger.trace({ username }, "username")
 
         
     } catch (error) {

@@ -15,24 +15,18 @@ interface getOffersQuery{
     sort:string
 }
 
+// offers çekmeyi ES üzerinden yapıyorum artık, getOffers kullanılmıyor olması lazım şu an
 //getOffersda sellerUsername erişmek için 2 kere fetch kullandım, performansı düşürüyodur fyi. ege
 export const getOffers: RequestHandler<unknown,unknown,unknown,getOffersQuery> = async (req, res, next) => {
     const nosqlTableName= req.query.nosqlTableName
-    const filter = req.query.filter
-    const sort = req.query.sort
     const username= req.query.username
-    console.log("req.query:",req.query)
-    console.log("req.query:",req.query)
-    console.log("req.query:",req.query)
-    console.log("req.query:",req.query)
+    
     let responseWithUsername
 try {
     if(!nosqlTableName){
         throw createHttpError(404,"nosqlTableName yok knk")
     }
-    console.log('filter:', (filter))
-    // console.log('filterPARSED:', JSON.parse(filter))   // filter boşsa JSON.parse hata verdiği için error veriyor
-    console.log('Sort:', (sort))
+    
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const modelMap: Record<string, Model<any>> = {

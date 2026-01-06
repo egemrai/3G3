@@ -7,6 +7,7 @@ export default cleanEnv(process.env, {
     SESSION_SECRET: str(),
     BACKEND_SITE_URL: str(),
     FRONTEND_SITE_URL: str(),
-    EGE: str(),
-    ELASTICSEARCH_URL: str()
+    NODE_ENV: str(),
+    ELASTICSEARCH_URL: str(),
+    LOG_LEVEL: str()
 })

@@ -4,15 +4,20 @@ import * as offers_api from "../../network/offers_api"
 import * as elasticSearch_api from "../../network/elasticSearch_api"
 import { Button, Col, Container, Row } from "react-bootstrap"
 import OfferSmall from "../OfferSmall"
-import sytle from "../../styles/OffersPage.module.css"
+import style from "../../styles/OffersPage.module.css"
 import searchFilters from "../../utils/searchFilters"
 import OffersFilterField from "../searchFilters/OffersPage/OffersFilterField"
 import { useDispatch, useSelector } from "react-redux"
 import { AppDispatch, RootState } from "../../store/store"
 import { editFilter, FilterSliceAction } from "../../store/features/filter/filterSlice"
 import { editSort, SortSliceAction } from "../../store/features/sort/sortSlice"
+import Pagination from "../Pagination"
 
-
+export interface getOffersReturnType{
+            offers:any[]
+            totalOfferCount:number
+            limit:number
+        }
 
 // eski ismi OffersContainer'dı
 
@@ -27,8 +32,15 @@ const OffersPage= () => {
     const pageURL = searchParams.get("page")
     const filterURL = searchParams.get("filter")
     const sortURL = searchParams.get("sort")
+    console.log(Object.fromEntries(searchParams.entries()))
 
-    const serviceCategoryName = URLParams.category!.concat(URLParams.service!)
+    let serviceCategoryName =''
+    if(URLParams.category && URLParams.service)
+     serviceCategoryName = URLParams.category!.concat(URLParams.service!)
+
+    //PAGINATION AYARLAMA KISMI
+    const [currentPage, setCurrentPage] = useState<number>(Number(pageURL) ?? 1)
+    const [lastPage, setlastpage] = useState<number>(7)
 
     //FILTER İLE SEARCH YAPMA KISMI
     const filterRedux = useSelector((state: RootState) => state.filter.filter) // state.filter slice'ın adı, filter: {LolAccount:{...}, LolBoost:{...},...} döndürüyor, o yüzden tekrar filter yazdım --> direkt filter objectinin içini almak için
@@ -38,7 +50,6 @@ const OffersPage= () => {
     const [sort, setSort] = useState<string>('')
 
     function setFilterAndSortOnMount(){
-        
         if(filterURL ){ //önce URLden encoded filter aldım
             const filterNameAndData:FilterSliceAction = { filterName: serviceCategoryName, filterData: filterURL} // console.log(filterURL) = {"searchInput":"ege","Server":["EUW","NA"]}
             dispatch(editFilter(filterNameAndData))
@@ -94,7 +105,10 @@ const OffersPage= () => {
             search: searchParams.toString(),    // console.log(searchParams.toString()) =   page=1&filter=%257B%2522searchInput%2522%253A%2522%2522%252C%2522Server%2522%253A%255B%2522LAN%2522%255D%252C%2522Champions%2522%253A%2522130%252B%2522%257D
         })
 
-        
+        // sayfa ilk açıldığında currentPage set yapıyoruz
+        if(pageURL){
+            setCurrentPage(Math.trunc(Number(pageURL))) //önce Number ile paramdaki page stringini çevirdik, sonra Math.trunc ile ondalık kısmı attık
+        }
 
         getOffers(stringifiedFilter,sort_)  //en sonda offerları çekiyorum, filter ve sort eklenince
         
@@ -104,47 +118,50 @@ const OffersPage= () => {
     //OFFER FETCH KISMI
     const [offers, setOffers]= useState<any[]>([])
     const [getOffersLock, setGetOffersLock]= useState<boolean>(false) // filter ve sort set olmadan offer fetch etmeyi engelleyen kilit
-    let fetchedOffers
+    let fetchedOffers:getOffersReturnType
     const getOffers= async(filter:string,sort:string) => {
+        //getOffers backend returnu alttaki şekilde
+        // {offers:editedResult,totalOfferCount: result.hits.total}
+        
         try {
             if(!URLParams.category || !URLParams.service){
                 throw new Error("URLParams(category ya da service) yok")
             }
             if(usernameURL){//UserProfilePage'den service tıklanırsa, sadece profilinden tıklanan kullanıcının offerlerını fetch ediyor
-                fetchedOffers = await offers_api.fetchOffers(serviceCategoryName,filter,sort,usernameURL)
+                fetchedOffers = await elasticSearch_api.fetchOffersViaElasticSearch(serviceCategoryName,filter,sort,currentPage,usernameURL)
             }else{
-                fetchedOffers = await elasticSearch_api.fetchOffersViaElasticSearch(serviceCategoryName,filter,sort)
+                fetchedOffers = await elasticSearch_api.fetchOffersViaElasticSearch(serviceCategoryName,filter,sort,currentPage)
                 // await offers_api.fetchOffers(serviceCategoryName,filter,sort)
                 
             }
-            setOffers(fetchedOffers)
-            // sayfa ilk açıldığında currentPage set yapıyoruz
-            if(pageURL){
-                setCurrentPage(Math.trunc(Number(pageURL))) //önce Number ile paramdaki page stringini çevirdik, sonra Math.trunc ile ondalık kısmı attık
+            const {offers,totalOfferCount,limit} = fetchedOffers
+            
+            setOffers(offers)
+            setlastpage(Math.ceil(totalOfferCount/limit))
+            if(currentPage<1){    //url page 1den küçükse 1 yapıyor
+                setCurrentPage(1)
             }
+            else if(Math.ceil(totalOfferCount/limit) < currentPage){ 
+                setCurrentPage(Math.ceil(totalOfferCount/limit) < 1
+                              ? 1                                //ürün olmazsa page'i 1 yapıyor
+                              : Math.ceil(totalOfferCount/limit))//total sayfa 4 olup, url page 4ten büyük olursa offerlar ve pagination kısmı görünmüyor; yani current totalden büyük olunca, current'ı totale eşitliyor
+            }
+
         } catch (error) {
             console.error(error)
             // alert(error+ query)
         }
     }
 
-
-    //PAGINATION AYARLAMA KISMI
-    const [currentpage, setCurrentPage] = useState<number>(1)
-    const offersPerPAge = 1;
-    const offersLenght = offers.length
-    const totalPages = Math.ceil(offersLenght/offersPerPAge)
-    const startIndex = (currentpage-1)* offersPerPAge
-
     //OFFERS COL KISMI
-    const offersGrid = <Row  className={`${sytle.offersRow} `} xs={1} sm={2} md={3} xl={4}>
+    const offersGrid = <Row  className={`${style.offersRow} `} xs={1} sm={2} md={3} xl={4}>
                                 {offers.map(offer => (
                                     <Col key={offer._id}>
                                         <OfferSmall
                                         offerSmall={offer}
                                         />
                                     </Col>
-                                )).slice(startIndex,startIndex + offersPerPAge)}
+                                ))  }  {/*.slice(startIndex,startIndex + offersPerPAge)*/}
                             </Row>   //slice  [0,30) şeklinde çalışıyor 0.eleman var 30. yok, total 30 eleman
 
     useEffect(()=>{
@@ -159,6 +176,15 @@ const OffersPage= () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[getOffersLock])
 
+    useEffect(()=>{
+        searchParams.set('page',currentPage.toString())
+        navigate({
+            pathname: location.pathname,
+            search: searchParams.toString()})
+        
+        getOffers(filter,sort)
+    },[currentPage])
+
     return(
         <>
             <Container>
@@ -172,126 +198,19 @@ const OffersPage= () => {
                 {offers.length>0
                 ? <>
                 
-                <div className={`${sytle.offersParentDiv}`}>
+                <div className={`${style.offersParentDiv}`}>
                     {offersGrid} 
                 </div>
 
-                {/* offer prev next page BUTTON*/}
-                {totalPages>0 &&
-                <div className={`${sytle.pageButtonDiv}`}> 
-                    <Button className={`${sytle.pageButton} ${sytle.pageButtonEdge}`}
-                    disabled={currentpage===1}
-                    onClick={()=>setCurrentPage(currentpage-1)}
-                    >
-                    {"<"}
-                    </Button>
+                <Pagination
+                currentPage={currentPage}
+                lastPage={lastPage}
+                setCurrentPage={setCurrentPage}/>
 
-                    {(totalPages<6 || currentpage<4) &&
-                    <>
-                        <Button className={`${sytle.pageButton}`}
-                        disabled={currentpage===1}
-                        onClick={()=>setCurrentPage(1)}>
-                        {"1"}
-                        </Button>
-
-                        {totalPages>=2 && <Button className={`${sytle.pageButton}`}
-                        disabled={currentpage===2}
-                        onClick={()=>setCurrentPage(2)}>
-                            {"2"}
-                        </Button>}
-
-                        {totalPages>=3 && <Button className={`${sytle.pageButton}`}
-                        disabled={currentpage===3}
-                        onClick={()=>setCurrentPage(3)}>
-                            {"3"}
-                        </Button>}
-
-                        {totalPages>=4 && <Button className={`${sytle.pageButton}`}
-                        onClick={()=>setCurrentPage(4)}>
-                            {"4"}
-                        </Button>}
-
-                        {totalPages>=5 && <Button className={`${sytle.pageButton}`}
-                        onClick={()=>setCurrentPage(5)}>
-                            {"5"}
-                        </Button>}
-                    </>}
-                    
-                    
-                    {(3<currentpage && currentpage<totalPages-2) &&
-                    <>
-                        <Button className={`${sytle.pageButton}`}
-                        onClick={()=>setCurrentPage(currentpage-2)}>
-                            {currentpage-2}
-                        </Button>
-
-                        <Button className={`${sytle.pageButton}`}
-                        onClick={()=>setCurrentPage(currentpage-1)}>
-                            {currentpage-1}
-                        </Button>
-
-                        <Button className={`${sytle.pageButton}`}
-                        disabled={true}
-                        onClick={()=>setCurrentPage(currentpage)}>
-                            {currentpage}
-                        </Button>
-
-                        <Button className={`${sytle.pageButton}`}
-                        onClick={()=>setCurrentPage(currentpage+1)}>
-                            {currentpage+1}
-                        </Button>
-
-                        <Button className={`${sytle.pageButton}`}
-                        onClick={()=>setCurrentPage(currentpage+2)}>
-                            {currentpage+2}
-                        </Button>
-                    </>}
-
-                    {(currentpage=== totalPages|| currentpage=== totalPages-1|| currentpage=== totalPages-2) && totalPages>5 &&
-                    <>
-                        <Button className={`${sytle.pageButton}`}
-                        onClick={()=>setCurrentPage(totalPages-4)}>
-                            {totalPages-4}
-                        </Button>
-
-                        <Button className={`${sytle.pageButton}`}
-                        onClick={()=>setCurrentPage(totalPages-3)}>
-                            {totalPages-3}
-                        </Button>
-
-                        <Button className={`${sytle.pageButton}`}
-                        disabled={currentpage===totalPages-2}
-                        onClick={()=>setCurrentPage(totalPages-2)}>
-                            {totalPages-2}
-                        </Button>
-
-                        <Button className={`${sytle.pageButton}`}
-                        disabled={currentpage===totalPages-1}
-                        onClick={()=>setCurrentPage(totalPages-1)}>
-                            {totalPages-1}
-                        </Button>
-
-                        <Button className={`${sytle.pageButton}`}
-                        disabled={currentpage===totalPages}
-                        onClick={()=>setCurrentPage(totalPages)}>
-                            {totalPages}
-                        </Button>
-                    </>}
-
-                    <Button className={`${sytle.pageButton } ${sytle.pageButtonEdge}`}
-                    disabled={currentpage===totalPages}
-                    onClick={()=>setCurrentPage(currentpage+1)}
-                    >
-                    {">"}
-                    </Button>
-                </div>}
-                
                 </>
-                
-                
-                
-
-                : <p>ürün yok</p>}
+                : 
+                <p>ürün yok</p>
+                }
 
             
             </Container>

@@ -1,10 +1,12 @@
 import { Button, Form } from "react-bootstrap"
 import style from "../../../styles/OffersFilterField.module.css"
-import { useForm, UseFormReturn } from "react-hook-form"
+import { useForm, UseFormReturn, useWatch  } from "react-hook-form"
 import OffersFilterModal from "./OffersFilterModal"
-import { useEffect } from "react"
+import { SetStateAction, useEffect, useState } from "react"
 import OffersSortModal from "./OffersSortModal"
 import searchSorts from "../../../utils/searchSorts"
+import SelectedFilterRemover from "./SelectedFilterRemover"
+import Pagination from "../../Pagination"
 
 export interface Filter{
     type: string
@@ -20,13 +22,15 @@ interface OffersFilterFieldProps{
 //Bütün search divi bu. Filter, sort ,seçilen filterı kapatma, clearAll falan bunun içinde
 const OffersFilterField =  ( {filterData, searchWithFilter,stringifiedFilter,stringifiedSort}: OffersFilterFieldProps) => {
 
-    const  {register, handleSubmit, getValues, watch, setValue, reset, formState : {errors, isSubmitting}} = useForm<any>({mode: "all",
+    const  {register, handleSubmit, getValues, watch,control, setValue, reset, formState : {errors, isSubmitting}} = useForm<any>({mode: "all",
         defaultValues:{
             sort: 'Lowest price'
         }
     })
 
     // const {register, handleSubmit, getValues,setValue, formState : {errors, isSubmitting}}  = formMethods
+
+    
 
     const filterModalsGrid = Object.entries(filterData).map(([name,filter]:[string,Filter])=>{
         
@@ -39,10 +43,9 @@ const OffersFilterField =  ( {filterData, searchWithFilter,stringifiedFilter,str
         />
         )
     })
-
-    const formValues= watch()
     
     const onSubmit = (credentials:any) => {
+        console.log('ege')
         searchWithFilter(credentials)
     }
 
@@ -59,21 +62,38 @@ const OffersFilterField =  ( {filterData, searchWithFilter,stringifiedFilter,str
 
     useEffect(()=>{ //stringifiedSort direkt 1 kelime string olabilir, parse istemeyebilir sonradan ayarla
         if(stringifiedSort){
-            
-            console.log('stringifiedSort:', stringifiedSort)
-            console.log('stringifiedSort:', stringifiedSort)
-
+            // console.log('stringifiedSort:', stringifiedSort)
 
             setValue(`sort`,stringifiedSort)
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[stringifiedSort])
 
-    useEffect(()=>{
-        console.log('formvalues:',formValues)
-        console.log('formvalues:',formValues)
-        console.log('formvalues:',formValues)
-    },[formValues])
+    // //SEÇİLİ FILTERLARI KAPATMA KISMI  --> bunu direkt SelectedFilterRemover içine  attım, datayı orda kendi içinde halletsin
+    // const formValues= useWatch({control})
+    // const{sort, searchInput, ...restOfFormValues} = formValues // seçilen filterları kapatırken searchInput ve sort gereksiz diye çıkardım
+    // const [selectedFilters, setSelectedFilters] = useState<Record<string,string>[]>([])
+    // useEffect(()=>{
+    //     const temporarySelectedFilters:Record<string,string>[] = []
+    //     Object.entries(restOfFormValues).forEach(([filterName,filterValue]:[string,any])=>{
+    //         if(filterValue === '' || filterValue === undefined || filterValue === null || filterValue === false) return
+            
+    //         if(Array.isArray(filterValue)){
+    //             if(!(filterValue.length>0)) return
+    //             filterValue.forEach((value)=>{
+    //                 temporarySelectedFilters.push({[filterName]:value})
+    //             })
+    //         }
+    //         else if(filterValue === 'true'){
+    //             temporarySelectedFilters.push({[filterName]: (filterValue === 'true').toString()})
+    //         }
+    //         else{
+    //             temporarySelectedFilters.push({[filterName]: filterValue})
+    //         }
+    //     })
+    //     setSelectedFilters(temporarySelectedFilters)
+    //     console.log(temporarySelectedFilters)
+    // },[formValues])
 
 
 
@@ -110,6 +130,13 @@ const OffersFilterField =  ( {filterData, searchWithFilter,stringifiedFilter,str
             </div>
             
             <div className= {`${style.clearFilterDiv}`}>
+                <SelectedFilterRemover
+                    // selectedFilterData={selectedFilters}
+                    setValue={setValue}
+                    getValues={getValues}
+                    control={control}
+                    reset={reset}
+                />
                 
             </div>
             <OffersSortModal

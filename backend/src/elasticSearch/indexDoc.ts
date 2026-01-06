@@ -10,7 +10,7 @@ export async function indexDoc(doc: any) {
     document: {
       ...docWithNo_id,  //document içinde ES id kabul etmediği için çıkardım
       sellerId: sellerId._id,
-      sellerUsername: sellerId.username,
+      sellerUsername: sellerId.username, // reindexToEs kısmında populate var diye böyle username alabildim
       // _id: id,
       // sellerId: String(docWithNo_id.sellerId),
       

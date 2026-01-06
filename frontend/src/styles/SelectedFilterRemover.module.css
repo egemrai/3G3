@@ -1,0 +1,29 @@
+.allRemoverDiv{
+flex-wrap: wrap;
+display: flex;
+gap: 5px;
+}
+
+.removerDiv{
+    width: fit-content;
+    display: flex;
+    position: relative;
+    color: black;
+    padding: 0 22px;
+    margin: 0;
+    border: 1px solid grey;
+    border-radius: 20px;
+}
+.removerButton{
+    display: flex;
+    height: auto;
+    width: 12px;
+    position: absolute;
+    border: none;
+    left: 8px;
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+    color: orangered;
+
+}

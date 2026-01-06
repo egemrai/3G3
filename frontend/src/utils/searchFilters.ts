@@ -24,9 +24,9 @@ const searchFilters:any = {
         price:{
             type: 'range',
             value:['min', 'max']},
-        active:{
-            type: 'boolean',
-            value:['true']}
+        // active:{
+        //     type: 'boolean',
+        //     value:['true']}
     },
     LolBoostFilter:{
 
