@@ -228,8 +228,8 @@ export const getOffersViaElasticSearch:RequestHandler<unknown,unknown,unknown,ge
 
         
             
-        logger.debug({q},'searchInput:')
-        logger.debug({restOfFilter},'filter:')
+        logger.info({q},'searchInput:')
+        logger.info({restOfFilter},'filter:')
         logger.debug({sort},'sort:')
         logger.debug({bodysort :body.sort},'body.sort:')
         logger.trace({ range }, "range")

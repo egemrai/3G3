@@ -1,4 +1,4 @@
-version: "3.8"
+# version: "3.8"
 
 services:
   elasticsearch:
@@ -17,6 +17,18 @@ services:
       interval: 10s
       timeout: 5s
       retries: 20
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.12.2
+    container_name: 3g3-filebeat
+    user: root
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - ./backend/logs:/var/log/backend
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+    command: ["--strict.perms=false"]
 
 volumes:
   esdata:
