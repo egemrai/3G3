@@ -40,8 +40,8 @@ services:
     env_file: ./backend/.env.prod
     expose:
       - "5000"        # container içi
-    networks:
-      - webnet
+    # networks:
+    #   - webnet
     volumes:
       - ./backend/logs:/var/log/backend
 
@@ -56,8 +56,8 @@ services:
       - "80"
     depends_on:
       - backend
-    networks:
-      - webnet
+    # networks:
+    #   - webnet
 
   nginx:
     image: nginx:latest
@@ -72,15 +72,15 @@ services:
       - ./infra/conf.d:/etc/nginx/conf.d:ro
       - ./infra/certs:/etc/nginx/certs
       - /var/www/certbot:/var/www/certbot
-    networks:
-      - webnet
+    # networks:
+    #   - webnet
 
 volumes:
   esdata:
 
-networks:
-  webnet:
-    driver: bridge
+# networks:
+#   webnet:
+#     driver: bridge
 
 
 
