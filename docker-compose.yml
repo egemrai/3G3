@@ -59,6 +59,6 @@ services:
       - "443:443"
     volumes:
       - ./infra/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - /etc/letsencrypt/live/elugemna.store:/etc/nginx/certs:ro
+      - ./infra/certs:/etc/nginx/certs:ro
 volumes:
   esdata:
