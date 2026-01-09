@@ -13,7 +13,7 @@ import session from "express-session"
 import MongoStore from "connect-mongo"
 import env from "./utils/validateEnv"  // normalde env diye bir şey yok, validateEnvden process.env import edip adını env olarak kullandım
 import cors from "cors"
-import { httpLogger } from "./middleWare/httpLogger"
+// import { httpLogger } from "./middleWare/httpLogger"
 import genReqId from "./middleWare/genReqId"
 
 
@@ -31,7 +31,7 @@ app.use(cors({
 app.use(morgan("dev"))
 app.use(express.json()) // req.body parse etmek için gerekli
 app.use(genReqId)
-app.use(httpLogger)
+// app.use(httpLogger)
 
 //export için session'ı ekstra yazdım ve app.use() içine Session olarak ekledim
 export const Session = session({ 
