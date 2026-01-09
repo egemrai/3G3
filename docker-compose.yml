@@ -49,7 +49,7 @@ services:
     build: 
       context: ./frontend
       args:
-        REACT_APP_BACKEND_URL: "/api"
+        REACT_APP_BACKEND_URL: "https://api.elugemna.store"
     container_name: 3g3-frontend
     env_file: ./frontend/.env.prod
     expose:
