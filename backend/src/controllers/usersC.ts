@@ -4,6 +4,7 @@ import UserModel from "../models/user";
 import bcrypt from "bcrypt"
 import { io } from "../server";
 import { userSocketMap } from "../server";
+import validateEnv from "../utils/validateEnv";
 
 export const GetloggedInUser: RequestHandler = async (req, res, next) => {
     const userId= req.session.userId
@@ -78,6 +79,10 @@ export const login:RequestHandler<unknown, unknown, loginBody, unknown>= async(r
     const username= req.body.username
     const password= req.body.password
 
+    console.log("frontendURL:",validateEnv.FRONTEND_SITE_URL)
+    console.log("frontendURL:",validateEnv.FRONTEND_SITE_URL)
+    console.log("frontendURL:",validateEnv.FRONTEND_SITE_URL)
+    console.log("frontendURL:",validateEnv.FRONTEND_SITE_URL)
     try {
         if(!username || !password){
             throw createHttpError(400, "missing parameters")
