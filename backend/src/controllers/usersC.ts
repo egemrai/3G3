@@ -97,10 +97,10 @@ export const login:RequestHandler<unknown, unknown, loginBody, unknown>= async(r
         req.session.userId= user._id
         console.log("req.sessionFromLogin:", req.session)
         console.log("Session ID userC:", req.sessionID)
-        console.log("validateEnv:", validateEnv.FRONTEND_SITE_URL)
-        console.log("validateEnv:", validateEnv.FRONTEND_SITE_URL)
-        console.log("validateEnv:", validateEnv.FRONTEND_SITE_URL)
-        console.log("validateEnv:", validateEnv.FRONTEND_SITE_URL)
+        console.log("validateEnv:", validateEnv.FRONTEND_SITE_URL ?? 'undefined')
+        console.log("validateEnv:", validateEnv.FRONTEND_SITE_URL ?? 'undefined')
+        console.log("validateEnv:", validateEnv.FRONTEND_SITE_URL ?? 'undefined')
+        console.log("validateEnv:", validateEnv.FRONTEND_SITE_URL ?? 'undefined')
         req.session.save()
         res.status(200).json(user)
 
