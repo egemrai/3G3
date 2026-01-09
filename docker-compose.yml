@@ -33,7 +33,7 @@ services:
   backend:
     build: ./backend
     container_name: 3g3-backend
-    env_file: ./backend/.env
+    env_file: ./backend/.env.prod
     expose:
       - "5000"
     volumes:
@@ -42,6 +42,7 @@ services:
   frontend:
     build: ./frontend
     container_name: 3g3-frontend
+    env_file: ./frontend/.env.prod
     expose:
       - "80"
     depends_on:
