@@ -46,7 +46,10 @@ services:
       - ./backend/logs:/var/log/backend
 
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      args:
+        REACT_APP_BACKEND_URL: "https://elugemna.store/api"
     container_name: 3g3-frontend
     env_file: ./frontend/.env.prod
     expose:
