@@ -5,6 +5,7 @@ import bcrypt from "bcrypt"
 import { io } from "../server";
 import { userSocketMap } from "../server";
 import validateEnv from "../utils/validateEnv";
+import logger from "../logger";
 
 export const GetloggedInUser: RequestHandler = async (req, res, next) => {
     const userId= req.session.userId
@@ -79,10 +80,9 @@ export const login:RequestHandler<unknown, unknown, loginBody, unknown>= async(r
     const username= req.body.username
     const password= req.body.password
 
-    console.log("frontendURL:",validateEnv.FRONTEND_SITE_URL)
-    console.log("frontendURL:",validateEnv.FRONTEND_SITE_URL)
-    console.log("frontendURL:",validateEnv.FRONTEND_SITE_URL)
-    console.log("frontendURL:",validateEnv.FRONTEND_SITE_URL)
+    logger.info({validateEnv:validateEnv.FRONTEND_SITE_URL},'tsef')
+    logger.info({validateEnv:validateEnv.FRONTEND_SITE_URL},'tsef')
+    logger.info({validateEnv:validateEnv.FRONTEND_SITE_URL},'tsef')
     try {
         if(!username || !password){
             throw createHttpError(400, "missing parameters")
@@ -91,6 +91,9 @@ export const login:RequestHandler<unknown, unknown, loginBody, unknown>= async(r
 
         if(!user){
             throw createHttpError(400, "invalid credentials")
+            logger.info({validateEnv:validateEnv.FRONTEND_SITE_URL},'tsef')
+    logger.info({validateEnv:validateEnv.FRONTEND_SITE_URL},'tsef')
+    logger.info({validateEnv:validateEnv.FRONTEND_SITE_URL},'tsef')
         }
         const passwordMatch = await bcrypt.compare(password, user.password)
 
