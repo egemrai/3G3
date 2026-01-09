@@ -1,4 +1,4 @@
-# version: "3.8"
+version: "3.9"
 
 services:
   elasticsearch:
@@ -30,5 +30,34 @@ services:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
     command: ["--strict.perms=false"]
 
+  backend:
+    build: ./backend
+    container_name: 3g3-backend
+    env_file: ./backend/.env
+    expose:
+      - "5000"
+    volumes:
+      - ./backend/logs:/var/log/backend
+
+  frontend:
+    build: ./frontend
+    container_name: 3g3-frontend
+    expose:
+      - "80"
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:latest
+    container_name: 3g3-nginx
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt/live/elugemna.store:/etc/nginx/certs:ro
 volumes:
   esdata:
