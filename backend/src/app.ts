@@ -35,14 +35,17 @@ app.use(genReqId)
 
 //export için session'ı ekstra yazdım ve app.use() içine Session olarak ekledim
 export const Session = session({ 
+    name: "sid",
     secret:env.SESSION_SECRET,
     resave: false,              //Eğer oturumda bir değişiklik yoksa, her istekte veritabanına yazma yapılmaz. 
     saveUninitialized: false,
+    proxy: true,  // bunu nginx için sonradan ekledim
     cookie: {
         maxAge: 720 * 60 * 60 * 1000,
         httpOnly: true,
         secure: env.NODE_ENV === "production",//process.env.NODE_ENV === "production",          //secure production ise true olması lazım,
-        sameSite: env.NODE_ENV === "production" ? "none" : "lax"      //sameSite production ise bunun da none olması lazım
+        sameSite: env.NODE_ENV === "production" ? "none" : "lax",      //sameSite production ise bunun da none olması lazım
+        path: "/" // bunu nginx için sonradan ekledim
     },
     rolling: true,              //her get,post,vs. requestlerde(sayfa yenileme gibi) session süresini yeniliyor
     store: MongoStore.create({
