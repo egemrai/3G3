@@ -4,7 +4,10 @@ import * as ValorantModels from "../models/offers/ValorantOfferModels"
 
 
 async function fetchData(input: RequestInfo, init?: RequestInit) {
-    const response = await fetch(input, init)
+    const response = await fetch(input, {
+        credentials: "include",
+        ...init
+    })
     if(response.ok){
         return response
     }
