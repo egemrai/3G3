@@ -45,7 +45,7 @@ export const Session = session({
         httpOnly: true,
         secure: env.NODE_ENV === "production",//process.env.NODE_ENV === "production",          //secure production ise true olması lazım,
         sameSite: env.NODE_ENV === "production" ? "none" : "lax",      //sameSite production ise bunun da none olması lazım
-        path: "/" // bunu nginx için sonradan ekledim
+        path: "/" // bunu nginx için sonradan ekledim.
     },
     rolling: true,              //her get,post,vs. requestlerde(sayfa yenileme gibi) session süresini yeniliyor
     store: MongoStore.create({
