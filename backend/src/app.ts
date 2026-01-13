@@ -39,7 +39,7 @@ export const Session = session({
     secret:env.SESSION_SECRET,
     resave: false,              //Eğer oturumda bir değişiklik yoksa, her istekte veritabanına yazma yapılmaz. 
     saveUninitialized: false,
-    // proxy: true,  // bunu nginx için sonradan ekledim.
+    proxy: true,  // bunu nginx için sonradan ekledim.
     cookie: {
         maxAge: 720 * 60 * 60 * 1000,
         httpOnly: true,
