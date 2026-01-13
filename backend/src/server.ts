@@ -46,6 +46,7 @@ export const io = new Server(server, {
       origin: `${env.FRONTEND_SITE_URL}`, // frontend adresi
       credentials: true,
     },
+    transports: ["websocket"], // digital oceanda socket.io çalışmıyor diye bunu ekledim ;frontendde önceden varmış zaten
   });
 
 mongoose.connect(env.MONGO_CONNECTION_STRING)
