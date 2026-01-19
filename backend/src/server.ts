@@ -6,6 +6,7 @@ import { Server } from "socket.io";
 import { Socket } from "socket.io";
 import { ExtendedError } from "socket.io/dist/namespace"
 import { Session } from "./app";
+import { connectRedis } from "./redis/client";
 
 //#region backend_api
 async function fetchData(input: RequestInfo, init?: RequestInit) {
@@ -50,8 +51,11 @@ export const io = new Server(server, {
   });
 
 mongoose.connect(env.MONGO_CONNECTION_STRING)
-.then(  () => {
+.then(  async() => {
     console.log("mongoose connected")
+
+    await connectRedis()    // redis connect kısmı
+
     server.listen(port, () => {
         console.log("server running on port:" + port)
     })

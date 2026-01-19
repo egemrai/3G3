@@ -9,5 +9,6 @@ export default cleanEnv(process.env, {
     FRONTEND_SITE_URL: str(),
     NODE_ENV: str(),
     ELASTICSEARCH_URL: str(),
-    LOG_LEVEL: str()
+    LOG_LEVEL: str(),
+    REDIS_URL: str(),
 })

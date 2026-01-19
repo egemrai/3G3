@@ -1,12 +1,10 @@
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Category as CategoryModel } from "../../models/category";
 import * as chat_api from "../../network/chat_api"
 import * as offers_api from "../../network/offers_api"
-import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
-import Category from "../Category";
+import {  Form } from "react-bootstrap";
 import style from "../../styles/ChatPage.module.css"
-import { Controller, useForm } from "react-hook-form";
+import {  useForm } from "react-hook-form";
 import { Conversation, Message } from "../../models/chat";
 import { User } from "../../models/user";
 
@@ -21,16 +19,13 @@ interface ChatPageProps{
 
 const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
     const location = useLocation()
-    const navigate = useNavigate()
 
-    
     const {handleSubmit,
            register,
-           setValue,
-           getValues,
-           formState:{isSubmitting, errors}} = useForm<Messageform>({mode:"all"})
+           setValue,} = useForm<Messageform>({mode:"all"})
 
-
+    
+    
     
     const [receiver, setReceiver] = useState<User|null>()
     const [sender, setSender] = useState<User>()
@@ -70,11 +65,11 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
             else if(days>1)
                 setLastseen(days+" day(s) ago")
             else if(hours>1)
-                setLastseen(hours+" hours(s) ago")
+                setLastseen(hours+" hour(s) ago")
             else if(minutes>1)
-                setLastseen(minutes+" minutes(s) ago")
+                setLastseen(minutes+" minute(s) ago")
             else if(seconds>1)
-                setLastseen(seconds+" seconds(s) ago")
+                setLastseen(seconds+" second(s) ago")
         }
     }
     
@@ -179,8 +174,6 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
             alert("pushNewConversation error")
         }
     }
-
-// const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
     async function sendMessage(credentials:Messageform) {
         const messageTemporaryId = crypto.randomUUID()
@@ -474,7 +467,28 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
         )
     })
 
-    
+    //TYPING AYARLAMA KISMI
+    const typingTimeOutRef = useRef<NodeJS.Timeout | null>(null)
+
+    const handleTyping = (value:string)=>{
+        if(!receiver) return
+
+        if( !typingCheck && value.length > 0){
+            setTypingCheck(true)
+            setWritingTo(false)
+        }
+
+        if( value.length <= 0){
+            if(typingTimeOutRef.current){
+                clearTimeout(typingTimeOutRef.current)
+            }
+
+            typingTimeOutRef.current = setTimeout(()=>{
+                setTypingCheck(false)
+                setWritingTo(true)
+            },200)
+        }
+    }
 
     
     return (
@@ -526,7 +540,9 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
                                 {...register(`message`, {
                                 required: "Required",
                                 })}
-                                onInput={(e) => {               //chatgpt baktım
+                                onInput={(e) => {               
+                                    handleTyping(e.currentTarget.value)
+                                    //chatgpt baktım
                                     const el = e.currentTarget;
                                     el.style.height = "40px";
                                     const maxHeight = 5 * 24; // 5 satır × line-height
@@ -538,39 +554,26 @@ const ChatPage = ({socket,socketMessageCount}:ChatPageProps) => {
                                     if (e.key === "Enter" && !e.shiftKey) { //enter basma control, shift ile basılırsa çalışmaz
                                         handleSubmit(sendMessage)()
                                         e.preventDefault() // yeni satır oluşmasını engeller
-                                        // console.log("submit öncesi")
                                         
-                                        // console.log("submit sonrası")
                                         setTypingCheck(false)
                                         setWritingTo(true)
                                     }
-                                    if(receiver){
-                                        if(typingCheck === false && e.currentTarget.value.length === 1){
-                                            setTypingCheck(true)
-                                            setWritingTo(false)
-                                            console.log("yazıyor")
-                                        }
-                                        else if(typingCheck === true && e.currentTarget.value.length === 0){
-                                            setTypingCheck(false)
-                                            setWritingTo(true)
-                                            console.log("yazmayı bitirdi")
-                                        } 
-                                    }
-                                }}
-                                // onChange={(e)=>{
                                 //     if(receiver){
                                 //         if(typingCheck === false && e.currentTarget.value.length === 1){
-                                //             settypingCheck(true)
-                                //             setWritingTo(e.currentTarget.value)
+                                //             setTypingCheck(true)
+                                //             setWritingTo(false)
                                 //             console.log("yazıyor")
+                                //             console.log(e.currentTarget.value)
+                                //             console.log(e.currentTarget.value)
                                 //         }
                                 //         else if(typingCheck === true && e.currentTarget.value.length === 0){
-                                //             settypingCheck(false)
-                                //             setWritingTo()
+                                //             setTypingCheck(false)
+                                //             setWritingTo(true)
                                 //             console.log("yazmayı bitirdi")
                                 //         } 
                                 //     }
-                                // }}
+                            
+                                }}
                                     />
                             
 
