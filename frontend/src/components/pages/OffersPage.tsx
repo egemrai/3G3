@@ -179,12 +179,15 @@ const OffersPage= () => {
     },[getOffersLock])
 
     useEffect(()=>{
-        searchParams.set('page',currentPage.toString())
-        navigate({
-            pathname: location.pathname,
-            search: searchParams.toString()})
+        if(getOffersLock){ // onMouth olduğunda getOffers çalışıyor --> getOffers içindeki (Math.ceil(totalOfferCount/limit) < currentPage) condition çalışırsa setCurrentPage yapıyor --> currentPage dependency olduğu için bu useEffect de çalışıp 2 tane request gönderiyordu, getOffersLock conditionı buraya da ekledim.
+           searchParams.set('page',currentPage.toString())
+            navigate({
+                pathname: location.pathname,
+                search: searchParams.toString()})
+            
+            getOffers(filter,sort)
+        }
         
-        getOffers(filter,sort)
     },[currentPage])
 
     return(

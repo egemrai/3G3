@@ -25,6 +25,10 @@ const searchFilters:any = {
         skins:{
             type: 'range',
             value:['min', 'max']},
+        deliveryTime:{
+            type: 'multiple',
+            value:['0.16', '0.32','0.48','0.64','0.80','1','2','3','5','10','20','30','40','50',],
+            label:['10min', '20min','30min','40min','50min','1h','2h','3h','5h','10h','20h','30h','40h','50h',]},
         price:{
             type: 'range',
             value:['min', 'max']},
@@ -72,9 +76,6 @@ const searchFilters:any = {
             value:['0.16', '0.32','0.48','0.64','0.80','1','2','3','5','10','20','30','40','50',],
             label:['10min', '20min','30min','40min','50min','1h','2h','3h','5h','10h','20h','30h','40h','50h',]},
         price:{
-            type: 'range',
-            value:['min', 'max']},
-        value:{
             type: 'range',
             value:['min', 'max']},
     },

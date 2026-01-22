@@ -6,6 +6,7 @@ import style from "../../styles/OfferPage.module.css"
 import {  useForm } from "react-hook-form";
 import { User as UserModel } from "../../models/user";
 import { OfferSmall } from "../../models/offerSmall";
+import searchFilters from "../../utils/searchFilters";
 
 interface Buyform{
     buyAmount:number
@@ -21,7 +22,7 @@ const OfferPage1 = ({user, offer, socket}:OfferPageProps) => {
     const navigate = useNavigate()
 
     
-        const {title, price, currency, description, server,_id:offerId,serviceName,
+        const {title, price, currency, description,_id:offerId,serviceName,
     categoryName, sellerId:satıcınınId, sellerUsername:satıcıUsername, deliveryTime, stock, updatedAt } = offer
 
 
@@ -83,117 +84,28 @@ const OfferPage1 = ({user, offer, socket}:OfferPageProps) => {
     }
     const editedDeliveryTime = deliveryTimeTable[deliveryTime]
 
-    const dura:Record<number, string>= {
-        7: "7days",
-        14: "14days",
-        30: "30days"
-    }
-    const editedDuration= dura[offer.duration]
 
-//#region INFO COMPONENTLAR
-    //BİR DÜNYA COMPONENT İLE UĞRAŞMAMAK İÇİN DİREKT BU FILE İÇİNDE OFFER INFOLARI TANIMLICAM
-    //#region LOL
-    const LolAccount =
-        <>
-            <Row xl={2} className={`${style.forEveryOfferInfo}`}>
-                <Col><p>{"Skins ---> " + offer.skins}</p></Col>
-                <Col><p>{"Champions ---> " +offer.champions}</p></Col>
-                <Col><p>{"Server ---> "+ server}</p></Col>
-                <Col><p>{"Rank ---> "+offer.rank}</p></Col>
-                <Col><p>{"Stock ---> "+stock}</p></Col>
-                <Col><p>{"Delivery time ---> "+ editedDeliveryTime}</p></Col>
-                
-            </Row>
-        </>
+    const keysWithoutPrice = Object.keys(searchFilters[offer.serviceName]).filter((key)=> (key !== 'price' && key !== 'deliveryTime'))
 
-    const LolBoost = 
-    <>
+    const offerDetails =  keysWithoutPrice.map((key)=>{
+        const upperCaseKey = key[0].toUpperCase()+key.slice(1)
+        return (
+            <Col><p>{`${upperCaseKey} --->` + offer[key]}</p></Col>
+        )
+    })
+
+    const offerTSX = <>
+     <div className={`${style.offerInfo}`}>
         <Row xl={2} className={`${style.forEveryOfferInfo}`}>
-            <Col><p>{"Service type ---> " + offer.serviceType}</p></Col>
-            <Col><p>{"Duration ---> " +editedDuration}</p></Col>
-            <Col><p>{"Server ---> "+ server}</p></Col>
-            <Col><p>{"Rank ---> "+offer.desiredRank}</p></Col>
+            {offerDetails}
             <Col><p>{"Stock ---> "+stock}</p></Col>
-            <Col><p>{"Delivery time ---> "+ editedDeliveryTime}</p></Col>
-            
-        </Row>
+            <Col><p>{"DeliveryTime ---> "+editedDeliveryTime}</p></Col>
+        </Row>    
+    </div>
+    <p className={`${style.description}`}>{description}</p>
     </>
 
-    const LolCoach  =
-    <>
-        <Row xl={2} className={`${style.forEveryOfferInfo}`}>
-            <Col><p>{"Duration ---> " +editedDuration}</p></Col>
-            <Col><p>{"Server ---> "+ server}</p></Col>
-            <Col><p>{"Rank ---> "+offer.rank}</p></Col>
-            <Col><p>{"Stock ---> "+stock}</p></Col>
-            <Col><p>{"Delivery time ---> "+ editedDeliveryTime}</p></Col>
-            
-        </Row>
-    </>
 
-    const LolRP =
-    <>
-        <Row xl={2} className={`${style.forEveryOfferInfo}`}>
-            <Col><p>{"Server ---> "+ server}</p></Col>
-            <Col><p>{"Stock ---> "+stock}</p></Col>
-            <Col><p>{"Delivery time ---> "+ editedDeliveryTime}</p></Col>
-            <Col><p>{"RP ---> "+ offer.value}</p></Col>
-            
-        </Row>
-    </>
-    //#endregion
-
-    //#region VALORANT
-    const ValorantAccount =
-        <>
-            <Row xl={2} className={`${style.forEveryOfferInfo}`}>
-                <Col><p>{"Skins ---> " + offer.skins}</p></Col>
-                <Col><p>{"Agents ---> " +offer.agents}</p></Col>
-                <Col><p>{"Server ---> "+ server}</p></Col>
-                <Col><p>{"Rank ---> "+offer.rank}</p></Col>
-                <Col><p>{"Stock ---> "+stock}</p></Col>
-                <Col><p>{"Delivery time ---> "+ editedDeliveryTime}</p></Col>
-                
-            </Row>
-        </>
-
-    const ValorantBoost = 
-    <>
-        <Row xl={2} className={`${style.forEveryOfferInfo}`}>
-            <Col><p>{"Service type ---> " + offer.serviceType}</p></Col>
-            <Col><p>{"Duration ---> " +editedDuration}</p></Col>
-            <Col><p>{"Server ---> "+ server}</p></Col>
-            <Col><p>{"Rank ---> "+offer.desiredRank}</p></Col>
-            <Col><p>{"Stock ---> "+stock}</p></Col>
-            <Col><p>{"Delivery time ---> "+ editedDeliveryTime}</p></Col>
-            
-        </Row>
-    </>
-
-    const ValorantCoach = 
-    <>
-        <Row xl={2} className={`${style.forEveryOfferInfo}`}>
-            <Col><p>{"Duration ---> " +editedDuration}</p></Col>
-            <Col><p>{"Server ---> "+ server}</p></Col>
-            <Col><p>{"Rank ---> "+offer.rank}</p></Col>
-            <Col><p>{"Stock ---> "+stock}</p></Col>
-            <Col><p>{"Delivery time ---> "+ editedDeliveryTime}</p></Col>
-            
-        </Row>
-    </>
-
-    const ValorantVP = 
-        <>
-            <Row xl={2} className={`${style.forEveryOfferInfo}`}>
-                <Col><p>{"Server ---> "+ server}</p></Col>
-                <Col><p>{"Stock ---> "+stock}</p></Col>
-                <Col><p>{"Delivery time ---> "+ editedDeliveryTime}</p></Col>
-                <Col><p>{"VP ---> "+ offer.value}</p></Col>
-            </Row>
-        </>
-    //#endregion
-//#endregion
-           
     
     return (
         <>
@@ -212,19 +124,7 @@ const OfferPage1 = ({user, offer, socket}:OfferPageProps) => {
                         <div className={`${style.offer}`}>
                             <h2 >{title}</h2>
                             <h4 className={`${style.title}`}>Offer info</h4>
-                            <div className={`${style.offerInfo}`}>
-                                    {/* LOL OFFER INFO*/}
-                                {offer.serviceName==="LolAccount" && LolAccount}
-                                {offer.serviceName==="LolBoost" && LolBoost}
-                                {offer.serviceName==="LolCoach" && LolCoach}
-                                {offer.serviceName==="LolRP" && LolRP}
-                                    {/* VALORANT OFFER INFO*/}
-                                {offer.serviceName==="ValorantAccount" && ValorantAccount}
-                                {offer.serviceName==="ValorantBoost" && ValorantBoost}
-                                {offer.serviceName==="ValorantCoach" && ValorantCoach}
-                                {offer.serviceName==="ValorantVP" && ValorantVP}
-                            </div>
-                            <p className={`${style.description}`}>{description}</p>
+                            {offerTSX}  {/* OFFER SAYFADA GÖRÜNÜŞÜ*/}
                         </div>
                     </div>
 

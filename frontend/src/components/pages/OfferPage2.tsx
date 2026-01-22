@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import * as OffersApi from "../../network/offers_api"
 import { User as UserModel } from "../../models/user";
@@ -13,7 +13,6 @@ interface OfferPage2Props{
 
 const OfferPage2 = ({user, socket}:OfferPage2Props) => {
     const location = useLocation()
-    const navigate = useNavigate()
 
     const searchParams = new URLSearchParams(location.search)
     const searchOfferId = searchParams.get("_id")
@@ -29,8 +28,7 @@ const OfferPage2 = ({user, socket}:OfferPage2Props) => {
 
     async function fetchOffer(){
             try {
-                if(!searchServiceName || !searchOfferId)
-                    throw new Error
+                if(!searchServiceName || !searchOfferId) throw Error
                 const fetchedOffer = await OffersApi.fetchOffer(searchServiceName,searchOfferId)
                 if(fetchedOffer)
                 setOffer(fetchedOffer)
