@@ -43,6 +43,7 @@ const OffersPage= () => {
     const [lastPage, setlastpage] = useState<number>(7)
 
     //FILTER İLE SEARCH YAPMA KISMI
+    const allReduxStore = useSelector((state:any)=> state)
     const filterRedux = useSelector((state: RootState) => state.filter.filter) // state.filter slice'ın adı, filter: {LolAccount:{...}, LolBoost:{...},...} döndürüyor, o yüzden tekrar filter yazdım --> direkt filter objectinin içini almak için
     const sortRedux = useSelector((state: RootState) => state.sort.sort) 
     const dispatch = useDispatch<AppDispatch>()
@@ -111,7 +112,8 @@ const OffersPage= () => {
         }
 
         getOffers(stringifiedFilter,sort_)  //en sonda offerları çekiyorum, filter ve sort eklenince
-        
+        console.log('all redux store datası:', allReduxStore)
+        console.log('all redux store datası:', allReduxStore)
     }
 
     

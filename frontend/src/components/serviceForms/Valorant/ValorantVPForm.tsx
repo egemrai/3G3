@@ -22,7 +22,7 @@ const ValorantVPForm= ({offer}:ValorantVPFormProps)=>{
             currency: offer?.currency || "",
             deliveryTime: offer?.deliveryTime ?? undefined,
             stock: offer?.stock ?? undefined,
-
+            value: offer?.value ?? undefined,
         }})
 
     const navigate = useNavigate()
@@ -138,7 +138,22 @@ const ValorantVPForm= ({offer}:ValorantVPFormProps)=>{
                     </Form.Control.Feedback>     
                 </Form.Group>
 
-
+                <Form.Group className={`${style.formGroup}`} controlId={"value"}>
+                    <Form.Label id="value">{"value"}</Form.Label>
+                        <Form.Control
+                        {...register("value", {
+                            required: "Required",
+                            pattern: {
+                            value: /^\d+$/,
+                            message: "Only numbers are allowed",
+                            },
+                        })}
+                        isInvalid={!!errors?.value}
+                        />
+                    <Form.Control.Feedback type="invalid">
+                        {errors?.value?.message}
+                    </Form.Control.Feedback>     
+                </Form.Group>        
 
                 <Form.Group className={`${style.formGroup}`} controlId={"price"}>
                     <Form.Label id="price">{"price"}</Form.Label>

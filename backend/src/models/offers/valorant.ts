@@ -62,6 +62,7 @@ const ValorantVPSchema = new Schema({
     server: {type: String, required: true},
     deliveryTime: {type: Number, required: true},
     stock: {type: Number, required: true},
+    value: {type: Number, required: true},
 },)                                                       
 
 type ValorantVP = InferSchemaType<typeof ValorantVPSchema>

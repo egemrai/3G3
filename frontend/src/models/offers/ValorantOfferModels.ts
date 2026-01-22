@@ -66,6 +66,7 @@ export interface ValorantVP{
     currency: string,
     active: boolean,
     deliveryTime: number,
+    value: number,
     stock: number,
     updatedAt: string,
 }

@@ -11,6 +11,7 @@ import Pagination from "../../Pagination"
 export interface Filter{
     type: string
     value: (string|number)[] 
+    label: (string|number)[] 
 }
 
 interface OffersFilterFieldProps{
@@ -45,8 +46,34 @@ const OffersFilterField =  ( {filterData, searchWithFilter,stringifiedFilter,str
     })
     
     const onSubmit = (credentials:any) => {
-        console.log('ege')
-        searchWithFilter(credentials)
+        const {sort:credentialsSort, searchInput:credentialsSearchInput,...rest} = credentials
+        const filteredCredentials = Object.entries(rest).filter(([filterName_,filterData_]:[string, any])=>{
+            let check = true
+            if(filterData_ === '' || filterData_ === undefined || filterData_ === null) check= false
+            
+            if(filterData[filterName_].type === 'multiple' || filterData[filterName_].type === 'single'){
+                if(filterData_ === false || filterData_ === 'false') check= false
+            }
+            else if(filterData[filterName_].type === 'range'){
+                if(Object.keys(filterData_).length === 0) check= false
+                if(filterData_.min ===undefined && filterData_.max === undefined) check= false
+                if(filterData_.min ==='' && filterData_.max === '') check= false
+            }
+            return (check)
+        })
+
+        if(credentialsSearchInput !== '') {
+            filteredCredentials.push(['searchInput',credentialsSearchInput])
+        }
+
+        filteredCredentials.push(['sort',credentialsSort])
+
+        console.log('credentials:', credentials)
+        console.log('filteredCredentials:',filteredCredentials)
+        console.log('qwdqwd:',Object.fromEntries(filteredCredentials))
+        
+        // searchWithFilter(credentials)
+        searchWithFilter(Object.fromEntries(filteredCredentials))
     }
 
     useEffect(()=>{
@@ -132,6 +159,7 @@ const OffersFilterField =  ( {filterData, searchWithFilter,stringifiedFilter,str
             <div className= {`${style.clearFilterDiv}`}>
                 <SelectedFilterRemover
                     // selectedFilterData={selectedFilters}
+                    filterData={filterData}
                     setValue={setValue}
                     getValues={getValues}
                     control={control}

@@ -21,7 +21,7 @@ const filterCheckgrid = Array.from({length: filterData.value.length},(_,i) => {
             return(
                 <Form.Check key={i}
                     type= {type}
-                    label= {filterData.value[i]}
+                    label= {filterData.label[i]}
                     value= {filterData.value[i]}
                     {...register(`${filterName}`,{required:false})}
                 />
@@ -30,9 +30,9 @@ const filterCheckgrid = Array.from({length: filterData.value.length},(_,i) => {
     else if(filterData.type==='boolean'){
         return(
                 <Form.Check key={i}
-                    type= {'checkbox'}
-                    label= {filterName}
-                    value= {true as any}
+                    type= {'radio'}
+                    label= {filterData.label[i]}
+                    value= {(filterData.value[i] === 'true') as any}
                     {...register(`${filterName}`,{required:false})}
                 />
             )
@@ -41,8 +41,9 @@ const filterCheckgrid = Array.from({length: filterData.value.length},(_,i) => {
         return(
             <Form.Group key={i} className={`${style.rangeFilterElement}`} controlId={`${filterData.value[i]}`}>
                 <Form.Label id={`${filterData.value[i]}`}>{`${filterData.value[i]} ${filterName}`}</Form.Label>
-                    <Form.Control 
-                    {...register(`${filterData.value[i]}${filterName}`,{
+                    <Form.Control
+                    type="number"
+                    {...register(`${filterName}.${filterData.value[i]}`,{
                         required:false
                         })
                     }

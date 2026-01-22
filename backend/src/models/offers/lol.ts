@@ -9,7 +9,7 @@ const lolSchema = new Schema({
     description: {type: String, required: true},
     price: {type: Number, required: true},
     currency: {type: String, required: true},
-    active: {type: Boolean, required: true, default: true},
+    active: {type: Boolean, required: true, default: true}, //default active eklemeyi unutma
 },{ discriminatorKey: "serviceName", timestamps: true})                                                       
 
 type Lol = InferSchemaType<typeof lolSchema>
@@ -24,7 +24,6 @@ const lolAccountSchema = new Schema({
     skins: {type: Number, required: true},
     deliveryTime: {type: Number, required: true},
     stock: {type: Number, required: true},
-     //default active eklemeyi unutma
 },)                                                       
 
 type LolAccount = InferSchemaType<typeof lolAccountSchema>
@@ -63,7 +62,7 @@ const lolRPSchema = new Schema({
     server: {type: String, required: true},
     deliveryTime: {type: Number, required: true},
     stock: {type: Number, required: true},
-    description: {type: String, required: true},
+    value: {type: Number, required: true},
 },)                                                       
 
 type LolRP = InferSchemaType<typeof lolRPSchema>

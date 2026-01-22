@@ -5,6 +5,15 @@ import { reindexLolToES } from "../elasticSearch/reindexLolToES";
 import createHttpError from "http-errors";
 import logger from "../logger";
 
+export const isObject = (value:any) => {  
+        return (
+            value !== null &&
+            typeof value === "object" &&
+            !Array.isArray(value) &&
+            ("min" in value || "max" in value)
+        )
+    }
+
 export const elasticSearchPingTest:RequestHandler = async(req,res,next)=>{
     try {
         // ES 8.x: ping() boolean döner
@@ -66,10 +75,7 @@ interface getOffersViaElasticSearchQuery{
     username: string
     page: number
 }
-type RangeValue={
-    min?:number,
-    max?:number
-}
+
 export const getOffersViaElasticSearch:RequestHandler<unknown,unknown,unknown,getOffersViaElasticSearchQuery>= async(req,res,next)=>{
     let parsedFilter: any = {}
 
@@ -89,8 +95,7 @@ export const getOffersViaElasticSearch:RequestHandler<unknown,unknown,unknown,ge
     if(page <1) page = 1
     const limit = 4
     
-    let range:Record<string,RangeValue>={} //range filterları ayarlamak için 
-
+   
     const body = {
         index: "offers",
         from: (page - 1) * limit,
@@ -134,24 +139,33 @@ export const getOffersViaElasticSearch:RequestHandler<unknown,unknown,unknown,ge
             })
         }
 
-        Object.entries(restOfFilter).forEach(([key,value])=>{
+        Object.entries(restOfFilter).forEach(([key,value]:[string,any])=>{
             if(value === undefined || value === null){
                 return
             }
-            else if(key.startsWith('min')){
-                if(typeof value !== 'string') return
-                if(value.trim() === '') return
-                if (!/^\d+(\.\d+)?$/.test(value)) return
-                const field = key.slice(3).toLowerCase()
-                range = {...(range || {}),[field]: {...range[field], min: Number(value)}}
+            else if(isObject(value)){
+                if(Object.keys(value).length === 0) return
+                
+                const minMaxObject:{gte?:number, lte?:number} = {}
+                if(value.min !== undefined && value.min !== '') minMaxObject.gte = value.min
+                if(value.max !== undefined && value.max !== '') minMaxObject.lte = value.max
+        
+                if(Object.keys(minMaxObject).length >0){
+                    body.query.bool.filter.push({
+                        range:{
+                            [key]: minMaxObject // {price: {gte : 10, lte: 20 }} şeklinde data örneği
+                        },
+                    })
+                }
+
             }
-            else if(key.startsWith('max')){
-                if(typeof value !== 'string') return
-                if(value.trim() === '') return
-                if (!/^\d+(\.\d+)?$/.test(value)) return
-                const field = key.slice(3).toLowerCase()
-                range = {...range,[field]: {...range[field], max: Number(value)}}
-            }
+            // else if(key.startsWith('max')){
+            //     if(typeof value !== 'string') return
+            //     if(value.trim() === '') return
+            //     if (!/^\d+(\.\d+)?$/.test(value)) return
+            //     const field = key.slice(3).toLowerCase()
+            //     range = {...range,[field]: {...range[field], max: Number(value)}}
+            // }
             else if(Array.isArray(value)){
                 if(!(value.length>0)) return
                 body.query.bool.filter.push({terms:{
@@ -176,21 +190,7 @@ export const getOffersViaElasticSearch:RequestHandler<unknown,unknown,unknown,ge
         })
 
         
-        Object.entries(range).forEach(([key,value]:[string,RangeValue])=>{
-            const minMaxObject:{gte?:number, lte?:number} = {}
-            if(value.min !== undefined) minMaxObject.gte = value.min
-            if(value.max !== undefined) minMaxObject.lte = value.max
-    
-            if(Object.keys(minMaxObject).length >0){
-                body.query.bool.filter.push({
-                    range:{
-                        [key]: minMaxObject // {price: {gte : 10, lte: 20 }} şeklinde data örneği
-                    },
-                })
-            }
-            
-        })
-
+        
         //SORT EKLEEM KISMI
         const sortTable:Record<string,Record<string,string>>={
             'Highest price' : {price: 'desc'},
@@ -232,7 +232,6 @@ export const getOffersViaElasticSearch:RequestHandler<unknown,unknown,unknown,ge
         logger.info({restOfFilter},'filter:')
         logger.debug({sort},'sort:')
         logger.debug({bodysort :body.sort},'body.sort:')
-        logger.trace({ range }, "range")
         logger.trace({ serviceName }, "serviceName")
         logger.trace({ username }, "username")
 

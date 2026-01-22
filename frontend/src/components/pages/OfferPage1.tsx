@@ -1,11 +1,9 @@
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Category as CategoryModel } from "../../models/category";
 import * as OffersApi from "../../network/offers_api"
-import { Button, Card, Col, Container, Form, Row } from "react-bootstrap";
-import Category from "../Category";
+import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import style from "../../styles/OfferPage.module.css"
-import { Controller, useForm } from "react-hook-form";
+import {  useForm } from "react-hook-form";
 import { User as UserModel } from "../../models/user";
 import { OfferSmall } from "../../models/offerSmall";
 
@@ -20,11 +18,9 @@ interface OfferPageProps{
 }
 
 const OfferPage1 = ({user, offer, socket}:OfferPageProps) => {
-    const location = useLocation()
     const navigate = useNavigate()
 
     
-
         const {title, price, currency, description, server,_id:offerId,serviceName,
     categoryName, sellerId:satıcınınId, sellerUsername:satıcıUsername, deliveryTime, stock, updatedAt } = offer
 
@@ -74,7 +70,7 @@ const OfferPage1 = ({user, offer, socket}:OfferPageProps) => {
     }
 
     //DELIVERY TIME ve DURATION AYARLAMA KISMI
-    const ege:Record<number,string >= {  //js keyleri otomatik string yapıyor sanırım ama yine de çalışıyor
+    const deliveryTimeTable:Record<number,string >= {  //js keyleri otomatik string yapıyor sanırım ama yine de çalışıyor
         0.16: "10min", 0.32: "20min", 0.48: "30min", 0.64: "40min", 0.80: "50min", 1: "1h", 2:"2h", 3: "3h",
         4: "4h", 5: "5h", 6: "6h", 7: "7h", 8: "8h", 9: "9h", 10: "10h", 11: "11h", 12: "12h", 13: "13h",
         14: "14h", 15: "15h", 16: "16h", 17: "17h", 18: "18h", 19: "19h", 20: "20h", 21: "21h", 22: "22h",
@@ -85,7 +81,7 @@ const OfferPage1 = ({user, offer, socket}:OfferPageProps) => {
         59: "59h", 60: "60h", 61: "61h", 62: "62h", 63: "63h", 64: "64h", 65: "65h", 66: "66h", 67: "67h",
         68: "68h", 69: "69h", 70: "70h", 71: "71h", 72: "72h"
     }
-    const editedDeliveryTime = ege[deliveryTime]
+    const editedDeliveryTime = deliveryTimeTable[deliveryTime]
 
     const dura:Record<number, string>= {
         7: "7days",
@@ -141,6 +137,7 @@ const OfferPage1 = ({user, offer, socket}:OfferPageProps) => {
             <Col><p>{"Server ---> "+ server}</p></Col>
             <Col><p>{"Stock ---> "+stock}</p></Col>
             <Col><p>{"Delivery time ---> "+ editedDeliveryTime}</p></Col>
+            <Col><p>{"RP ---> "+ offer.value}</p></Col>
             
         </Row>
     </>
@@ -191,7 +188,7 @@ const OfferPage1 = ({user, offer, socket}:OfferPageProps) => {
                 <Col><p>{"Server ---> "+ server}</p></Col>
                 <Col><p>{"Stock ---> "+stock}</p></Col>
                 <Col><p>{"Delivery time ---> "+ editedDeliveryTime}</p></Col>
-                
+                <Col><p>{"VP ---> "+ offer.value}</p></Col>
             </Row>
         </>
     //#endregion

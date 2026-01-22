@@ -176,6 +176,7 @@ export interface LolRPCredentials{
     currency: string,
     deliveryTime: number,
     stock: number,
+    value:number,
 }
 export async function createLolRPOffer(credentials:LolRPCredentials){
     const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/createLolRP`,{
@@ -346,6 +347,7 @@ export interface ValorantVPCredentials{
     currency: string,
     deliveryTime: number,
     stock: number,
+    value:number,
 }
 export async function createValorantVPOffer(credentials:ValorantVPCredentials){
     const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/createValorantVP`,{

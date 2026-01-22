@@ -408,15 +408,16 @@ interface LolRPBody{
     price: number,
     currency: string,
     deliveryTime: number,
-    stock: number
+    stock: number,
+    value: number,
 }
 
 export const createLolRPOffer:RequestHandler<unknown,unknown,LolRPBody,unknown> = async(req,res,next) =>{
-    const {server,title,description,price,currency,deliveryTime,stock} = req.body
+    const {server,title,description,price,currency,deliveryTime,stock,value} = req.body
     const userId = req.session.userId
 
     try {
-        if(!server || !title || !description || !price || !currency|| !deliveryTime || !stock){
+        if(!server || !title || !description || !price || !currency|| !deliveryTime || !stock || !value){
             throw createHttpError(400,"LolRPCredentials missing")
         }
         
@@ -435,6 +436,7 @@ export const createLolRPOffer:RequestHandler<unknown,unknown,LolRPBody,unknown> 
             currency: currency,
             deliveryTime: deliveryTime,
             stock: stock,
+            value: value,
         })
 
         res.status(200).json(newLolRP)
@@ -454,6 +456,7 @@ interface LolRPEditBody{
         currency: string,
         deliveryTime: number,
         stock: number,
+        value: number,
     },
     editIdData:{
         _id: string,
@@ -461,7 +464,7 @@ interface LolRPEditBody{
     }
 }
 export const editLolRPOffer:RequestHandler<unknown,unknown,LolRPEditBody,unknown> = async(req,res,next) =>{
-    const {server,title,description,price,currency,deliveryTime,stock} = req.body.credentials
+    const {server,title,description,price,currency,deliveryTime,stock,value} = req.body.credentials
     const {_id,sellerId} = req.body.editIdData
     const userId = req.session.userId
 
@@ -470,7 +473,7 @@ export const editLolRPOffer:RequestHandler<unknown,unknown,LolRPEditBody,unknown
             throw createHttpError(404, "session userId missing")
         }
 
-        if(!server ||!title || !description || !price || !currency || !deliveryTime || !stock){
+        if(!server ||!title || !description || !price || !currency || !deliveryTime || !stock ||!value){
             throw createHttpError(400,"LolRPEditCredentials missing")
         } 
         
@@ -491,6 +494,7 @@ export const editLolRPOffer:RequestHandler<unknown,unknown,LolRPEditBody,unknown
         lolRPOffer.currency= currency
         lolRPOffer.deliveryTime= deliveryTime
         lolRPOffer.stock= stock
+        lolRPOffer.value= value
 
         
         const updatedLolRPOffer = await lolRPOffer.save();
@@ -851,14 +855,15 @@ interface ValorantVPBody {
     currency: string,
     deliveryTime: number,
     stock: number,
+    value: number,
 }
 
 export const createValorantVPOffer:RequestHandler<unknown,unknown,ValorantVPBody,unknown> = async(req,res,next)=>{
-    const {server,title,description,price,currency,deliveryTime,stock} = req.body
+    const {server,title,description,price,currency,deliveryTime,stock,value} = req.body
     const userId = req.session.userId
 
     try {
-        if(!server || !title || !description || !price || !currency ||!deliveryTime ||!stock){
+        if(!server || !title || !description || !price || !currency ||!deliveryTime ||!stock ||!value){
             throw createHttpError(400,"ValorantVPCredentials missing")
         } 
 
@@ -877,6 +882,7 @@ export const createValorantVPOffer:RequestHandler<unknown,unknown,ValorantVPBody
             currency: currency,
             deliveryTime: deliveryTime,
             stock: stock,
+            value: value,
         })
         
         res.status(200).json(newValorantVP)
@@ -896,6 +902,7 @@ interface ValorantVPEditBody{
         currency: string,
         deliveryTime: number,
         stock: number,
+        value: number,
     },
     editIdData:{
         _id: string,
@@ -904,7 +911,7 @@ interface ValorantVPEditBody{
 }
 
 export const editValorantVPOffer:RequestHandler<unknown,unknown,ValorantVPEditBody,unknown> = async(req,res,next) =>{
-    const {server,title,description,price,currency,deliveryTime,stock} = req.body.credentials
+    const {server,title,description,price,currency,deliveryTime,stock,value} = req.body.credentials
     const {_id,sellerId} = req.body.editIdData
     const userId = req.session.userId
 
@@ -913,7 +920,7 @@ export const editValorantVPOffer:RequestHandler<unknown,unknown,ValorantVPEditBo
             throw createHttpError(404, "session userId missing")
         }
 
-        if(!server || !title || !description || !price || !currency ||!deliveryTime ||!stock){
+        if(!server || !title || !description || !price || !currency ||!deliveryTime ||!stock || !value){
             throw createHttpError(400,"ValorantVPEditCredentials missing")
         } 
         
@@ -934,6 +941,7 @@ export const editValorantVPOffer:RequestHandler<unknown,unknown,ValorantVPEditBo
         valorantVPOffer.currency= currency
         valorantVPOffer.deliveryTime= deliveryTime
         valorantVPOffer.stock= stock
+        valorantVPOffer.value= value
 
         
         const updatedValorantVPOffer = await valorantVPOffer.save();

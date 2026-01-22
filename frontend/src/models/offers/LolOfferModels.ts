@@ -66,6 +66,7 @@ export interface LolRP{
     currency: string,
     deliveryTime: number,
     stock: number,
+    value: number,
     active: boolean,
     updatedAt: string,
 }
