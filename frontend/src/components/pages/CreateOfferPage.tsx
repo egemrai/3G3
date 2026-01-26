@@ -12,29 +12,27 @@ import ValorantAccountForm from "../serviceForms/Valorant/ValorantAccountForm"
 import ValorantBoostForm from "../serviceForms/Valorant/ValorantBoostForm"
 import ValorantCoachForm from "../serviceForms/Valorant/ValorantCoachForm"
 import ValorantVPForm from "../serviceForms/Valorant/ValorantVPForm"
+import OfferForm from "../serviceForms/OfferForm"
 
 const CreateOfferPage = () => {
 
 
     const [categoryNames, setcategoryNames] = useState<any>([])
-    const [serviceDisabled, setserviceDisabled] = useState<boolean>(true)
     const [serviceNames, setserviceNames] = useState<any>([])
-    const [formName, setFormName] = useState<string>()
+    
+    const [category, setCategory] = useState<string>('')
+    const [service, setService] = useState<string>('')
 
-   
+    const [offerFormDelay, setOfferFormDelay] = useState<boolean>(false)
 
-    const options = [
-        { value: "lol", label: "League of Legends" },
-        { value: "dota", label: "Dota 2" },
-        { value: "csgo", label: "CS:GO" },
-      ];
+    const [serviceDisabled, setserviceDisabled] = useState<boolean>(true)
+
 
 
     const {register,
            handleSubmit,
            watch,
-           control,
-           formState: { errors, isSubmitting }  } = useForm()
+           control } = useForm()
 
     const [selectedCategory, selectedService] = watch(["category","service"])     
 
@@ -63,40 +61,34 @@ const CreateOfferPage = () => {
         }
     }
 
-    // async function onChangeFormName(e:any) {
-        
-    
-    //         const categoryServiceName = await selectedCategory.value.toString().concat(e.value.toString())
-    //         setFormName(categoryServiceName)
-    // }
 
-            async function concatFormName() {
         
-                const categoryServiceName = await selectedCategory.value.toString().concat(selectedService.value.toString())
-                setFormName(categoryServiceName)
+
+        useEffect(()=>{
+            document.body.style.backgroundColor= "#FAFAFA"
+            fetchCategories()
+        },[])
+
+        useEffect(()=>{
+        
+            if(selectedCategory){
+                // console.log(selectedCategory) // --> {value: 'Lol', label: 'Lol'}
+                setCategory(selectedCategory.value)
+                setserviceDisabled(false)
+                //service fetch
+                fetchServices(selectedCategory.value)
             }
-
-           useEffect(()=>{
-               document.body.style.backgroundColor= "#FAFAFA"
-               fetchCategories()
-           },[])
-
-           useEffect(()=>{
-            
-                if(selectedCategory){
-                    //console.log(selectedCategory.value)
-                    setserviceDisabled(false)
-                    //service fetch
-                    fetchServices(selectedCategory.value)
-                }
-           },[selectedCategory])
-            
-           useEffect(()=>{
-            if(selectedService){
-                concatFormName()
-            }   
-           // eslint-disable-next-line react-hooks/exhaustive-deps
-           },[selectedService,selectedCategory])
+        },[selectedCategory])
+        
+        useEffect(()=>{
+        if(selectedService){
+            setService(selectedService.value)
+            console.log(selectedService.value)
+            setOfferFormDelay(true)
+            // setTimeout(()=>{setOfferFormDelay(true)},0.0)
+        }   
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        },[selectedService,selectedCategory])
 
            
 
@@ -127,13 +119,10 @@ const CreateOfferPage = () => {
                         />
                         )}
                     />
-                    
                     </Form.Group>
                 
-
                 <br/>
 
-                
                     <Form.Group>
                     <Form.Label></Form.Label>
                     <span>Service:</span>
@@ -161,37 +150,16 @@ const CreateOfferPage = () => {
 
             <Container className={`${style.formContainer}`}>
 
-                {formName==="LolAccount" &&
+                {selectedCategory && selectedService && offerFormDelay &&
+                    <OfferForm
+                    categoryName={category}
+                    serviceName={service}
+                />}
+
+                {/* {formName==="LolAccount" &&
                     <LolAccountForm/>
-                }
+                } */}
 
-                {formName==="LolBoost" &&
-                    <LolBoostForm/>
-                }
-
-                {formName==="LolCoach" &&
-                    <LolCoachForm/>
-                }
-
-                {formName==="LolRP" &&
-                    <LolRPForm/>
-                }
-
-                {formName==="ValorantAccount" &&
-                    <ValorantAccountForm/>
-                }
-
-                {formName==="ValorantBoost" &&
-                    <ValorantBoostForm/>
-                }
-
-                {formName==="ValorantCoach" &&
-                    <ValorantCoachForm/>
-                }
-
-                {formName==="ValorantVP" &&
-                    <ValorantVPForm/>
-                }
             </Container>
             </Container>
         </>

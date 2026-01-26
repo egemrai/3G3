@@ -11,6 +11,7 @@ import ValorantVPForm from "../serviceForms/Valorant/ValorantVPForm"
 import { useLocation } from "react-router-dom"
 import { useEffect, useState } from "react"
 import * as OffersApi from "../../network/offers_api"
+import OfferForm from "../serviceForms/OfferForm"
 
 const EditOfferPage = () => {
 
@@ -46,58 +47,16 @@ const EditOfferPage = () => {
             {offer &&
             <Container>
 
-                {(offer.serviceName === "LolAccount") && 
+                {<OfferForm
+                offer={offer}
+                categoryName={offer.categoryName}
+                serviceName={offer.serviceName.slice(offer.categoryName.length)}/>}
+
+                {/* {(offer.serviceName === "LolAccount") && 
                 <LolAccountForm
                 offer={offer}
                 />
-                }
-
-                {(offer.serviceName === "LolBoost") && 
-                <LolBoostForm
-                offer={offer}
-                />
-                }
-
-                {(offer.serviceName === "LolCoach") && 
-                <LolCoachForm
-                offer={offer}
-                />
-                }
-
-                {(offer.serviceName === "LolRP") && 
-                <LolRPForm
-                offer={offer}
-                />
-                }
-
-                {(offer.serviceName === "ValorantAccount") && 
-                <ValorantAccountForm
-                offer={offer}
-                />
-                }
-
-                {(offer.serviceName === "ValorantBoost") && 
-                <ValorantBoostForm
-                offer={offer}
-                />
-                }
-
-                {(offer.serviceName === "ValorantCoach") && 
-                <ValorantCoachForm
-                offer={offer}
-                />
-                }
-
-                {(offer.serviceName === "ValorantVP") && 
-                <ValorantVPForm
-                offer={offer}
-                />
-                }
-
-                <Container className= {`${style.categoryContainer}`} >
-                    <p>title: {offer.title}</p>
-
-                </Container>
+                } */}
 
             
             </Container>

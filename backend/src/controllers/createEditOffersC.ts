@@ -3,6 +3,7 @@ import createHttpError from "http-errors";
 import * as LolOfferModels from "../models/offers/lol"
 import * as ValorantOfferModels from "../models/offers/valorant"
 import { Model } from "mongoose";
+import logger from "../logger";
 
 /*---------------------------DeleteOffer---------------------------------*/
 interface deleteOfferURLQUery{
@@ -73,6 +74,7 @@ interface LolAccountBody{
 export const createLolAccountOffer: RequestHandler<unknown,unknown,LolAccountBody,unknown> = async(req,res,next)=>{
     const {server,rank,champions,skins,title,description,price,currency,deliveryTime,stock} = req.body
     const userId = req.session.userId
+    logger.info({req:req.body},'annen')
 
     try {
         if(!server || !rank || !champions || !skins || !title || !description || !price || !currency || !deliveryTime || !stock){
@@ -83,23 +85,25 @@ export const createLolAccountOffer: RequestHandler<unknown,unknown,LolAccountBod
             throw createHttpError(400,"userId(seller) missing")
         } 
 
-        const newLolAccount= await LolOfferModels.LolAccountModel.create({
-            sellerId: userId,
-            categoryName: "Lol",
-            serviceName: "LolAccount",
-            server: server,
-            rank: rank,
-            champions: champions,
-            skins: skins,
-            title: title,
-            description: description,
-            price: price,
-            currency: currency,
-            deliveryTime: deliveryTime,
-            stock: stock,
-        })
+        // const newLolAccount= await LolOfferModels.LolAccountModel.create({
+        //     sellerId: userId,
+        //     categoryName: "Lol",
+        //     serviceName: "LolAccount",
+        //     server: server,
+        //     rank: rank,
+        //     champions: champions,
+        //     skins: skins,
+        //     title: title,
+        //     description: description,
+        //     price: price,
+        //     currency: currency,
+        //     deliveryTime: deliveryTime,
+        //     stock: stock,
+        // })
         
-        res.status(200).json(newLolAccount)
+        // res.status(200).json(newLolAccount)
+        
+        res.status(200)
 
     } catch (error) {
         next(error)

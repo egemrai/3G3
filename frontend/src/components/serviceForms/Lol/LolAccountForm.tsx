@@ -58,10 +58,7 @@ const LolAccountForm= ({offer}:LolAccountFormProps)=>{
     const [editButtonActive, setEditButtonActive] = useState<boolean>()
     const editDelayTime = 300
 
-    function reduceTimer(){
-        if(timeDiff)
-        setTimeDiff(xd => xd as number-1) //useStatede set() içine random bir şey yazınca en son güncel değeri alıyormuş sanırım, timeDiff'ten daha güncel olabilir bilmiyorum
-    }
+    
 
     
 
