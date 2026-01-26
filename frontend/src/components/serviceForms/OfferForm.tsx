@@ -32,7 +32,14 @@ const OfferForm= ({offer,categoryName,serviceName}:OfferFormProps)=>{
             const values: Record<string, any> = {}
 
             Object.keys(offerFormData[formName]).forEach((name:string) => {
-                values[name] = offer?.[name] ?? undefined
+                // select-group form inputu editleyebilmek için alt satırdaki if
+                if(name.includes('_')){//foreach içinde desiredRank_serviceType geldiğinde, offer.desiredRank ve offer.serviceType datasını alt satırda birleştiriyorum
+                    if(!offer?.[name.split('_')[0]] && !offer?.[name.split('_')[1]]) return
+                    values[name] = offer?.[name.split('_')[0]]+'_'+offer?.[name.split('_')[1]] 
+                }
+                else{
+                    values[name] = offer?.[name] ?? undefined
+                }
             })
             setDefaultFormValues(values)
         } catch (error) {
@@ -57,8 +64,6 @@ const OfferForm= ({offer,categoryName,serviceName}:OfferFormProps)=>{
         try {
             if(formName){
             setFormInputGrid(Object.entries(offerFormData[formName]).map(([name,data]:[string,any])=>{
-                console.log('name:',name)
-                console.log('data:',data)
             return(
                 <FormInput key={name}
                 register={register}
@@ -93,7 +98,9 @@ const OfferForm= ({offer,categoryName,serviceName}:OfferFormProps)=>{
         
 
     const onSubmit = async(credentials:any) => {
-        if(!credentials) return
+        if(!credentials && !categoryName && !serviceName) return
+        credentials.categoryName = categoryName
+        credentials.serviceName = serviceName
         Object.entries(credentials).forEach(([key,value]:[string,any]) => {  // key --> desiredRank_serviceType  value --> Bronze_PlacementMatch
             if(key.includes('_')){                                           // credentials içindeki desiredRank_serviceType'ı alıp, 2 farklı key yapıyorum, daha sonra desiredRank_serviceType'ı siliyorum
                 credentials[key.split('_')[0]] = value.split('_')[0]
@@ -102,13 +109,17 @@ const OfferForm= ({offer,categoryName,serviceName}:OfferFormProps)=>{
             }
         })
         if(offer){
-
+            
             const editIdData = {sellerId:offer.sellerId, _id: offer._id}
-            await serviceForm_api.editLolAccountOffer(credentials,editIdData)
+            console.log(editIdData)
+            console.log(editIdData)
+            console.log(editIdData)
+            console.log(editIdData)
+            await serviceForm_api.editOffer(credentials,editIdData)
             navigate("/manageOffer")
         }
         else{
-            await serviceForm_api.createLolAccountOffer(credentials)
+            await serviceForm_api.createOffer(credentials)
             navigate("/manageOffer")
         }
     }

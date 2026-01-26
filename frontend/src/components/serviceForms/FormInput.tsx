@@ -65,11 +65,12 @@ const LolAccountForm= ({register,formState,inputName,inputData}:FormInputProps)=
         if(value && !(value.length>0) && optGroupLabel && !(optGroupLabel.length>0)) return <></>
         const uiName = inputName.split('_')[0]  //desiredRank_serviceType ayırmak için
         const options = optGroupLabel?.map((optGroupLabel:string,i)=>{
-            const innerOptions = value?.map((value,i)=>{
+            const innerOptions = value?.map((value,e)=>{
                 return(
-                    <option key={`${value}_${optGroupValue}`} value={`${value}_${optGroupValue}`}> {`${label?.[i]}` || ''}</option>
+                    <option key={`${value}_${optGroupValue}`} value={`${value}_${optGroupValue?.[i]}`}> {`${label?.[e]}` || ''}</option>
                 )
             })
+
             return(
                 <optgroup key={i} label={`${optGroupLabel}`}>
                     {innerOptions}

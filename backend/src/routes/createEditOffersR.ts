@@ -5,8 +5,10 @@ const router = express.Router();
 
 router.delete("/deleteOffer",CreateOffersController.deleteOffer)
 
-router.post("/createLolAccount", CreateOffersController.createLolAccountOffer);
-router.patch("/editLolAccount",CreateOffersController.editLolAccountOffer)
+router.post("/createOffer", CreateOffersController.createOffer)
+
+router.patch("/editOffer",CreateOffersController.editOffer)
+
 router.post("/createLolBoost", CreateOffersController.createLolBoostOffer);
 router.patch("/editLolBoost",CreateOffersController.editLolBoostOffer)
 router.post("/createLolCoach", CreateOffersController.createLolCoachOffer);

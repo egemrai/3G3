@@ -5,6 +5,19 @@ import * as ValorantOfferModels from "../models/offers/valorant"
 import { Model } from "mongoose";
 import logger from "../logger";
 
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const offerModelMap : Record<string, Model<any>> = {
+        "LolAccount": LolOfferModels.LolAccountModel,
+        "LolBoost": LolOfferModels.LolBoostModel,
+        "LolRP": LolOfferModels.LolRPModel,
+        "LolCoach": LolOfferModels.LolCoachModel,
+        "ValorantAccount": ValorantOfferModels.ValorantAccountModel,
+        "ValorantBoost": ValorantOfferModels.ValorantBoostModel,
+        "ValorantVP": ValorantOfferModels.ValorantVPModel,
+        "ValorantCoach": ValorantOfferModels.ValorantCoachModel,
+    }
+
 /*---------------------------DeleteOffer---------------------------------*/
 interface deleteOfferURLQUery{
     _id: string,
@@ -16,17 +29,7 @@ export const deleteOffer: RequestHandler<unknown,unknown,unknown,deleteOfferURLQ
     const userId= req.session.userId
     const {serviceName, _id, sellerId} = req.query
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const offerModelMap : Record<string, Model<any>> = {
-        "LolAccountModel": LolOfferModels.LolAccountModel,
-        "LolBoostModel": LolOfferModels.LolBoostModel,
-        "LolRPModel": LolOfferModels.LolRPModel,
-        "LolCoachModel": LolOfferModels.LolCoachModel,
-        "ValorantAccountModel": ValorantOfferModels.ValorantAccountModel,
-        "ValorantBoostModel": ValorantOfferModels.ValorantBoostModel,
-        "ValorantVPModel": ValorantOfferModels.ValorantVPModel,
-        "ValorantCoachModel": ValorantOfferModels.ValorantCoachModel,
-    }
+    
     const SelectedModel = offerModelMap[serviceName];
 
     try {
@@ -45,8 +48,6 @@ export const deleteOffer: RequestHandler<unknown,unknown,unknown,deleteOfferURLQ
 
         await offer.deleteOne();
 
-        console.log(offerModelMap)
-
         res.sendStatus(204);
 
     } catch (error) {
@@ -55,83 +56,92 @@ export const deleteOffer: RequestHandler<unknown,unknown,unknown,deleteOfferURLQ
     
 }
 
-/*--------------------------LolAccountCreate-----------------------------*/
-
-interface LolAccountBody{
-        server: string,
-        rank: string,
-        champions: number,
-        skins: number,
-        title: string,
-        description: string,
-        price: number,
-        currency: string,
-        deliveryTime: number,
-        stock: number,
-        active?: boolean
-}
-
-export const createLolAccountOffer: RequestHandler<unknown,unknown,LolAccountBody,unknown> = async(req,res,next)=>{
-    const {server,rank,champions,skins,title,description,price,currency,deliveryTime,stock} = req.body
+/*--------------------------CreateGenericOffer-----------------------------*/
+export const createOffer:RequestHandler = async(req,res,next)=>{
     const userId = req.session.userId
-    logger.info({req:req.body},'annen')
-
+    const offerCredentials = req.body
+    const {categoryName,serviceName,...restOfOfferCredentials} = offerCredentials
+    const serviceNameForMongo = categoryName.concat(serviceName)
     try {
-        if(!server || !rank || !champions || !skins || !title || !description || !price || !currency || !deliveryTime || !stock){
-            throw createHttpError(400,"LolAccountCredentials missing")
-        } 
+        if(!categoryName && !serviceName && !userId) 
+            throw createHttpError(500,'createOffer missing credentials')
+        const offerCredentialsForMongo = {...restOfOfferCredentials}
+        offerCredentialsForMongo.categoryName = categoryName
+        offerCredentialsForMongo.serviceName = serviceNameForMongo
+        offerCredentialsForMongo.sellerId = userId
 
-        if(!userId){
-            throw createHttpError(400,"userId(seller) missing")
-        } 
-
-        // const newLolAccount= await LolOfferModels.LolAccountModel.create({
-        //     sellerId: userId,
-        //     categoryName: "Lol",
-        //     serviceName: "LolAccount",
-        //     server: server,
-        //     rank: rank,
-        //     champions: champions,
-        //     skins: skins,
-        //     title: title,
-        //     description: description,
-        //     price: price,
-        //     currency: currency,
-        //     deliveryTime: deliveryTime,
-        //     stock: stock,
-        // })
+        const selectedModel = offerModelMap[serviceNameForMongo]
+        if(!selectedModel) 
+            throw createHttpError(500,'createOffer missing selectedModel')
         
-        // res.status(200).json(newLolAccount)
+        const createdOffer = await selectedModel.create(offerCredentialsForMongo)
         
-        res.status(200)
-
+        
+        res.status(200).json(createdOffer)
     } catch (error) {
         next(error)
     }
-    
 }
 
-/*--------------------------editLolAccount-----------------------------*/
-interface LolAccountEditBody{
-    credentials:{
-        server: string,
-        rank: string,
-        champions: number,
-        skins: number,
-        title: string,
-        description: string,
-        price: number,
-        currency: string,
-        deliveryTime: number,
-        stock: number
-    },
+/*--------------------------EditGenericOffer-----------------------------*/
+interface EditOfferBody{
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    credentials: Record<string,any>,
     editIdData:{
         _id: string,
         sellerId: string,
     }
 }
 
-export const editLolAccountOffer:RequestHandler<unknown,unknown,LolAccountEditBody,unknown> = async(req,res,next) =>{
+export const editOffer:RequestHandler<unknown,unknown,EditOfferBody,unknown> = async(req,res,next)=>{
+    const userId = req.session.userId
+    const offerCredentials = req.body.credentials
+    const {_id:offerId,sellerId} = req.body.editIdData
+
+    const {categoryName,serviceName,...restOfOfferCredentials} = offerCredentials
+    const serviceNameForMongo = categoryName.concat(serviceName)
+    try {
+        if(!categoryName && !serviceName && !userId) 
+            throw createHttpError(500,'editOffer missing credentials')
+        if(userId!.toString()!==sellerId){
+            throw createHttpError(404,"User can't access this offer")
+        }
+
+        const selectedModel = offerModelMap[serviceNameForMongo]
+        if(!selectedModel){
+            throw createHttpError(500,'createOffer missing selectedModel')
+        }
+
+        const offer = await selectedModel.findById(offerId).exec()
+
+        
+        logger.debug({categoryName},'categoryName')
+        logger.debug({serviceName},'serviceName')
+        logger.debug({restOfOfferCredentials},'restOfOfferCredentials')
+        logger.debug({userId},'userId')
+        logger.debug({sellerId},'sellerId')
+        logger.debug({offerId},'offerId')
+
+        Object.entries(restOfOfferCredentials).forEach(([key,value])=>{
+            offer[key] = value
+        })
+        
+        const updatedLolAccountOffer = await offer.save()
+
+        res.status(200).json(updatedLolAccountOffer)
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+
+
+
+/*--------------------------editLolAccount-----------------------------*/
+
+export const editLolAccountOffer:RequestHandler = async(req,res,next) =>{
     const {server,rank,champions,skins,title,description,price,currency,deliveryTime,stock} = req.body.credentials
     const {_id,sellerId} = req.body.editIdData
     const userId = req.session.userId

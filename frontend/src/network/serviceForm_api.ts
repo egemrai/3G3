@@ -26,11 +26,43 @@ export interface deleteOfferURLQUery{
     serviceName: string,
 }
 export async function deleteOffer(data:deleteOfferURLQUery){
-    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/deleteOffer/?_id=`+ data._id +"&sellerId="+ data.sellerId +"&serviceName="+data.serviceName+"Model" ,{
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/deleteOffer/?_id=`+ data._id +"&sellerId="+ data.sellerId +"&serviceName="+data.serviceName ,{
         method: "DELETE",
         credentials: "include"
     })
     return response
+}
+
+
+/*-----------------------------------------createGenericOffer------------------------------*/
+export async function createOffer(credentials:any){
+    const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/createOffer`,{
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",    
+        },credentials: "include",
+        body: JSON.stringify(credentials)
+    })
+    return response.json()
+}
+
+/*------------------------------------------editOffer-------------------------------*/
+interface editIdData{
+    sellerId: string,
+    _id: string
+}
+
+    export async function editOffer(credentials:any,editIdData:editIdData):Promise<any>{
+        const response = await fetchData(`${process.env.REACT_APP_BACKEND_URL}/api/createOffer/editOffer`,{
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",   
+            },credentials: "include",
+            body: JSON.stringify({credentials:credentials,
+                                  editIdData:editIdData
+            })
+        })
+    return response.json()
 }
 
 /*------------------------------------------createLolAccount-------------------------------*/

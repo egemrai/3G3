@@ -83,9 +83,8 @@ const CreateOfferPage = () => {
         useEffect(()=>{
         if(selectedService){
             setService(selectedService.value)
-            console.log(selectedService.value)
-            setOfferFormDelay(true)
-            // setTimeout(()=>{setOfferFormDelay(true)},0.0)
+            setOfferFormDelay(true) //bunu ekledim; offerForm erken render oluyordu , artık olmuyor
+            
         }   
         // eslint-disable-next-line react-hooks/exhaustive-deps
         },[selectedService,selectedCategory])
