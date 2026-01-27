@@ -1,12 +1,12 @@
-import { Button, Form } from "react-bootstrap"
+import {  Form } from "react-bootstrap"
 import style from "../../../styles/OffersFilterField.module.css"
-import { useForm, UseFormReturn, useWatch  } from "react-hook-form"
+import { useForm  } from "react-hook-form"
 import OffersFilterModal from "./OffersFilterModal"
-import { SetStateAction, useEffect, useState } from "react"
+import { useEffect } from "react"
 import OffersSortModal from "./OffersSortModal"
 import searchSorts from "../../../utils/searchSorts"
 import SelectedFilterRemover from "./SelectedFilterRemover"
-import Pagination from "../../Pagination"
+
 
 export interface Filter{
     type: string
@@ -23,15 +23,12 @@ interface OffersFilterFieldProps{
 //Bütün search divi bu. Filter, sort ,seçilen filterı kapatma, clearAll falan bunun içinde
 const OffersFilterField =  ( {filterData, searchWithFilter,stringifiedFilter,stringifiedSort}: OffersFilterFieldProps) => {
 
-    const  {register, handleSubmit, getValues, watch,control, setValue, reset, formState : {errors, isSubmitting}} = useForm<any>({mode: "all",
+    const  {register, handleSubmit, getValues,control, setValue, reset, formState : {errors, isSubmitting}} = useForm<any>({mode: "all",
         defaultValues:{
             sort: 'Lowest price'
         }
     })
 
-    // const {register, handleSubmit, getValues,setValue, formState : {errors, isSubmitting}}  = formMethods
-
-    
 
     const filterModalsGrid = Object.entries(filterData).map(([name,filter]:[string,Filter])=>{
         
@@ -68,9 +65,9 @@ const OffersFilterField =  ( {filterData, searchWithFilter,stringifiedFilter,str
 
         filteredCredentials.push(['sort',credentialsSort])
 
-        console.log('credentials:', credentials)
-        console.log('filteredCredentials:',filteredCredentials)
-        console.log('qwdqwd:',Object.fromEntries(filteredCredentials))
+        // console.log('credentials:', credentials)
+        // console.log('filteredCredentials:',filteredCredentials)
+        // console.log('qwdqwd:',Object.fromEntries(filteredCredentials))
         
         // searchWithFilter(credentials)
         searchWithFilter(Object.fromEntries(filteredCredentials))
@@ -149,6 +146,11 @@ const OffersFilterField =  ( {filterData, searchWithFilter,stringifiedFilter,str
                     placeholder="Search..."
                     />
                     
+                    <OffersSortModal
+                    register={register}
+                    sortData={searchSorts.OffersPage}
+                    />
+
                     <div className={`${style.searchFiltersDiv}`}>
                         {filterModalsGrid}
                     </div>
@@ -167,10 +169,6 @@ const OffersFilterField =  ( {filterData, searchWithFilter,stringifiedFilter,str
                 />
                 
             </div>
-            <OffersSortModal
-            register={register}
-            sortData={searchSorts.OffersPage}
-            />
         </div>
         
     )

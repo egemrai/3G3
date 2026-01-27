@@ -1,11 +1,9 @@
 
 import { useForm } from "react-hook-form"
-import {LolAccountCredentials} from "../../network/serviceForm_api"
 import { Button, Container, Form } from "react-bootstrap"
 import style from "../../styles/CreateOfferForm.module.css"
 import * as serviceForm_api from "../../network/serviceForm_api"
 import { useNavigate } from "react-router-dom"
-import { LolAccount as LolAccountOfferModel } from "../../models/offers/LolOfferModels"
 import { useEffect, useState } from "react"
 import offerFormData from "../../utils/offerFormData"
 import FormInput from "./FormInput"
@@ -109,12 +107,7 @@ const OfferForm= ({offer,categoryName,serviceName}:OfferFormProps)=>{
             }
         })
         if(offer){
-            
             const editIdData = {sellerId:offer.sellerId, _id: offer._id}
-            console.log(editIdData)
-            console.log(editIdData)
-            console.log(editIdData)
-            console.log(editIdData)
             await serviceForm_api.editOffer(credentials,editIdData)
             navigate("/manageOffer")
         }

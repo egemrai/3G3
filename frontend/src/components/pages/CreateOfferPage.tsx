@@ -4,14 +4,6 @@ import { Controller, useForm } from "react-hook-form"
 import * as OfferApi from "../../network/offers_api"
 import Select from 'react-select'
 import style from "../../styles/CreateOfferPage.module.css"
-import LolAccountForm from "../serviceForms/Lol/LolAccountForm"
-import LolBoostForm from "../serviceForms/Lol/LolBoostForm"
-import LolCoachForm from "../serviceForms/Lol/LolCoachForm"
-import LolRPForm from "../serviceForms/Lol/LolRPForm"
-import ValorantAccountForm from "../serviceForms/Valorant/ValorantAccountForm"
-import ValorantBoostForm from "../serviceForms/Valorant/ValorantBoostForm"
-import ValorantCoachForm from "../serviceForms/Valorant/ValorantCoachForm"
-import ValorantVPForm from "../serviceForms/Valorant/ValorantVPForm"
 import OfferForm from "../serviceForms/OfferForm"
 
 const CreateOfferPage = () => {
@@ -25,12 +17,8 @@ const CreateOfferPage = () => {
 
     const [offerFormDelay, setOfferFormDelay] = useState<boolean>(false)
 
-    const [serviceDisabled, setserviceDisabled] = useState<boolean>(true)
 
-
-
-    const {register,
-           handleSubmit,
+    const {
            watch,
            control } = useForm()
 
@@ -62,8 +50,6 @@ const CreateOfferPage = () => {
     }
 
 
-        
-
         useEffect(()=>{
             document.body.style.backgroundColor= "#FAFAFA"
             fetchCategories()
@@ -74,7 +60,6 @@ const CreateOfferPage = () => {
             if(selectedCategory){
                 // console.log(selectedCategory) // --> {value: 'Lol', label: 'Lol'}
                 setCategory(selectedCategory.value)
-                setserviceDisabled(false)
                 //service fetch
                 fetchServices(selectedCategory.value)
             }
@@ -90,7 +75,6 @@ const CreateOfferPage = () => {
         },[selectedService,selectedCategory])
 
            
-
     return(
         <>
             <Container>

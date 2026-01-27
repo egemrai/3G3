@@ -1,7 +1,7 @@
 //resolver error falan onları belki prop olarak gösterip createOfferPage'de değer atamak gerekir.
 
 import { useForm } from "react-hook-form"
-import {LolAccountCredentials} from "../../../network/serviceForm_api"
+// import {LolAccountCredentials} from "../../../network/serviceForm_api"
 import { Button, Container, Form } from "react-bootstrap"
 import style from "../../../styles/CreateOfferForm.module.css"
 import * as serviceForm_api from "../../../network/serviceForm_api"
@@ -17,39 +17,27 @@ const LolAccountForm= ({offer}:LolAccountFormProps)=>{
 
     // const [serviceType]
 
-    const {register, handleSubmit, formState : {errors, isSubmitting}}  = useForm<LolAccountCredentials>({mode: "all",
-        defaultValues:{
-            title: offer?.title || "",
-            description: offer?.description || "",
-            server: offer?.server || "",
-            rank: offer?.rank || "",
-            champions: offer?.champions ?? undefined,
-            skins: offer?.skins ?? undefined,
-            price: offer?.price ?? undefined,
-            currency: offer?.currency || "",
-            deliveryTime: offer?.deliveryTime ?? undefined,
-            stock: offer?.stock ?? undefined,
-        }})
+    const {register, handleSubmit, formState : {errors, isSubmitting}}  = useForm<Record<any,string>>({mode: "all"})
         
         //  Neden ?? (nullish coalescing) kullandık?
         //  || operatörü 0 değerini de false kabul eder ve undefined döndürür. Eğer 0 geçerli bir değer ise ?? kullanmalısın.
 
     const navigate = useNavigate()
 
-    const onSubmit = async(credentials:LolAccountCredentials) => {
+    const onSubmit = async(credentials:Record<any,string>) => {
         if(offer){
             const currentTime = new Date()
             const offerTime = new Date(offer.updatedAt)
             if(Math.trunc((currentTime.getTime()-offerTime.getTime())/1000)>editDelayTime){
                 const editIdData = {sellerId:offer.sellerId, _id: offer._id}
-                await serviceForm_api.editLolAccountOffer(credentials,editIdData)
+                // await serviceForm_api.editLolAccountOffer(credentials,editIdData)
                 navigate("/manageOffer")
             }else{
                 alert("2 edit arasında 5 dk bekle")
             }
         }
         else{
-            await serviceForm_api.createLolAccountOffer(credentials)
+            // await serviceForm_api.createLolAccountOffer(credentials)
             navigate("/manageOffer")
         }
     }

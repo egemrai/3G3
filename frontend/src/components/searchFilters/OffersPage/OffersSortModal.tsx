@@ -1,5 +1,5 @@
 import { Form, Modal } from "react-bootstrap"
-import style from "../../../styles/OffersFilterModal.module.css"
+import style from "../../../styles/OffersSortModal.module.css"
 import { UseFormRegister } from "react-hook-form"
 import { useState } from "react"
 
@@ -26,8 +26,8 @@ const sortCheckgrid = Array.from({length: sortData.length},(_,i) => {
 
     return  (
         <>
-            <div onClick={()=>setShowModal(true)} className= {`${style.filterDiv}`}>
-                <p className={`${style.filterNameP}`}>Sort</p>
+            <div onClick={()=>setShowModal(true)} className= {`${style.sortDiv}`}>
+                <span className={`${style.sortSpan}`}>Sort</span>
             </div>
             <Modal backdrop={true} show={showModal} onHide={()=>setShowModal(false)}>
                 <Modal.Body>

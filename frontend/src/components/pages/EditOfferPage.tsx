@@ -1,16 +1,5 @@
 import { Container } from "react-bootstrap"
-import style from "../../styles/CreateOfferPage.module.css"
-import LolAccountForm from "../serviceForms/Lol/LolAccountForm"
-import LolBoostForm from "../serviceForms/Lol/LolBoostForm"
-import LolCoachForm from "../serviceForms/Lol/LolCoachForm"
-import LolRPForm from "../serviceForms/Lol/LolRPForm"
-import ValorantAccountForm from "../serviceForms/Valorant/ValorantAccountForm"
-import ValorantBoostForm from "../serviceForms/Valorant/ValorantBoostForm"
-import ValorantCoachForm from "../serviceForms/Valorant/ValorantCoachForm"
-import ValorantVPForm from "../serviceForms/Valorant/ValorantVPForm"
 import { useLocation } from "react-router-dom"
-import { useEffect, useState } from "react"
-import * as OffersApi from "../../network/offers_api"
 import OfferForm from "../serviceForms/OfferForm"
 
 const EditOfferPage = () => {

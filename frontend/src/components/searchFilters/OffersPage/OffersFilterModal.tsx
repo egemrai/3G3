@@ -58,7 +58,7 @@ const filterCheckgrid = Array.from({length: filterData.value.length},(_,i) => {
     return  (
         <>
             <div onClick={()=>setShowModal(true)} className= {`${style.filterDiv}`}>
-                <p className={`${style.filterNameP}`}>{filterName}</p>
+                <p className={`${style.filterNameP}`}>{filterName[0].toUpperCase()+filterName.slice(1)}</p>
             </div>
             <Modal backdrop={true} show={showModal} onHide={()=>setShowModal(false)}>
                 <Modal.Body>
