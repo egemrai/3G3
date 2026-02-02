@@ -1,6 +1,6 @@
-import { ensureListingsIndex } from "../elasticSearch/ensureIndex"
-import { indexDoc } from "../elasticSearch/indexDoc"
-import { LolModel } from "../models/offers/lol"
+import { ensureListingsIndex } from "./ensureIndex"
+import { indexDoc } from "./indexDoc"
+import { LolModel } from "../../models/offers/lol"
 
 export async function reindexLolToES() {
     console.log('reindexLolToESe girdi')

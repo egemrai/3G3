@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RequestHandler } from "express"
 import { elasticSearchClient } from "../elasticSearch/client";
-import { reindexLolToES } from "../elasticSearch/reindexLolToES";
+import { reindexLolToES } from "../elasticSearch/offer/reindexLolToES";
 import createHttpError from "http-errors";
 import logger from "../logger";
 
@@ -13,6 +13,28 @@ export const isObject = (value:any) => {
             ("min" in value || "max" in value)
         )
     }
+
+
+interface ESDeleteOfferBody{
+    offerId: string
+}
+//POSTMAN ile manuel ES eleman silme fonksiyonu
+export const elasticSearchDeleteOffer:RequestHandler<unknown,unknown,ESDeleteOfferBody,unknown> = async(req,res,next)=>{
+    try {
+        const offerId = req.body.offerId
+        if(!offerId) throw createHttpError(500,'ES del offer crash')
+
+        elasticSearchClient.delete({
+            index:'offers',
+            id:offerId
+        })
+
+        res.send(`offer deleted from ES offerId: ${offerId}`)
+
+    } catch (error) {
+        next(error)
+    }
+}
 
 export const elasticSearchPingTest:RequestHandler = async(req,res,next)=>{
     try {

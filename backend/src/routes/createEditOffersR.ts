@@ -10,6 +10,4 @@ router.post("/createOffer", CreateOffersController.createOffer)
 router.patch("/editOffer",CreateOffersController.editOffer)
 
 
-router.patch("/editLolBoost",CreateOffersController.editLolBoostOffer)
-
 export default router

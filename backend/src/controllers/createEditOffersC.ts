@@ -1,22 +1,24 @@
 import { RequestHandler } from "express";
 import createHttpError from "http-errors";
-import * as LolOfferModels from "../models/offers/lol"
-import * as ValorantOfferModels from "../models/offers/valorant"
-import { Model } from "mongoose";
+// import * as LolOfferModels from "../models/offers/lol"
+// import * as ValorantOfferModels from "../models/offers/valorant"
+// import { Model } from "mongoose";
 import logger from "../logger";
+import { offerQueue } from "../jobs/queue/offer";
+import offerModelMap from "../utils/offerModelMap";
 
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const offerModelMap : Record<string, Model<any>> = {
-        "LolAccount": LolOfferModels.LolAccountModel,
-        "LolBoost": LolOfferModels.LolBoostModel,
-        "LolRP": LolOfferModels.LolRPModel,
-        "LolCoach": LolOfferModels.LolCoachModel,
-        "ValorantAccount": ValorantOfferModels.ValorantAccountModel,
-        "ValorantBoost": ValorantOfferModels.ValorantBoostModel,
-        "ValorantVP": ValorantOfferModels.ValorantVPModel,
-        "ValorantCoach": ValorantOfferModels.ValorantCoachModel,
-    }
+// // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//     const offerModelMap : Record<string, Model<any>> = {
+//         "LolAccount": LolOfferModels.LolAccountModel,
+//         "LolBoost": LolOfferModels.LolBoostModel,
+//         "LolRP": LolOfferModels.LolRPModel,
+//         "LolCoach": LolOfferModels.LolCoachModel,
+//         "ValorantAccount": ValorantOfferModels.ValorantAccountModel,
+//         "ValorantBoost": ValorantOfferModels.ValorantBoostModel,
+//         "ValorantVP": ValorantOfferModels.ValorantVPModel,
+//         "ValorantCoach": ValorantOfferModels.ValorantCoachModel,
+//     }
 
 /*---------------------------DeleteOffer---------------------------------*/
 interface deleteOfferURLQUery{
@@ -46,9 +48,20 @@ export const deleteOffer: RequestHandler<unknown,unknown,unknown,deleteOfferURLQ
             throw createHttpError(404,"offer doesn't exist")
         }
 
-        await offer.deleteOne();
+        await offer.deleteOne()
 
-        res.sendStatus(204);
+        //DELETE ES OFFER QUEUE EKLEME KISMI
+        await offerQueue.add('deleteOfferForES',{
+            offerId: _id.toString()
+        },{
+            attempts: 3,              // 3 deneme
+            backoff: {
+                type: "exponential",  // delayi 2 ile çarpıyor, 4 -> 8 ->16 
+                delay: 4000,               
+            },
+        })
+
+        res.sendStatus(204)
 
     } catch (error) {
         next(error)
@@ -75,7 +88,19 @@ export const createOffer:RequestHandler = async(req,res,next)=>{
             throw createHttpError(500,'createOffer missing selectedModel')
         
         const createdOffer = await selectedModel.create(offerCredentialsForMongo)
-        
+
+        //CREATE ES OFFER QUEUE EKLEME KISMI
+        await offerQueue.add('createOfferForES',{
+            offerId: createdOffer._id.toString(),
+            offerServiceName: serviceNameForMongo
+        },{
+            attempts: 3,              // 3 deneme
+            backoff: {
+                type: "exponential",  // delayi 2 ile çarpıyor, 4 -> 8 ->16 
+                delay: 4000,               
+            },
+        })
+
         
         res.status(200).json(createdOffer)
     } catch (error) {
@@ -128,6 +153,18 @@ export const editOffer:RequestHandler<unknown,unknown,EditOfferBody,unknown> = a
         
         const updatedLolAccountOffer = await offer.save()
 
+        //EDIT ES OFFER QUEUE EKLEME KISMI  (overwrite ediyorum direkt offerı o yüzden create ile aynı)
+        await offerQueue.add('editOfferForES',{
+            offerId: offerId.toString(),
+            offerServiceName: serviceNameForMongo
+        },{
+            attempts: 3,              // 3 deneme
+            backoff: {
+                type: "exponential",  // delayi 2 ile çarpıyor, 4 -> 8 ->16 
+                delay: 4000,               
+            },
+        })
+
         res.status(200).json(updatedLolAccountOffer)
 
     } catch (error) {
@@ -140,120 +177,120 @@ export const editOffer:RequestHandler<unknown,unknown,EditOfferBody,unknown> = a
 
 
 
-/*--------------------------createLolBoost-----------------------------*/
+// /*--------------------------createLolBoost-----------------------------*/
 
-interface LolBoostBody{
-    server: string,
-    desiredRank: string,
-    title: string,
-    description: string,
-    price: number,
-    currency: string,
-    deliveryTime: number,
-    stock: number,
-    duration: number,
-    serviceType: string,
-}
+// interface LolBoostBody{
+//     server: string,
+//     desiredRank: string,
+//     title: string,
+//     description: string,
+//     price: number,
+//     currency: string,
+//     deliveryTime: number,
+//     stock: number,
+//     duration: number,
+//     serviceType: string,
+// }
 
-export const createLolBoostOffer:RequestHandler<unknown,unknown,LolBoostBody,unknown> = async(req, res, next)=>{
-    const {server,desiredRank,title,description,price,currency,deliveryTime,stock,duration,serviceType} = req.body
-    const userId = req.session.userId
+// export const createLolBoostOffer:RequestHandler<unknown,unknown,LolBoostBody,unknown> = async(req, res, next)=>{
+//     const {server,desiredRank,title,description,price,currency,deliveryTime,stock,duration,serviceType} = req.body
+//     const userId = req.session.userId
 
-    try {
-        if(!server || !desiredRank || !title || !description || !price || !currency || !deliveryTime || !stock || !duration || !serviceType){
-            throw createHttpError(400,"LolBoostCredentials missing")
-        }
+//     try {
+//         if(!server || !desiredRank || !title || !description || !price || !currency || !deliveryTime || !stock || !duration || !serviceType){
+//             throw createHttpError(400,"LolBoostCredentials missing")
+//         }
         
-        if(!userId){
-            throw createHttpError(400,"userId(seller) missing")
-        } 
+//         if(!userId){
+//             throw createHttpError(400,"userId(seller) missing")
+//         } 
 
-        const newLolBoost= await LolOfferModels.LolBoostModel.create({
-            sellerId: userId,
-            categoryName: "Lol",
-            serviceName: "LolBoost",
-            server: server,
-            desiredRank: desiredRank,
-            title: title,
-            description: description,
-            price: price,
-            currency: currency,
-            deliveryTime: deliveryTime,
-            stock: stock,
-            duration: duration,
-            serviceType: serviceType,
-        })
+//         const newLolBoost= await LolOfferModels.LolBoostModel.create({
+//             sellerId: userId,
+//             categoryName: "Lol",
+//             serviceName: "LolBoost",
+//             server: server,
+//             desiredRank: desiredRank,
+//             title: title,
+//             description: description,
+//             price: price,
+//             currency: currency,
+//             deliveryTime: deliveryTime,
+//             stock: stock,
+//             duration: duration,
+//             serviceType: serviceType,
+//         })
 
-        res.status(200).json(newLolBoost)
+//         res.status(200).json(newLolBoost)
 
-    } catch (error) {
-        next(error)
-    }
+//     } catch (error) {
+//         next(error)
+//     }
 
-}
+// }
 
-/*--------------------------editLolBoost-----------------------------*/
-interface LolBoostEditBody{
-    credentials:{
-        server: string,
-        desiredRank: string,
-        title: string,
-        description: string,
-        price: number,
-        currency: string,
-        deliveryTime: number,
-        stock: number,
-        duration: number,
-        serviceType: string,
-    },
-    editIdData:{
-        _id: string,
-        sellerId: string,
-    }
-}
-export const editLolBoostOffer:RequestHandler<unknown,unknown,LolBoostEditBody,unknown> = async(req,res,next) =>{
-    const {server,desiredRank,title,description,price,currency,deliveryTime,stock,duration,serviceType} = req.body.credentials
-    const {_id,sellerId} = req.body.editIdData
-    const userId = req.session.userId
+// /*--------------------------editLolBoost-----------------------------*/
+// interface LolBoostEditBody{
+//     credentials:{
+//         server: string,
+//         desiredRank: string,
+//         title: string,
+//         description: string,
+//         price: number,
+//         currency: string,
+//         deliveryTime: number,
+//         stock: number,
+//         duration: number,
+//         serviceType: string,
+//     },
+//     editIdData:{
+//         _id: string,
+//         sellerId: string,
+//     }
+// }
+// export const editLolBoostOffer:RequestHandler<unknown,unknown,LolBoostEditBody,unknown> = async(req,res,next) =>{
+//     const {server,desiredRank,title,description,price,currency,deliveryTime,stock,duration,serviceType} = req.body.credentials
+//     const {_id,sellerId} = req.body.editIdData
+//     const userId = req.session.userId
 
-    try {
-        if(!userId){
-            throw createHttpError(404, "session userId missing")
-        }
+//     try {
+//         if(!userId){
+//             throw createHttpError(404, "session userId missing")
+//         }
 
-        if(!server || !desiredRank || !title || !description || !price || !currency|| !deliveryTime || !stock || !duration || !serviceType){
-            throw createHttpError(400,"LolBoostEditCredentials missing")
-        } 
+//         if(!server || !desiredRank || !title || !description || !price || !currency|| !deliveryTime || !stock || !duration || !serviceType){
+//             throw createHttpError(400,"LolBoostEditCredentials missing")
+//         } 
 
-        if(userId.toString()!==sellerId){
-            throw createHttpError(404,"User can't access this offer")
-        }
+//         if(userId.toString()!==sellerId){
+//             throw createHttpError(404,"User can't access this offer")
+//         }
 
-        const lolBoostOffer = await LolOfferModels.LolBoostModel.findById(_id).exec()
+//         const lolBoostOffer = await LolOfferModels.LolBoostModel.findById(_id).exec()
 
-        if(!lolBoostOffer){
-            throw createHttpError(404,"lolAccountOffer not found")
-        }
+//         if(!lolBoostOffer){
+//             throw createHttpError(404,"lolAccountOffer not found")
+//         }
 
-        lolBoostOffer.server= server
-        lolBoostOffer.desiredRank= desiredRank
-        lolBoostOffer.title= title
-        lolBoostOffer.description= description
-        lolBoostOffer.price= price
-        lolBoostOffer.currency= currency
-        lolBoostOffer.deliveryTime= deliveryTime
-        lolBoostOffer.stock= stock
-        lolBoostOffer.duration= duration
-        lolBoostOffer.serviceType= serviceType
+//         lolBoostOffer.server= server
+//         lolBoostOffer.desiredRank= desiredRank
+//         lolBoostOffer.title= title
+//         lolBoostOffer.description= description
+//         lolBoostOffer.price= price
+//         lolBoostOffer.currency= currency
+//         lolBoostOffer.deliveryTime= deliveryTime
+//         lolBoostOffer.stock= stock
+//         lolBoostOffer.duration= duration
+//         lolBoostOffer.serviceType= serviceType
 
         
-        const updatedLolBoostOffer = await lolBoostOffer.save();
+//         const updatedLolBoostOffer = await lolBoostOffer.save();
 
-        res.status(200).json(updatedLolBoostOffer);
+//         res.status(200).json(updatedLolBoostOffer);
 
-    } catch (error) {
-        next(error)
-    }
-}
+//     } catch (error) {
+//         next(error)
+//     }
+// }
 
 

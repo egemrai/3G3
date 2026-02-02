@@ -10,6 +10,8 @@ router.get('/ping',elasticSearchController.elasticSearchPingTest)
 
 router.post('/reindexLolRequest',elasticSearchController.reindexLolRequest)
 
+router.post('/elasticSearchDeleteOffer',elasticSearchController.elasticSearchDeleteOffer)
+
 router.get('/getElasticSearchOffersCount',elasticSearchController.getElasticSearchOffersCount)
 
 router.get('/getElasticSearchAllOffers',elasticSearchController.getElasticSearchAllOffers)

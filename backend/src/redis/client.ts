@@ -5,7 +5,7 @@ export const redisClient = createClient({
   url: env.REDIS_URL,
 })
 
-redisClient.on("connect", () => {
+redisClient.on("ready", () => {
   console.log("Redis connected");
 })
 

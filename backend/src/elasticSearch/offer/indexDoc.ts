@@ -1,4 +1,4 @@
-import { elasticSearchClient } from "./client"
+import { elasticSearchClient } from "../client"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function indexDoc(doc: any) {

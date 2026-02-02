@@ -1,4 +1,4 @@
-import { elasticSearchClient } from "./client"
+import { elasticSearchClient } from "../client"
 
 export async function ensureListingsIndex() {
   const index = "offers"
