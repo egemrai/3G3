@@ -22,7 +22,7 @@ router.get("/setWritingTo", userController.setWritingTo) //mesaj yazarken writin
 
 router.post("/signup/", userController.SignUp)
 
-router.post("/login/", userController.login)
+router.post("/login/", userController.loginRateLimit ,userController.login) // brute force ve şifre denemeyi engellemek için redis ile loginRateLimit ekledim
 
 router.post("/logout/", userController.logout)
 

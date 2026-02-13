@@ -6,14 +6,14 @@ async function fetchData(input: RequestInfo, init?: RequestInit) {
         return response
     }
     else{
-        try {
-            const errorBody= await response.json()
-            const errorMessage= errorBody.error
-            throw new Error(errorMessage)
-        } catch (error) {
-            throw new Error("failed to parse error")
+        let errorMessage = "Request failed"
+        try {  
+              const errorBody= await response.json()
+              errorMessage= errorBody.error || errorMessage 
+        } catch{
+            // ignore json parse error
         }
-        
+        throw new Error(errorMessage)
     } 
 }
 

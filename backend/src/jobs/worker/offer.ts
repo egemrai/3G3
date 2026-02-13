@@ -63,7 +63,7 @@ const worker = new Worker(
         
 
         indexDoc(offer)
-        console.log('başarılı ES indexing')
+        console.log('başarılı ES editing')
       }
 
       if(job.name === 'deleteOfferForES'){
@@ -87,7 +87,7 @@ const worker = new Worker(
     connection: bullRedisConnection,
     concurrency: 1,  //1 workerın aynı anda yapabilceği iş sayısı, IO yoğunluksa ve sistem sağlamsa arttır,
   }
-);
+)
 
 // 👇 BURAYA (dosyanın en altına)
 process.on('SIGINT', async () => {
@@ -97,7 +97,7 @@ process.on('SIGINT', async () => {
   await worker.close()
   process.exit(0)
   
-});
+})
 
 process.on('SIGTERM', async () => {
   console.log('Worker kapanıyor (SIGTERM)...')

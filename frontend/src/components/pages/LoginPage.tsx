@@ -41,7 +41,8 @@ const LoginPage= ({onLoginSuccess, onSignupSuccessfull}:LoginPageProps) => {
     
       const submitLogin = async (credentials:LoginCredentials) => {
         try {
-            await offers_api.login(credentials)
+            const test = await offers_api.login(credentials)
+            console.log('test:', test)
             onLoginSuccess()
             const redirectTo = location.state?.from || "/"
             navigate(redirectTo)

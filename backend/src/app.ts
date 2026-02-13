@@ -7,6 +7,7 @@ import categoryRoutes from "./routes/categoriesR"
 import createOfferRoutes from "./routes/createEditOffersR"
 import chatRoutes from "./routes/chatR"
 import elasticSearchRoutes from "./routes/elasticSearchR"
+import redisRoutes from "./routes/redisR"
 import createHttpError from "http-errors"
 import {isHttpError} from "http-errors"
 import session from "express-session"
@@ -66,6 +67,8 @@ app.use("/api/createOffer", createOfferRoutes)
 app.use("/api/chat", chatRoutes)
 
 app.use("/api/elasticSearch", elasticSearchRoutes)
+
+app.use("/api/redis", redisRoutes)
 
 
 app.use((req, res, next) => {

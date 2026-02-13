@@ -1,10 +1,11 @@
-import { RequestHandler } from "express";
-import createHttpError from "http-errors";
-import UserModel from "../models/user";
+import { RequestHandler } from "express"
+import createHttpError from "http-errors"
+import UserModel from "../models/user"
 import bcrypt from "bcrypt"
-import { io } from "../server";
-import { userSocketMap } from "../server";
-import validateEnv from "../utils/validateEnv";
+import { io } from "../server"
+import { userSocketMap } from "../server"
+import { redisClient as redis}  from "../redis/client"
+
 
 export const GetloggedInUser: RequestHandler = async (req, res, next) => {
     const userId= req.session.userId
@@ -95,12 +96,8 @@ export const login:RequestHandler<unknown, unknown, loginBody, unknown>= async(r
         }
         
         req.session.userId= user._id
-        console.log("req.sessionFromLogin:", req.session)
-        console.log("Session ID userC:", req.sessionID)
-        console.log("validateEnv:", validateEnv.FRONTEND_SITE_URL ?? 'undefined')
-        console.log("validateEnv:", validateEnv.FRONTEND_SITE_URL ?? 'undefined')
-        console.log("validateEnv:", validateEnv.FRONTEND_SITE_URL ?? 'undefined')
-        console.log("validateEnv:", validateEnv.FRONTEND_SITE_URL ?? 'undefined')
+        
+        
         req.session.save()
         res.status(200).json(user)
 
@@ -108,6 +105,52 @@ export const login:RequestHandler<unknown, unknown, loginBody, unknown>= async(r
         next(error)
     }
 }
+
+//redis login-try limit kısmı
+export const loginRateLimit:RequestHandler  = async (req, res, next) => {
+    try {
+        const attemptKey = `login:${req.ip}`
+        const banKey = `login:ban:${req.ip}`
+
+        const attempts = await redis.incr(attemptKey)
+        
+        const banExists = await redis.get(banKey)
+
+        // const time = 10
+        const ttl = await redis.ttl(attemptKey)
+
+        if (attempts === 1) {
+            await redis.expire(attemptKey, 1000)
+        }
+
+        if (attempts > 3) {   //  ilk denemeden sonra 100 saniye içinde 3 hak, 100 saniye sonra 1 deneme hakkı daha, son hak için 900 saniye süre
+            console.log('tll:',ttl)
+            if(ttl>=900){
+                res.status(429).json({
+                    error: "Too many login attempts"
+                })
+            }
+            if(ttl<900 && !banExists){
+                await redis.set(banKey, "1", { EX: 900 }) // 1 saat radar
+                next()
+            }
+
+            if (banExists) {
+                res.status(429).json({
+                error: "Too many login attempts ++"
+                })
+            }
+            
+            return
+        }
+
+        next()
+    } catch (error) {
+        next(error)
+    }
+  
+}
+
 
 export const logout: RequestHandler = (req, res, next) => {
     req.session.destroy( error => {
