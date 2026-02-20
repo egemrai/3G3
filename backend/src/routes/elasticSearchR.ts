@@ -8,7 +8,7 @@ const router =  express.Router()
 
 router.get('/ping',elasticSearchController.elasticSearchPingTest)
 
-router.post('/reindexLolRequest',elasticSearchController.reindexLolRequest)
+router.post('/bulkIndexOffers',elasticSearchController.bulkIndexOffers)
 
 router.post('/elasticSearchDeleteOffer',elasticSearchController.elasticSearchDeleteOffer)
 

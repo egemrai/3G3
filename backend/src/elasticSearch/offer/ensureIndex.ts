@@ -2,7 +2,7 @@ import { elasticSearchClient } from "../client"
 
 export async function ensureListingsIndex() {
   const index = "offers"
-  console.log('ensureListingsIndexe girdi')
+  console.log('ensureListIndexe girdi')
   const exists = await elasticSearchClient.indices.exists({ index }) // indices --> Elasticsearch’te index’leri oluşturan, silen ve kontrol eden yönetim API'ı sanırım
   if (exists) return
 

@@ -5,7 +5,7 @@ import { bullRedisConnection } from '../../redis/bullmq'
 import offerModelMap from "../../utils/offerModelMap"
 import mongoose from "mongoose";
 import env from '../../utils/validateEnv'
-import { indexDoc } from "../../elasticSearch/offer/indexDoc";
+import {  indexJustOneOffer } from "../../elasticSearch/offer/indexDoc";
 import '../../models'
 import { elasticSearchClient } from "../../elasticSearch/client";
 
@@ -43,7 +43,7 @@ const worker = new Worker(
         // const offerExec = await selectedModel.findById(job.data.offerId).exec()
         
 
-        indexDoc(offer)
+        indexJustOneOffer(offer)
         console.log('başarılı ES indexing')
 
       } 
@@ -62,7 +62,7 @@ const worker = new Worker(
         // const offerExec = await selectedModel.findById(job.data.offerId).exec()
         
 
-        indexDoc(offer)
+        indexJustOneOffer(offer)
         console.log('başarılı ES editing')
       }
 

@@ -16,7 +16,7 @@ const Service= ({service}:ServiceProps) => {
 
 return(
 <>
-<Card className={`${style.card}`} as={Link} to={"/category/"+ categoryName +"/"+ serviceName+ "/?page=1"} //page=1 ekledim next previous offer için, olmazsa düzelt
+<Card className={`${style.card}`} as={Link} to={"/category/"+ categoryName +"/"+ serviceName}
 >
     <Card.Body >
         <Card.Title >

@@ -12,6 +12,7 @@ import { AppDispatch, RootState } from "../../store/store"
 import { editFilter, FilterSliceAction } from "../../store/features/filter/filterSlice"
 import { editSort, SortSliceAction } from "../../store/features/sort/sortSlice"
 import Pagination from "../Pagination"
+import { editPage, PageSliceAction } from "../../store/features/page/pageSlice"
 
 export interface getOffersReturnType{
             offers:any[]
@@ -32,20 +33,25 @@ const OffersPage= () => {
     const pageURL = searchParams.get("page")
     const filterURL = searchParams.get("filter")
     const sortURL = searchParams.get("sort")
-    console.log(Object.fromEntries(searchParams.entries()))
+    // console.log(Object.fromEntries(searchParams.entries()))
 
     let serviceCategoryName =''
     if(URLParams.category && URLParams.service)
      serviceCategoryName = URLParams.category!.concat(URLParams.service!)
 
     //PAGINATION AYARLAMA KISMI
-    const [currentPage, setCurrentPage] = useState<number>(Number(pageURL) ?? 1)
-    const [lastPage, setlastpage] = useState<number>(7)
+    const safePage = Math.max(1,
+        Math.floor(Number(pageURL)) || 1
+    )
+    
+    const [currentPage, setCurrentPage] = useState<number>(safePage)
+    const [lastPage, setlastpage] = useState<number>(2)
 
     //FILTER İLE SEARCH YAPMA KISMI
     const allReduxStore = useSelector((state:any)=> state)
     const filterRedux = useSelector((state: RootState) => state.filter.filter) // state.filter slice'ın adı, filter: {LolAccount:{...}, LolBoost:{...},...} döndürüyor, o yüzden tekrar filter yazdım --> direkt filter objectinin içini almak için
-    const sortRedux = useSelector((state: RootState) => state.sort.sort) 
+    const sortRedux = useSelector((state: RootState) => state.sort.sort)
+    const pageRedux = useSelector((state: RootState) => state.page.page)
     const dispatch = useDispatch<AppDispatch>()
     const [filter, setFilter] = useState<string>('')
     const [sort, setSort] = useState<string>('')
@@ -72,12 +78,36 @@ const OffersPage= () => {
             searchParams.set('sort', sort)
             setSort(sort)
         }
+        else{ // URL ve redux'ta sort yoksa dafault lowest price yapıyorum (İLERDE LOWEST PRICE YERİNE RECOMMENDED EKLE)
+            const sort = 'Lowest price' // düz string zaten, stringify gerek yok
+            searchParams.set('sort', sort)
+            setSort(sort)
+        }
+        if(pageURL ){ 
+            const pageNameAndData:PageSliceAction = { pageName: serviceCategoryName,pageData: currentPage}
+            dispatch(editPage(pageNameAndData))
+            searchParams.set('page', currentPage.toString())
+            console.log('pageURL - pageNameAndData:', pageNameAndData)
+        }
+        else if(pageRedux[serviceCategoryName]){ 
+            const page = pageRedux[serviceCategoryName]
+            searchParams.set('page', page.toString())
+            setCurrentPage(Number(page))
+            console.log('pageRedux - page:', page)
+        }
+
+        // sayfa ilk açıldığında currentPage set yapıyoruz
+        // if(pageURL){
+        //     setCurrentPage(Math.trunc(Number(pageURL))) //önce Number ile paramdaki page stringini çevirdik, sonra Math.trunc ile ondalık kısmı attık
+        // }
 
         //filter sort halledildiğinde navigate çalışıyor
         navigate({
                 pathname: location.pathname,        // console.log(location.pathname)       =   /category/Lol/Account/
                 search: searchParams.toString(),    // console.log(searchParams.toString()) =   page=1&filter=%257B%2522searchInput%2522%253A%2522%2522%252C%2522Server%2522%253A%255B%2522LAN%2522%255D%252C%2522Champions%2522%253A%2522130%252B%2522%257D
-            })
+            },
+            { replace: true }
+        )
 
         setGetOffersLock(true) //true olunca getOffers çalışıyor
     }
@@ -87,8 +117,8 @@ const OffersPage= () => {
         //filter stringify edildi, sort zaten string olduğu için gerek yok
         const stringifiedFilter = JSON.stringify(filter_)
 
-        console.log('stringifiedFilter:', stringifiedFilter) // {"searchInput":"ege","Server":["EUW","NA"],"Rank":null,"Skins":null,"minPrice":"","maxPrice":"","İkinciEl":false}
-        console.log('sort:', sort_) // Highest price
+        // console.log('stringifiedFilter:', stringifiedFilter) // {"searchInput":"ege","Server":["EUW","NA"],"Rank":null,"Skins":null,"minPrice":"","maxPrice":"","İkinciEl":false}
+        // console.log('sort:', sort_) // Highest price
 
         searchParams.set('sort', sort_) 
         searchParams.set('filter',stringifiedFilter)
@@ -104,15 +134,12 @@ const OffersPage= () => {
         navigate({
             pathname: location.pathname,        // console.log(location.pathname)       =   /category/Lol/Account/
             search: searchParams.toString(),    // console.log(searchParams.toString()) =   page=1&filter=%257B%2522searchInput%2522%253A%2522%2522%252C%2522Server%2522%253A%255B%2522LAN%2522%255D%252C%2522Champions%2522%253A%2522130%252B%2522%257D
-        })
+        },
+        { replace: true })
 
-        // sayfa ilk açıldığında currentPage set yapıyoruz
-        if(pageURL){
-            setCurrentPage(Math.trunc(Number(pageURL))) //önce Number ile paramdaki page stringini çevirdik, sonra Math.trunc ile ondalık kısmı attık
-        }
 
         getOffers(stringifiedFilter,sort_)  //en sonda offerları çekiyorum, filter ve sort eklenince
-        console.log('all redux store datası:', allReduxStore)
+        
         console.log('all redux store datası:', allReduxStore)
     }
 
@@ -123,7 +150,7 @@ const OffersPage= () => {
     let fetchedOffers:getOffersReturnType
     const getOffers= async(filter:string,sort:string) => {
         //getOffers backend returnu alttaki şekilde
-        // {offers:editedResult,totalOfferCount: result.hits.total}
+        // {offers:editedResult,totalOfferCount: result.hits.total,limit: 4(ES fonksiyonda 4 yazdım, ordan değiştiriliyor)}
         
         try {
             if(!URLParams.category || !URLParams.service){
@@ -140,10 +167,10 @@ const OffersPage= () => {
             
             setOffers(offers)
             setlastpage(Math.ceil(totalOfferCount/limit))
-            if(currentPage<1){    //url page 1den küçükse 1 yapıyor
-                setCurrentPage(1)
-            }
-            else if(Math.ceil(totalOfferCount/limit) < currentPage){ 
+            // if(currentPage<1){    //url page 1den küçükse 1 yapıyor
+            //     setCurrentPage(1)
+            // }
+            if(Math.ceil(totalOfferCount/limit) < currentPage){ 
                 setCurrentPage(Math.ceil(totalOfferCount/limit) < 1
                               ? 1                                //ürün olmazsa page'i 1 yapıyor
                               : Math.ceil(totalOfferCount/limit))//total sayfa 4 olup, url page 4ten büyük olursa offerlar ve pagination kısmı görünmüyor; yani current totalden büyük olunca, current'ı totale eşitliyor
@@ -183,7 +210,8 @@ const OffersPage= () => {
            searchParams.set('page',currentPage.toString())
             navigate({
                 pathname: location.pathname,
-                search: searchParams.toString()})
+                search: searchParams.toString()}, { replace: true }
+                )
             
             getOffers(filter,sort)
         }
@@ -210,7 +238,9 @@ const OffersPage= () => {
                 <Pagination
                 currentPage={currentPage}
                 lastPage={lastPage}
-                setCurrentPage={setCurrentPage}/>
+                setCurrentPage={setCurrentPage}
+                usingRedux={true}
+                serviceCategoryName={serviceCategoryName}/>
 
                 </>
                 : 

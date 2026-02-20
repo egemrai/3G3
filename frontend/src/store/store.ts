@@ -3,12 +3,14 @@ import { configureStore } from "@reduxjs/toolkit"
 import counterReducer from "./features/counter/counterSlice"
 import filterReducer from "./features/filter/filterSlice"
 import sortReducer from "./features/sort/sortSlice"
+import pageReducer from "./features/page/pageSlice"
 
 export const store = configureStore({
   reducer: {
     counter: counterReducer,
     filter: filterReducer,
-    sort: sortReducer
+    sort: sortReducer,
+    page: pageReducer
   },
 })
 

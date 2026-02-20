@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RequestHandler } from "express"
 import { elasticSearchClient } from "../elasticSearch/client";
-import { reindexLolToES } from "../elasticSearch/offer/reindexLolToES";
+// import { reindexLolToES } from "../elasticSearch/offer/reindexLolToES";
 import createHttpError from "http-errors";
 import logger from "../logger";
+import { indexOffers } from "../elasticSearch/offer/indexDoc";
+import { redisClient } from "../redis/client";
 
 export const isObject = (value:any) => {  
         return (
@@ -55,10 +57,10 @@ export const elasticSearchPingTest:RequestHandler = async(req,res,next)=>{
 
 }
 
-export const reindexLolRequest:RequestHandler = async(req,res,next) =>{
+export const bulkIndexOffers:RequestHandler = async(req,res,next) =>{
     console.log("reindexLolRequeste girdi")
     try {
-        const result = await reindexLolToES()
+        const result = await indexOffers()
         res.json(result)
     } catch (error) {
         next(error)
@@ -113,9 +115,29 @@ export const getOffersViaElasticSearch:RequestHandler<unknown,unknown,unknown,ge
     const sort = req.query.sort
     const serviceName= req.query.serviceName
     const username= req.query.username
-    let page= req.query.page || 1
-    if(page <1) page = 1
+    const page=   Math.max(
+        1,
+        Math.floor(Number(req.query.page)) || 1)  
+    
     const limit = 4
+
+    if(!serviceName)
+        throw createHttpError(400, 'getOffersViaElasticSearch missing serviceName')
+
+    //CACHE KISMI
+    const key = `offers:${serviceName}:${sort}`
+    // && sort === 'Lowest price' alttaki if'e sort da eklenebilir sadece popüler sortları kullanmak için
+    if(Object.keys(parsedFilter).length === 0  && page === 1){
+        const cached = await redisClient.get(key)
+        logger.info({cached},'cached get')
+
+        if(cached){
+            logger.info('res redisten geldi')
+            res.status(200).json(JSON.parse(cached))
+            return 
+        }
+        
+    }
     
    
     const body = {
@@ -242,20 +264,44 @@ export const getOffersViaElasticSearch:RequestHandler<unknown,unknown,unknown,ge
             totalOfferCount = result.hits.total?.value ?? 0
         }
 
+        //redis set
+        if(Object.keys(parsedFilter).length === 0 && page === 1){
+            
+            const cached = await redisClient.set(key, JSON.stringify({
+                offers: editedResult,
+                totalOfferCount: totalOfferCount,
+                limit: limit }),
+                {
+                expiration: {
+                    type: "EX",
+                    value: 60
+                }}
+            )
+
+            logger.info({cached},'cached set')
+
+        }
+
+        // logger.info({
+        //     offers: editedResult,
+        //     totalOfferCount: totalOfferCount,
+        //     limit: limit },'res')
+
         res.status(200).json({
             offers: editedResult,
             totalOfferCount: totalOfferCount,
             limit: limit })
 
 
-        
-            
-        logger.info({q},'searchInput:')
-        logger.info({restOfFilter},'filter:')
-        logger.debug({sort},'sort:')
-        logger.debug({bodysort :body.sort},'body.sort:')
-        logger.trace({ serviceName }, "serviceName")
-        logger.trace({ username }, "username")
+        // logger.info({editedResult},'editedResult:')
+        // logger.info({parsedFilter},'parsedFilter:')
+        // logger.info({q},'searchInput:')
+        // logger.info({restOfFilter},'filter:')
+        // logger.debug({sort},'sort:')
+        // logger.debug({bodysort :body.sort},'body.sort:')
+        // logger.debug({ serviceName }, "serviceName")
+        // logger.debug({ page }, "page")
+        // logger.trace({ username }, "username")
 
         
     } catch (error) {

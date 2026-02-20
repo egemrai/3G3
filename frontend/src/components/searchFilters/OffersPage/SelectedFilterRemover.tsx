@@ -75,7 +75,13 @@ const SelectedFilterRemover = ({setValue,getValues,control,reset,filterData}:Sel
         else if(Array.isArray(arrayValues)){
             if(arrayValues.length>0){
                 const filteredArray = arrayValues.filter(value=> value !== filterValue)
-                setValue(filterName,filteredArray)
+                console.log('filteredArray:',filteredArray)
+                if(filteredArray.length ===0){
+                    setValue(filterName,undefined) //  restOfFilter: {"serviceType": []}  --> backende böyle boş filter göndermesini engellemek için undefined kullandım
+                }
+                else{
+                    setValue(filterName,filteredArray)
+                }  
             }
         }
         else if(isRangeFilter(filterValue)){
@@ -126,8 +132,14 @@ const SelectedFilterRemover = ({setValue,getValues,control,reset,filterData}:Sel
                 </div>
         }
         else{
+            let e = 0
+            for(let i=0;i<filterData[filterName].value.length;i++){ //label bulmak için filterDatadan filterValue'nin  aynı sırada olduğu değeri bulup, e ye eşitliyorum
+                if(filterData[filterName].value[i] === filterValue){
+                    e = i
+                }
+            }
             return <div key={i} className={`${style.removerDiv}`}>
-                {`${filterValue}`}
+                {`${filterData[filterName].label[e]}` || 'error'}
                     <button className={`${style.removerButton}`} onClick={()=>removeSelectedFilter(filterName,filterValue)}>
                         
                        X
