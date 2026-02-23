@@ -8,8 +8,10 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
-    ports:
-      - "9200:9200"
+    # ports:
+    #   - "9200:9200"
+    expose: #ES'nin dış ile bağlantısı yok, o yüzden espose yaptım; expose olmasa da olur sanırım, yine de yazdım
+      - "9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
     healthcheck:
