@@ -17,6 +17,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 20
+    restart: always
     
 
   filebeat:
@@ -30,6 +31,7 @@ services:
       - ./backend/logs:/var/log/backend
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
     command: ["--strict.perms=false"]
+    restart: unless-stopped
   
 
   backend:
@@ -40,6 +42,7 @@ services:
       - "5000"        # container içi
     volumes:
       - ./backend/logs:/var/log/backend
+    restart: always
 
   frontend:
     build: 
@@ -52,8 +55,29 @@ services:
       - "80"
     depends_on:
       - backend
+    restart: always
     # networks:
     #   - webnet
+
+  redis:
+    image: redis:7
+    container_name: 3g3-redis
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "egemuwu"]
+    volumes:
+      - redisdata:/data
+    expose:
+      - "6379"
+    restart: unless-stopped
+
+  offer-worker:
+    build: ./backend
+    container_name: 3g3-offer-worker
+    command: node dist/jobs/worker/offer.js
+    env_file: ./backend/.env.prod
+    depends_on:
+      - redis
+      - elasticsearch
+    restart: unless-stopped
 
   nginx:
     image: nginx:latest
@@ -68,7 +92,8 @@ services:
       - ./infra/conf.d:/etc/nginx/conf.d:ro
       - ./infra/certs:/etc/nginx/certs
       - /var/www/certbot:/var/www/certbot
+    restart: always
 
 volumes:
   esdata:
-
+  redisdata:
