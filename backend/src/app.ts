@@ -16,6 +16,7 @@ import env from "./utils/validateEnv"  // normalde env diye bir şey yok, valida
 import cors from "cors"
 // import { httpLogger } from "./middleWare/httpLogger"
 import genReqId from "./middleWare/genReqId"
+import rateLimitDefault from "./middleWare/rateLimitDefault"
 
 
 
@@ -33,6 +34,7 @@ app.use(morgan("dev"))
 app.use(express.json()) // req.body parse etmek için gerekli
 app.use(genReqId)
 // app.use(httpLogger)
+app.use(rateLimitDefault)
 
 //export için session'ı ekstra yazdım ve app.use() içine Session olarak ekledim
 export const Session = session({ 
